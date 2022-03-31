@@ -3,5 +3,6 @@ project (konro)
 
 add_subdirectory (applib)
 add_subdirectory (common)
+add_subdirectory (lib)
 add_subdirectory (rm)
 
