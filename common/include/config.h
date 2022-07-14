@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <map>
+#include <string>
 
 namespace konro {
 
