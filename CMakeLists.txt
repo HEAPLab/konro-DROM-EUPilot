@@ -5,4 +5,5 @@ add_subdirectory (applib)
 add_subdirectory (common)
 add_subdirectory (lib)
 add_subdirectory (rm)
-
+add_subdirectory (platformcontrol)
+add_subdirectory (testplatformcontrol)

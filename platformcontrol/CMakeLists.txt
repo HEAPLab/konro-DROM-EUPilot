@@ -1,0 +1,5 @@
+set(CMAKE_CXX_STANDARD 14)
+file(GLOB platformcontrol_SOURCES "*.cpp")
+file(GLOB platformcontrol_HEADERS "*.h")
+add_library(platformcontrol ${platformcontrol_SOURCES} ${platformcontrol_HEADERS})
+target_include_directories(platformcontrol INTERFACE .)
