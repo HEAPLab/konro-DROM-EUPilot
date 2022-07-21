@@ -44,8 +44,9 @@ std::string getValue(EcGroup::ECGROUP controller, std::string cgroupPath);
  * \brief Creates a new cgroup
  * \param cgroupPath the parent directory to the new cgroup
  * \param name the name of the cgroup to create
+ * \returns the path of the new cgroup
  */
-void createCgroup(std::string cgroupPath, std::string name);
+std::string createCgroup(std::string cgroupPath, std::string name);
 
 /*!
  * \brief Adds a process to the specified cgroup directory

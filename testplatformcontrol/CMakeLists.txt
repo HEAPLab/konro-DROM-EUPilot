@@ -17,6 +17,7 @@ endmacro(add_unit_test)
 
 add_unit_test(test_split)
 add_unit_test(test_findcgrouppath)
+add_unit_test(test_createcgroup)
 
 
 

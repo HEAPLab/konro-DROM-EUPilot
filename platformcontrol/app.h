@@ -19,9 +19,19 @@ class App {
 public:
     App(pid_t pid, AppType appType) : pid_(pid), appType_(appType) {}
     ~App() = default;
+
+    /*!
+     * \brief Gets the pid of the application
+     * \returns the pid of the application
+     */
     pid_t getPid() const {
         return pid_;
     }
+
+    /*!
+     * \brief Gets the type of the application
+     * \returns the type of the application
+     */
     AppType getAppType() const {
         return appType_;
     }

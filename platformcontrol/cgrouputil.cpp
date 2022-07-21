@@ -1,8 +1,11 @@
 #include "cgrouputil.h"
 #include "tsplit.h"
+#include "makepath.h"
+#include "pcexception.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 #include <sys/stat.h>
 
 using namespace std;
@@ -10,20 +13,29 @@ using namespace std;
 namespace pc {
 namespace util {
 
+/*!
+ * \brief Throws a PcException
+ */
+static void throwCouldNotOpenFile(string funcName,string fileName)
+{
+    ostringstream os;
+    os << funcName << ": could not open file " << fileName << ": " << strerror(errno);
+    throw PcException(os.str());
+}
+
 string findCgroupPath(pid_t pid)
 {
     ostringstream os;
     os << "/proc/" << pid << "/cgroup";
     ifstream in(os.str());
-    if (in.is_open()) {
-        string cgroupBaseDir = "/sys/fs/cgroup";
-        string cgroupPath;
-        in >> cgroupPath;       // for example: "0::/init.scope"
-        vector<string> parts = split::tsplit(cgroupPath, ":");
-        if (parts.size() == 3)
-            return cgroupBaseDir + parts[2];
+    if (!in.is_open()) {
+        throwCouldNotOpenFile(__func__, os.str());
     }
-    return "";
+    string cgroupBaseDir = "/sys/fs/cgroup";
+    string cgroupPath;
+    in >> cgroupPath;       // for example: "0::/init.scope"
+    vector<string> parts = split::tsplit(cgroupPath, ":");
+    return cgroupBaseDir + parts[2];
 }
 
 /*
@@ -43,45 +55,61 @@ void activateController(EcGroup::ECGROUP controller, string cgroupPath)
     // [3] : "cgroup"
     // [4] : "init.scope"
     vector<string> subPath = split::tsplit(cgroupPath, "/");
-    if (subPath.size() < 4)
-        return;
-    string currentFolder = "/" + subPath[1] + "/" + subPath[2];
+    string currentFolder = make_path("/" + subPath[1], subPath[2]);
     string controllerName = EcGroup::getControllerName(controller);
     for (int i = 3; i < subPath.size()-1; ++i) {
         currentFolder += "/" + subPath[i];
-        string currentFile = currentFolder + "/" + "cgroup.subtree_control";
+        string currentFile = make_path(currentFolder, "cgroup.subtree_control");
         ofstream fileStream(currentFile.c_str());
+        if (!fileStream.is_open()) {
+            throwCouldNotOpenFile(__func__, currentFile);
+        }
         fileStream << controllerName;
         fileStream.close();
     }
 }
 
 void writeValue(EcGroup::ECGROUP controller, int value, std::string cgroupPath) {
-    string filePath = cgroupPath + "/" + EcGroup::getFileName(controller);
-}
-
-std::string getValue(EcGroup::ECGROUP controller, std::string cgroupPath) {
-    string filePath = cgroupPath + "/" + EcGroup::getFileName(controller);
-    ostringstream os;
-    os << filePath;
-    ifstream in(os.str());
-    if (in.is_open()) {
-        string content;
-        in >> content;
-        return content;
+    string filePath = make_path(cgroupPath, EcGroup::getFileName(controller));
+    ofstream fileStream(filePath.c_str());
+    if (!fileStream.is_open()) {
+        throwCouldNotOpenFile(__func__, filePath);
     }
-    return "";
+    fileStream << value;
+    fileStream.close();
 }
 
-void createCgroup(std::string cgroupPath, std::string name) {
-    int rc = mkdir(cgroupPath.c_str(), S_IRWXU|S_IRWXU|S_IRWXG|S_IRWXG);
+string getValue(EcGroup::ECGROUP controller, std::string cgroupPath) {
+    string filePath = make_path(cgroupPath, EcGroup::getFileName(controller));
+    ifstream in(filePath.c_str());
+    if (!in.is_open()) {
+        throwCouldNotOpenFile(__func__, filePath);
+    }
+    string content;
+    in >> content;
+    return content;;
+}
+
+string createCgroup(string cgroupPath, string name)
+{
+    string newPath = make_path(cgroupPath, name);
+    int rc = mkdir(newPath.c_str(), S_IRWXU|S_IRWXU|S_IRWXG|S_IRWXG);
     if (rc != 0 && errno != EEXIST) {
-        perror(cgroupPath.c_str());
+        ostringstream os;
+        os << "createCgroup: could not create directory " << newPath
+           << ": " << strerror(errno);
+        throw PcException(os.str());
     }
+    return newPath;
 }
 
-void addToCgroup(std::string cgroupPath, pid_t pid) {
-    ofstream fileStream(cgroupPath.c_str());
+void addToCgroup(string cgroupPath, pid_t pid)
+{
+    string filePath = make_path(cgroupPath, "cgroup.procs");
+    ofstream fileStream(filePath.c_str());
+    if (!fileStream.is_open()) {
+        throwCouldNotOpenFile("addToCgroup", filePath);
+    }
     fileStream << pid;
     fileStream.close();
 }

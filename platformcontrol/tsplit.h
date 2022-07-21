@@ -20,9 +20,9 @@ namespace detail {
 
     /*!
      * \brief Split a string at boundaries defined by seps[]
-     * \param line The string to split
-     * \param seps List of separators (eg. seps = " \t")
-     * \return Vector of substrings
+     * \param line the string to split
+     * \param seps the list of separators (eg. seps = " \t")
+     * \returns the vector of substrings
      */
     template<typename charT>
     std::vector<std::basic_string<charT> > tsplit(const std::basic_string<charT> &line, const charT *seps)
@@ -43,11 +43,11 @@ namespace detail {
 
     /*!
      * \brief Split a string in pieces of 'size' size
-     * \param line The line to split
-     * \param size The requested size of the parts
+     * \param line the line to split
+     * \param size the requested size of the parts
      * \note The last string could be smaller than size if the length of
      * line is not a multiple of 'size'
-     * \return Vector of substrings
+     * \returns the vector of substrings
      */
     template<typename charT>
     std::vector<std::basic_string<charT> > tsplit(const std::basic_string<charT> &line, int size)
@@ -64,9 +64,9 @@ namespace detail {
 
     /*!
      * \brief Pad string with spaces up to 'len' length
-     * \param s The string to pad
-     * \param len The padding length
-     * \note The string is modified "in place"
+     * \param s the string to pad
+     * \param len the padding length
+     * \note the string is modified "in place"
      */
     template <typename charT>
     void pad(std::basic_string<charT> &s, int len)
