@@ -39,7 +39,7 @@ string findCgroupPath(pid_t pid)
 }
 
 
-void activateController(const std::string &controllerName, std::string cgroupPath)
+void activateController(const std::string &controllerName, const string &cgroupPath)
 {
     // cgroupPath example: "/sys/fs/cgroup/init.scope"
     // After split:

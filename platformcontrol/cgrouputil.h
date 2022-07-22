@@ -17,7 +17,7 @@ namespace util {
 std::string findCgroupPath(pid_t pid);
 
 
-void activateController(const std::string &controllerName, std::string cgroupPath);
+void activateController(const std::string &controllerName, const std::string &cgroupPath);
 
 /*!
  * \brief Enables control of a specified resource type for the processes
