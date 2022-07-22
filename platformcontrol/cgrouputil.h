@@ -16,6 +16,9 @@ namespace util {
  */
 std::string findCgroupPath(pid_t pid);
 
+
+void activateController(const std::string &controllerName, std::string cgroupPath);
+
 /*!
  * \brief Enables control of a specified resource type for the processes
  *        inside the target directory
@@ -23,6 +26,8 @@ std::string findCgroupPath(pid_t pid);
  * \param cgroupPath the target directory
  */
 void activateController(EcGroup::ECGROUP controller, std::string cgroupPath);
+
+void writeValue(const std::string &fileName, int value, std::string cgroupPath);
 
 /*!
  * \brief Writes a value in the specified cgroup interface file

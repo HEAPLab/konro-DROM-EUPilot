@@ -38,14 +38,8 @@ string findCgroupPath(pid_t pid)
     return cgroupBaseDir + parts[2];
 }
 
-/*
- * Controllers must always be enabled top down starting from the root of the hierarchy.
- * Enabling a controller in a cgroup indicates that the distribution of the target
- * resource across its immediate children will be controlled. Hence, to activate
- * control and spawn the desired controller-interface files in the target
- * directory, we must enable the controller of interest up to its parent folder.
- */
-void activateController(EcGroup::ECGROUP controller, string cgroupPath)
+
+void activateController(const std::string &controllerName, std::string cgroupPath)
 {
     // cgroupPath example: "/sys/fs/cgroup/init.scope"
     // After split:
@@ -56,7 +50,6 @@ void activateController(EcGroup::ECGROUP controller, string cgroupPath)
     // [4] : "init.scope"
     vector<string> subPath = split::tsplit(cgroupPath, "/");
     string currentFolder = make_path("/" + subPath[1], subPath[2]);
-    string controllerName = EcGroup::getControllerName(controller);
     for (int i = 3; i < subPath.size()-1; ++i) {
         currentFolder += "/" + subPath[i];
         string currentFile = make_path(currentFolder, "cgroup.subtree_control");
@@ -69,14 +62,31 @@ void activateController(EcGroup::ECGROUP controller, string cgroupPath)
     }
 }
 
-void writeValue(EcGroup::ECGROUP controller, int value, std::string cgroupPath) {
-    string filePath = make_path(cgroupPath, EcGroup::getFileName(controller));
+/*
+ * Controllers must always be enabled top down starting from the root of the hierarchy.
+ * Enabling a controller in a cgroup indicates that the distribution of the target
+ * resource across its immediate children will be controlled. Hence, to activate
+ * control and spawn the desired controller-interface files in the target
+ * directory, we must enable the controller of interest up to its parent folder.
+ */
+void activateController(EcGroup::ECGROUP controller, string cgroupPath)
+{
+    activateController(EcGroup::getControllerName(controller), cgroupPath);
+}
+
+void writeValue(const std::string &fileName, int value, std::string cgroupPath)
+{
+    string filePath = make_path(cgroupPath,fileName);
     ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
     }
     fileStream << value;
     fileStream.close();
+}
+
+void writeValue(EcGroup::ECGROUP controller, int value, std::string cgroupPath) {
+    writeValue(EcGroup::getFileName(controller), value, cgroupPath);
 }
 
 string getValue(EcGroup::ECGROUP controller, std::string cgroupPath) {
