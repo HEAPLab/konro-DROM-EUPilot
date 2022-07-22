@@ -74,7 +74,7 @@ void activateController(EcGroup::ECGROUP controller, string cgroupPath)
     activateController(EcGroup::getControllerName(controller), cgroupPath);
 }
 
-void writeValue(const std::string &fileName, int value, std::string cgroupPath)
+void writeValue(const std::string &fileName, const string &value, std::string cgroupPath)
 {
     string filePath = make_path(cgroupPath,fileName);
     ofstream fileStream(filePath.c_str());
@@ -85,7 +85,7 @@ void writeValue(const std::string &fileName, int value, std::string cgroupPath)
     fileStream.close();
 }
 
-void writeValue(EcGroup::ECGROUP controller, int value, std::string cgroupPath) {
+void writeValue(EcGroup::ECGROUP controller, const string &value, std::string cgroupPath) {
     writeValue(EcGroup::getFileName(controller), value, cgroupPath);
 }
 

@@ -15,8 +15,13 @@ CGroupControl::CGroupControl()
 
 }
 
+CGroupControl::~CGroupControl()
+{
 
-void CGroupControl::setValue(EcGroup::ECGROUP controller, int value, App app)
+}
+
+
+void CGroupControl::setValue(EcGroup::ECGROUP controller, const string &value, App app)
 {
     // 1 - FIND CGROUP PATH
     string cgroupPath = util::findCgroupPath(app.getPid());
@@ -28,6 +33,23 @@ void CGroupControl::setValue(EcGroup::ECGROUP controller, int value, App app)
 
     // 3 - WRITE VALUE IN CORRECT CGROUP
     util::writeValue(controller, value, cgroupPath);
+}
+
+void CGroupControl::setValue(const std::string &controllerName,
+                             const std::string &fileName,
+                             const std::string &value, App app)
+{
+    // 1 - FIND CGROUP PATH
+    string cgroupPath = util::findCgroupPath(app.getPid());
+    if (cgroupPath.empty())
+        return;
+
+    // 2 - ACTIVATE CONTROLLER
+    util::activateController(controllerName, cgroupPath);
+
+    // 3 - WRITE VALUE IN CORRECT CGROUP
+    util::writeValue(fileName, value, cgroupPath);
+
 }
 
 }

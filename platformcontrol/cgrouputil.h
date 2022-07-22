@@ -27,7 +27,7 @@ void activateController(const std::string &controllerName, const std::string &cg
  */
 void activateController(EcGroup::ECGROUP controller, std::string cgroupPath);
 
-void writeValue(const std::string &fileName, int value, std::string cgroupPath);
+void writeValue(const std::string &fileName, const std::string &value, std::string cgroupPath);
 
 /*!
  * \brief Writes a value in the specified cgroup interface file
@@ -35,7 +35,7 @@ void writeValue(const std::string &fileName, int value, std::string cgroupPath);
  * \param value the value to write
  * \param cgroupPath the target directory
  */
-void writeValue(EcGroup::ECGROUP controller, int value, std::string cgroupPath);
+void writeValue(EcGroup::ECGROUP controller, const std::string &value, std::string cgroupPath);
 
 /*!
  * \brief Gets the content of a specified cgroup interface file

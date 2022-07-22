@@ -17,6 +17,7 @@ class CGroupControl : public IPlatformControl {
 
 public:
     CGroupControl();
+    virtual ~CGroupControl();
 
     /*!
      * \brief Enforces a resource constraint on the specified application.
@@ -30,7 +31,9 @@ public:
      * \param value the value to write
      * \param app the application to limit
      */
-    void setValue(EcGroup::ECGROUP controller, int value, App app);
+    void setValue(EcGroup::ECGROUP controller, const std::string &value, App app);
+
+    void setValue(const std::string &controllerName, const std::string &fileName, const std::string &value, App app);
 
     /*!
      * \brief Returns the current limit applied to an application for a specific resource.
