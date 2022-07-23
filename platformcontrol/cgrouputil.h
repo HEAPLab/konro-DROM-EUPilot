@@ -1,13 +1,15 @@
 #ifndef CGROUPUTIL_H
 #define CGROUPUTIL_H
 
-#include "ecgroup.h"
-
+#include "makepath.h"
 #include <string>
+#include <fstream>
 #include <unistd.h>
 
 namespace pc {
 namespace util {
+
+void throwCouldNotOpenFile(std::string funcName, std::string fileName);
 
 /*!
  * \brief Finds the location in the cgroup hierarchy of the specified process
@@ -16,34 +18,38 @@ namespace util {
  */
 std::string findCgroupPath(pid_t pid);
 
-
-void activateController(const std::string &controllerName, const std::string &cgroupPath);
-
 /*!
  * \brief Enables control of a specified resource type for the processes
  *        inside the target directory
- * \param controller the type of controller to activate
+ * \param controllerName the type of controller to activate
  * \param cgroupPath the target directory
  */
-void activateController(EcGroup::ECGROUP controller, std::string cgroupPath);
-
-void writeValue(const std::string &fileName, const std::string &value, std::string cgroupPath);
+void activateController(const char *controllerName, const std::string &cgroupPath);
 
 /*!
- * \brief Writes a value in the specified cgroup interface file
- * \param controller the file to write
+ * \brief Writes a value to the specified cgroup interface file
+ * \param fileName the file to write
  * \param value the value to write
  * \param cgroupPath the target directory
  */
-void writeValue(EcGroup::ECGROUP controller, const std::string &value, std::string cgroupPath);
+template<typename T>
+void writeValue(const char *fileName, T value, std::string cgroupPath) {
+    std::string filePath = make_path(cgroupPath, fileName);
+    std::ofstream fileStream(filePath.c_str());
+    if (!fileStream.is_open()) {
+        throwCouldNotOpenFile(__func__, filePath);
+    }
+    fileStream << value;
+    fileStream.close();
+}
 
 /*!
  * \brief Gets the content of a specified cgroup interface file
- * \param controller the file to read
+ * \param fileName the file to read
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file
  */
-std::string getValue(EcGroup::ECGROUP controller, std::string cgroupPath);
+std::string getValue(const char *fileName, std::string cgroupPath);
 
 /*!
  * \brief Creates a new cgroup
@@ -54,11 +60,11 @@ std::string getValue(EcGroup::ECGROUP controller, std::string cgroupPath);
 std::string createCgroup(std::string cgroupPath, std::string name);
 
 /*!
- * \brief Adds a process to the specified cgroup directory
+ * \brief Moves a process to the specified cgroup directory
  * \param cgroupPath the cgroup directory where to move the process
  * \param pid the pid of the process to move
  */
-void addToCgroup(std::string cgroupPath, pid_t pid);
+void moveToCgroup(std::string cgroupPath, pid_t pid);
 
 }   // namespace util
 }   // namespace pc

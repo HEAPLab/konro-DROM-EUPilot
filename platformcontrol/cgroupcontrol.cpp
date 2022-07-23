@@ -1,6 +1,6 @@
 #include "cgroupcontrol.h"
-#include "cgrouputil.h"
 #include "tsplit.h"
+#include "pcexception.h"
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -10,46 +10,24 @@ using namespace std;
 
 namespace pc {
 
-CGroupControl::CGroupControl()
-{
-
-}
-
 CGroupControl::~CGroupControl()
 {
-
 }
 
-
-void CGroupControl::setValue(EcGroup::ECGROUP controller, const string &value, App app)
+std::string CGroupControl::getValue(const char *fileName, App app) const
 {
-    // 1 - FIND CGROUP PATH
+    // 1 - Find cgroup path
     string cgroupPath = util::findCgroupPath(app.getPid());
-    if (cgroupPath.empty())
-        return;
 
-    // 2 - ACTIVATE CONTROLLER
-    util::activateController(controller, cgroupPath);
-
-    // 3 - WRITE VALUE IN CORRECT CGROUP
-    util::writeValue(controller, value, cgroupPath);
+    // 2 - Get value from the file
+    return util::getValue(fileName, cgroupPath);
 }
 
-void CGroupControl::setValue(const std::string &controllerName,
-                             const std::string &fileName,
-                             const std::string &value, App app)
+int CGroupControl::getValueAsInt(const char *fileName, App app) const
 {
-    // 1 - FIND CGROUP PATH
-    string cgroupPath = util::findCgroupPath(app.getPid());
-    if (cgroupPath.empty())
-        return;
-
-    // 2 - ACTIVATE CONTROLLER
-    util::activateController(controllerName, cgroupPath);
-
-    // 3 - WRITE VALUE IN CORRECT CGROUP
-    util::writeValue(fileName, value, cgroupPath);
-
+    string value = getValue(fileName, app);
+    long n = strtol(value.c_str(), nullptr, 10);
+    return static_cast<int>(n);
 }
 
 }

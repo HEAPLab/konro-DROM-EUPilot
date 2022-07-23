@@ -1,9 +1,7 @@
 #include "cgrouputil.h"
 #include "tsplit.h"
-#include "makepath.h"
 #include "pcexception.h"
 #include <vector>
-#include <fstream>
 #include <sstream>
 #include <cstring>
 #include <sys/stat.h>
@@ -16,7 +14,7 @@ namespace util {
 /*!
  * \brief Throws a PcException
  */
-static void throwCouldNotOpenFile(string funcName,string fileName)
+void throwCouldNotOpenFile(string funcName, string fileName)
 {
     ostringstream os;
     os << funcName << ": could not open file " << fileName << ": " << strerror(errno);
@@ -39,7 +37,14 @@ string findCgroupPath(pid_t pid)
 }
 
 
-void activateController(const std::string &controllerName, const string &cgroupPath)
+/*
+ * Controllers must always be enabled top down starting from the root of the hierarchy.
+ * Enabling a controller in a cgroup indicates that the distribution of the target
+ * resource across its immediate children will be controlled. Hence, to activate
+ * control and spawn the desired controller-interface files in the target
+ * directory, we must enable the controller of interest up to its parent folder.
+ */
+void activateController(const char *controllerName, const string &cgroupPath)
 {
     // cgroupPath example: "/sys/fs/cgroup/init.scope"
     // After split:
@@ -62,21 +67,9 @@ void activateController(const std::string &controllerName, const string &cgroupP
     }
 }
 
-/*
- * Controllers must always be enabled top down starting from the root of the hierarchy.
- * Enabling a controller in a cgroup indicates that the distribution of the target
- * resource across its immediate children will be controlled. Hence, to activate
- * control and spawn the desired controller-interface files in the target
- * directory, we must enable the controller of interest up to its parent folder.
- */
-void activateController(EcGroup::ECGROUP controller, string cgroupPath)
+void writeValue(const char *fileName, const string &value, std::string cgroupPath)
 {
-    activateController(EcGroup::getControllerName(controller), cgroupPath);
-}
-
-void writeValue(const std::string &fileName, const string &value, std::string cgroupPath)
-{
-    string filePath = make_path(cgroupPath,fileName);
+    string filePath = make_path(cgroupPath, fileName);
     ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
@@ -85,19 +78,15 @@ void writeValue(const std::string &fileName, const string &value, std::string cg
     fileStream.close();
 }
 
-void writeValue(EcGroup::ECGROUP controller, const string &value, std::string cgroupPath) {
-    writeValue(EcGroup::getFileName(controller), value, cgroupPath);
-}
-
-string getValue(EcGroup::ECGROUP controller, std::string cgroupPath) {
-    string filePath = make_path(cgroupPath, EcGroup::getFileName(controller));
+std::string getValue(const char *fileName, std::string cgroupPath) {
+    string filePath = make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
     if (!in.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
     }
     string content;
     in >> content;
-    return content;;
+    return content;
 }
 
 string createCgroup(string cgroupPath, string name)
@@ -113,7 +102,7 @@ string createCgroup(string cgroupPath, string name)
     return newPath;
 }
 
-void addToCgroup(string cgroupPath, pid_t pid)
+void moveToCgroup(string cgroupPath, pid_t pid)
 {
     string filePath = make_path(cgroupPath, "cgroup.procs");
     ofstream fileStream(filePath.c_str());

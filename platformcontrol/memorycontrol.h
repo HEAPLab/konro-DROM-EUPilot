@@ -1,24 +1,23 @@
-#ifndef CPUCONTROL_H
-#define CPUCONTROL_H
+#ifndef MEMORYCONTROL_H
+#define MEMORYCONTROL_H
 
-#include "cgroupcontrol.h"
 #include <string>
 #include <map>
-
+#include "cgroupcontrol.h"
 
 namespace pc {
 /*!
- * \class a class for interacting with the cgroup cpu controller
+ * \class a class for interacting with the cgroup memory controller
  */
-class CpuControl : public CGroupControl {
+class MemoryControl : public CGroupControl {
 public:
     enum ControllerFile {
-        WEIGHT,         // read-write
-        MAX,            // read-write
-        MAX_BURST,      // read-write
-        STAT            // read-only
+        CURRENT,
+        MIN,
+        MAX,
+        EVENTS,
+        STAT
     };
-
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
@@ -39,4 +38,5 @@ public:
 };
 
 }   // namespace pc
-#endif // CPUCONTROL_H
+
+#endif // MEMORYCONTROL_H

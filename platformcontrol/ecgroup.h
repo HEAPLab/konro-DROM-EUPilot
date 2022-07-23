@@ -27,8 +27,8 @@ public:
 
     };
 
-    static std::string getControllerName(EcGroup::ECGROUP ecGroup);
-    static std::string getFileName(EcGroup::ECGROUP ecGroup);
+    static const char *getControllerName(EcGroup::ECGROUP ecGroup);
+    static const char *getFileName(EcGroup::ECGROUP ecGroup);
 };
 
 }   // namespace pc

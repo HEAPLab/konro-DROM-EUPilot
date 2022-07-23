@@ -1,24 +1,22 @@
-#ifndef CPUCONTROL_H
-#define CPUCONTROL_H
+#ifndef CPUSETCONTROL_H
+#define CPUSETCONTROL_H
 
 #include "cgroupcontrol.h"
 #include <string>
 #include <map>
 
-
 namespace pc {
 /*!
- * \class a class for interacting with the cgroup cpu controller
+ * \class a class for interacting with the cgroup cpuset controller
  */
-class CpuControl : public CGroupControl {
+class CpusetControl : public CGroupControl {
 public:
     enum ControllerFile {
-        WEIGHT,         // read-write
-        MAX,            // read-write
-        MAX_BURST,      // read-write
-        STAT            // read-only
+        CPUS,
+        CPUS_EFFECTIVE,
+        MEMS,
+        MEMS_EFFECTIVE
     };
-
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
@@ -39,4 +37,4 @@ public:
 };
 
 }   // namespace pc
-#endif // CPUCONTROL_H
+#endif // CPUSETCONTROL_H
