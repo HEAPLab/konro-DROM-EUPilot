@@ -101,8 +101,22 @@ std::string getValue(const char *fileName, std::string cgroupPath) {
     if (!in.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
     }
-    string content;
-    in >> content;
+    string line;
+    getline(in, line);
+    return line;
+}
+
+std::vector<string> getContent(const char *fileName, std::string cgroupPath)
+{
+    string filePath = make_path(cgroupPath, fileName);
+    ifstream in(filePath.c_str());
+    if (!in.is_open()) {
+        throwCouldNotOpenFile(__func__, filePath);
+    }
+    vector<string> content;
+    string line;
+    while (getline(in, line))
+        content.push_back(line);
     return content;
 }
 

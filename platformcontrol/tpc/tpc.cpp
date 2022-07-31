@@ -1,6 +1,8 @@
 #include <iostream>
+#include <map>
 #include <cstdlib>
 #include "cgroupcontrol.h"
+#include "cpucontrol.h"
 #include "cgrouputil.h"
 #include "pcexception.h"
 
@@ -17,6 +19,28 @@ static void checkAppDir(int pid)
     cout << pid << " base directory is " << realDir << endl;
 }
 
+static void setCpuMax(pc::App app, int n)
+{
+    //pc::CpuControl().setValue(pc::CpuControl::MAX, n, app);
+    pc::CpuControl().setCpuMax(n, app);
+    cout << "Cpu max: requested " << n << " read " << pc::CpuControl().getCpuMax(app) << endl;
+}
+
+static void setCpuMax(pc::App app)
+{
+    pc::CpuControl().setCpuMax(100, app);
+    cout << "Cpu max: requested " << 100 << " read " << pc::CpuControl().getCpuMax(app) << endl;
+}
+
+static void getCpuStat(pc::App app)
+{
+    map<string, unsigned long> tags = pc::CpuControl().getCpuStat(app);
+    cout << "CPU STAT\n";
+    for (const auto& kv : tags) {
+        cout << kv.first << ":" << kv.second << endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
@@ -31,6 +55,9 @@ int main(int argc, char *argv[])
     try {
         cgc.addApplication(app);
         checkAppDir(pid);
+        setCpuMax(app, 33);
+        setCpuMax(app);
+        getCpuStat(app);
     } catch (pc::PcException &e) {
         cerr << "PcException: " << e.what() << endl;
         exit(EXIT_FAILURE);

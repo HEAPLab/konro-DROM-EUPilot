@@ -6,6 +6,7 @@
 #include "cgrouputil.h"
 
 #include <string>
+#include <vector>
 #include <unistd.h>
 
 namespace pc {
@@ -76,6 +77,8 @@ public:
      * \throws PcException in case of error
      */
     std::string getValue(const char *fileName, App app) const;
+
+    std::vector<std::string> getContent(const char *fileName, App app) const;
 
     /*!
      * \brief Returns the current limit applied to an application for a specific resource

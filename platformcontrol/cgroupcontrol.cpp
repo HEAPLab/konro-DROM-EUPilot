@@ -24,6 +24,15 @@ std::string CGroupControl::getValue(const char *fileName, App app) const
     return util::getValue(fileName, cgroupPath);
 }
 
+std::vector<string> CGroupControl::getContent(const char *fileName, App app) const
+{
+    // 1 - Find cgroup path
+    string cgroupPath = util::findCgroupPath(app.getPid());
+
+    // 2 - Get content from the file
+    return util::getContent(fileName, cgroupPath);
+}
+
 int CGroupControl::getValueAsInt(const char *fileName, App app) const
 {
     string value = getValue(fileName, app);

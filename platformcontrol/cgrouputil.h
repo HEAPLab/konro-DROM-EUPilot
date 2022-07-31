@@ -3,6 +3,7 @@
 
 #include "makepath.h"
 #include <string>
+#include <vector>
 #include <fstream>
 #include <unistd.h>
 
@@ -69,6 +70,8 @@ void writeValue(const char *fileName, T value, std::string cgroupPath) {
  * \returns the content of the file
  */
 std::string getValue(const char *fileName, std::string cgroupPath);
+
+std::vector<std::string> getContent(const char *fileName, std::string cgroupPath);
 
 /*!
  * \brief Creates a new cgroup
