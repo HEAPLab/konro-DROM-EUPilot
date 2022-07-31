@@ -1,9 +1,9 @@
 #ifndef PIDSCONTROL_H
 #define PIDSCONTROL_H
 
+#include "../cgroupcontrol.h"
 #include <string>
 #include <map>
-#include "cgroupcontrol.h"
 
 namespace pc {
 /*!

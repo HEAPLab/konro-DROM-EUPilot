@@ -1,6 +1,7 @@
-#include "cgroupcontrol.h"
+﻿#include "cgroupcontrol.h"
 #include "tsplit.h"
 #include "pcexception.h"
+#include "dir.h"
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -28,6 +29,23 @@ int CGroupControl::getValueAsInt(const char *fileName, App app) const
     string value = getValue(fileName, app);
     long n = strtol(value.c_str(), nullptr, 10);
     return static_cast<int>(n);
+}
+
+void CGroupControl::addApplication(App app)
+{
+    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app.getPid());
+    Dir::mkdir_r(cgroupAppBaseDir.c_str());
+    util::moveToCgroup(cgroupAppBaseDir, app.getPid());
+}
+
+void CGroupControl::removeApplication(App app)
+{
+#if 0
+    string cgroupBasePath = "/sys/fs/cgroup/konro.slice/";
+    ostringstream os;
+    os << cgroupBasePath << "app-" << app.getPid() <<".scope";
+    Dir::rmdir(os.str().c_str());
+#endif
 }
 
 }

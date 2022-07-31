@@ -1,7 +1,7 @@
 #ifndef CPUCONTROL_H
 #define CPUCONTROL_H
 
-#include "cgroupcontrol.h"
+#include "../cgroupcontrol.h"
 #include <string>
 #include <map>
 

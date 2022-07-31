@@ -1,9 +1,9 @@
 #ifndef MEMORYCONTROL_H
 #define MEMORYCONTROL_H
 
+#include "../cgroupcontrol.h"
 #include <string>
 #include <map>
-#include "cgroupcontrol.h"
 
 namespace pc {
 /*!

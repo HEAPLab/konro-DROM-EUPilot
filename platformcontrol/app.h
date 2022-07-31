@@ -7,13 +7,13 @@ namespace pc {
  * \class a class containing basic information about a generic application.
  */
 class App {
-
+public:
     enum AppType {
         STANDALONE,
         INTEGRATED,
         KUBERNETES
     };
-
+private:
     pid_t pid_;
     AppType appType_;
 public:

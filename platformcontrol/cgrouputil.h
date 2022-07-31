@@ -12,6 +12,25 @@ namespace util {
 void throwCouldNotOpenFile(std::string funcName, std::string fileName);
 
 /*!
+ * Gets the path of the root folder of the cgroup hierarchy
+ * \returns the root folder's path
+ */
+std::string getCgroupBaseDir();
+
+/*!
+ * Gets the path of the base cgroup directory for all apps managed by Konro
+ * \returns the Konro base folder's path
+ */
+std::string getCgroupKonroBaseDir();
+
+/*!
+ * Gets the path of the cgroup directory containing the specified process
+ * \param pid the pid of the process
+ * \returns the path
+ */
+std::string getCgroupAppBaseDir(pid_t pid);
+
+/*!
  * \brief Finds the location in the cgroup hierarchy of the specified process
  * \param pid the pid of the process
  * \returns the absolute path of the cgroup to which the process belongs

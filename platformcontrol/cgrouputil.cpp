@@ -11,6 +11,24 @@ using namespace std;
 namespace pc {
 namespace util {
 
+std::string getCgroupBaseDir()
+{
+    return "/sys/fs/cgroup";
+}
+
+std::string getCgroupKonroBaseDir()
+{
+    return "/sys/fs/cgroup/konro.slice/";
+}
+
+string getCgroupAppBaseDir(pid_t pid)
+{
+    string cgroupBasePath = util::getCgroupKonroBaseDir();
+    ostringstream os;
+    os << cgroupBasePath << "app-" << pid << ".scope";
+    return os.str();
+}
+
 /*!
  * \brief Throws a PcException
  */
@@ -29,11 +47,10 @@ string findCgroupPath(pid_t pid)
     if (!in.is_open()) {
         throwCouldNotOpenFile(__func__, os.str());
     }
-    string cgroupBaseDir = "/sys/fs/cgroup";
     string cgroupPath;
     in >> cgroupPath;       // for example: "0::/init.scope"
     vector<string> parts = split::tsplit(cgroupPath, ":");
-    return cgroupBaseDir + parts[2];
+    return getCgroupBaseDir() + parts[2];
 }
 
 
@@ -62,7 +79,7 @@ void activateController(const char *controllerName, const string &cgroupPath)
         if (!fileStream.is_open()) {
             throwCouldNotOpenFile(__func__, currentFile);
         }
-        fileStream << controllerName;
+        fileStream << (string("+") + controllerName);
         fileStream.close();
     }
 }
@@ -95,7 +112,7 @@ string createCgroup(string cgroupPath, string name)
     int rc = mkdir(newPath.c_str(), S_IRWXU|S_IRWXU|S_IRWXG|S_IRWXG);
     if (rc != 0 && errno != EEXIST) {
         ostringstream os;
-        os << "createCgroup: could not create directory " << newPath
+        os << __func__ << ": could not create directory " << newPath
            << ": " << strerror(errno);
         throw PcException(os.str());
     }
@@ -107,7 +124,7 @@ void moveToCgroup(string cgroupPath, pid_t pid)
     string filePath = make_path(cgroupPath, "cgroup.procs");
     ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
-        throwCouldNotOpenFile("addToCgroup", filePath);
+        throwCouldNotOpenFile(__func__, filePath);
     }
     fileStream << pid;
     fileStream.close();
