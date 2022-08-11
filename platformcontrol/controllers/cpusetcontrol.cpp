@@ -13,4 +13,24 @@ const std::map<CpusetControl::ControllerFile, const char *> CpusetControl::fileN
     { MEMS_EFFECTIVE, "cpuset.mems.effective" }
 };
 
+void CpusetControl::setCpusetCpus(std::string cpus, App app)
+{
+    CGroupControl::setValue(controllerName_, fileNamesMap_.at(CPUS), cpus, app);
+}
+
+std::string CpusetControl::getCpusetCpusEffective(App app)
+{
+    return CGroupControl::getValue(fileNamesMap_.at(CPUS_EFFECTIVE), app);
+}
+
+void CpusetControl::setCpusetMems(std::string memNodes, App app)
+{
+    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MEMS), memNodes, app);
+}
+
+std::string CpusetControl::getCpusetMemsEffective(App app)
+{
+    return CGroupControl::getValue(fileNamesMap_.at(MEMS_EFFECTIVE), app);
+}
+
 }   // namespace pc

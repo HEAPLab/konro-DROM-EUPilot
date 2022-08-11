@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <unistd.h>
 
 namespace pc {
@@ -78,6 +79,17 @@ public:
      */
     std::string getValue(const char *fileName, App app) const;
 
+    /*!
+     * \brief Returns the content of a specified controller interface file.
+     *
+     * This function should be used to retrieve the content of a multi-line
+     * file, such as cpu.stat.
+     *
+     * \param fileName the file to read
+     * \param app the application of interest
+     * \returns the content of the controller interface file
+     * \throws PcException in case of error
+     */
     std::vector<std::string> getContent(const char *fileName, App app) const;
 
     /*!
@@ -89,6 +101,8 @@ public:
      * \throws PcException in case of error
      */
     int getValueAsInt(const char *fileName, App app) const;
+
+    std::map<std::string, unsigned long> getContentAsMap(const char *fileName, App app);
 
     /*!
      * \brief Adds an application under the management of Konro.

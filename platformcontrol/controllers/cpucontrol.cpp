@@ -33,6 +33,8 @@ int CpuControl::getCpuMax(App app)
     std::string value;
     int period;
     is >> value >> period;
+    if (is.fail())
+        return -1;      // TODO - fixme
     if (value == "max")
         return 100;
     int intValue = static_cast<int>(strtol(value.c_str(), nullptr, 10));
@@ -41,16 +43,13 @@ int CpuControl::getCpuMax(App app)
 
 std::map<std::string, unsigned long> CpuControl::getCpuStat(App app)
 {
-    std::map<std::string, unsigned long> tags;
-    std::vector<std::string> fileContent = CGroupControl::getContent(fileNamesMap_.at(STAT), app);
-    for (auto &line: fileContent) {
-        std::string tag;
-        unsigned long value;
-        std::istringstream is(line);
-        is >> tag >> value;
-        tags.emplace(tag, value);
-    }
-    return tags;
+    return getContentAsMap(fileNamesMap_.at(STAT), app);
 }
+
+void CpuControl::setCpuWeight(int weight, App app)
+{
+    CGroupControl::setValue(controllerName_, fileNamesMap_.at(WEIGHT), weight, app);
+}
+
 
 }   // namespace pc

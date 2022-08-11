@@ -12,26 +12,38 @@ namespace pc {
 class PidsControl : public CGroupControl {
 public:
     enum ControllerFile {
-        MAX,
-        CURRENT
+        MAX,        // read-write
+        CURRENT     // read-only
     };
+    const int MAX_NUM_PIDS = -1;
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
 public:
 
-    template<typename T>
-    void setValue(ControllerFile controllerFile, T value, App app) const {
-        CGroupControl::setValue(controllerName_, fileNamesMap_.at(controllerFile), value, app);
-    }
+    /*!
+     * Limits the number of processes that may be forked by the specified application.
+     * To remove all limits, the caller must pass the MAX_NUM_PIDS constant as parameter.
+     * \param numPids the maximum number of processes that can be forked
+     * \param app the application to limit
+     */
+    void setPidsMax(int numPids, App app);
 
-    void getValue(ControllerFile controllerFile, const std::string &value, App app) const {
-        CGroupControl::getValue(fileNamesMap_.at(controllerFile), app);
-    }
+    /*!
+     * Gets the maximum number of processes that may be forked by the application.
+     * The function returns the MAX_NUM_PIDS constant if no upper bound is set.
+     * \param app the application of interest
+     * \returns the maximum number of processes that can be froked by the application
+     */
+    int getPidsMax(App app);
 
-    void getValueAsInt(ControllerFile controllerFile, const std::string &value, App app) const {
-        CGroupControl::getValueAsInt(fileNamesMap_.at(controllerFile), app);
-    }
+    /*!
+     * Gets the number of processes in the cgroup where the application is located and
+     * all its descendants.
+     * \param app the application of interest
+     * \returns the number of processes in the app's cgroup and descendants
+     */
+    int getPidsCurrent(App app);
 };
 
 }   // namespace pc

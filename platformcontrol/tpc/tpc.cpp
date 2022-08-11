@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "cgroupcontrol.h"
 #include "cpucontrol.h"
+#include "iocontrol.h"
 #include "cgrouputil.h"
 #include "pcexception.h"
 
@@ -41,6 +42,24 @@ static void getCpuStat(pc::App app)
     }
 }
 
+static void getIoMax(pc::App app)
+{
+    std::string cgroupPath = pc::util::findCgroupPath(app.getPid());
+    pc::util::activateController("io", cgroupPath);
+
+    cout << "Setting max wbps\n";
+    pc::IOControl().setIOMax(8, 0, pc::IOControl::WBPS, 1000000, app);
+    sleep(2);
+    map<string, long> tags = pc::IOControl().getIOMax(8, 0, app);
+    cout << "IO MAX\n";
+    for (const auto& kv : tags) {
+        if (kv.second == pc::IOControl().MAX_IO_CONTROL)
+            cout << kv.first << ":max" << endl;
+        else
+            cout << kv.first << ":" << kv.second << endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
@@ -58,6 +77,7 @@ int main(int argc, char *argv[])
         setCpuMax(app, 33);
         setCpuMax(app);
         getCpuStat(app);
+        getIoMax(app);
     } catch (pc::PcException &e) {
         cerr << "PcException: " << e.what() << endl;
         exit(EXIT_FAILURE);

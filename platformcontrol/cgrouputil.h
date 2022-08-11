@@ -64,13 +64,25 @@ void writeValue(const char *fileName, T value, std::string cgroupPath) {
 }
 
 /*!
- * \brief Gets the content of a specified cgroup interface file
+ * \brief Gets the value contained in a specified cgroup interface file
+ * \note This function will only read the first line from the target file.
+ *       Therefore, it's not suitable for retrieving the content of multi-line
+ *       files such as cpu.stat.
+ *       To read such files, use the getContent function instead.
  * \param fileName the file to read
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file
  */
 std::string getValue(const char *fileName, std::string cgroupPath);
 
+/*!
+ * \brief Gets the content of a specified cgroup interface file
+ * \note This function is capable of reading the content of a multi-line file.
+ *       It places each line of the file in one element of a vector.
+ * \param fileName the file to read
+ * \param cgroupPath the directory where the file is located
+ * \returns the content of the file as a vector of strings
+ */
 std::vector<std::string> getContent(const char *fileName, std::string cgroupPath);
 
 /*!

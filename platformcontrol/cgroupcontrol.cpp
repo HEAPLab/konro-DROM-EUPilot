@@ -40,6 +40,22 @@ int CGroupControl::getValueAsInt(const char *fileName, App app) const
     return static_cast<int>(n);
 }
 
+std::map<string, unsigned long> CGroupControl::getContentAsMap(const char *fileName, App app)
+{
+    std::map<std::string, unsigned long> tags;
+    std::vector<std::string> fileContent = getContent(fileName, app);
+    for (auto &line: fileContent) {
+        std::string tag;
+        unsigned long value;
+        std::istringstream is(line);
+        is >> tag >> value;
+        if (is.fail())
+            break;
+        tags.emplace(tag, value);
+    }
+    return tags;
+}
+
 void CGroupControl::addApplication(App app)
 {
     string cgroupAppBaseDir = util::getCgroupAppBaseDir(app.getPid());
