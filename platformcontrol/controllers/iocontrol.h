@@ -2,6 +2,7 @@
 #define IOCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../numericvalue.h"
 #include <string>
 #include <map>
 
@@ -28,6 +29,9 @@ private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
     static const std::map<IoMax, const char *> keyNames_;
+
+    std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, App app);
+
 public:
 
     /*!
@@ -38,10 +42,14 @@ public:
      * rbytes: bytes read
      * wios: number of write IOs
      *
+     * \param major the device major number
+     * \param minor the device minor number
      * \param app the application of interest
      * \returns the IO usage statistics
      */
-    std::map<std::string, unsigned long> getIOStat(App app);
+    std::map<std::string, NumericValue> getIOStat(int major, int minor, App app) {
+        return getIOHelper(STAT, major, minor, app);
+    }
 
     /*!
      * Sets an IO limit for the specified device and application.
@@ -59,7 +67,7 @@ public:
      * \param value the maximum value allowed for the IO resource
      * \param app the application to limit
      */
-    void setIOMax(int major, int minor, IoMax ioMax, int value, App app);
+    void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, App app);
 
     /*!
      * Gets the specified application's IO limits.
@@ -72,8 +80,9 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, long> getIOMax(int major, int minor, App app);
-
+    std::map<std::string, NumericValue> getIOMax(int major, int minor, App app) {
+        return getIOHelper(MAX, major, minor, app);
+    }
 };
 
 }   // namespace pc

@@ -12,26 +12,17 @@ const std::map<PidsControl::ControllerFile, const char *> PidsControl::fileNames
     { CURRENT, "pids.current" }
 };
 
-void PidsControl::setPidsMax(int numPids, App app)
+void PidsControl::setPidsMax(NumericValue numPids, App app)
 {
-    if (numPids == MAX_NUM_PIDS) {
-        CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), "max", app);
-    } else {
-        CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);
-    }
+    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);
 }
 
-int PidsControl::getPidsMax(App app)
+NumericValue PidsControl::getPidsMax(App app)
 {
-    std::string svalue = CGroupControl::getValue(fileNamesMap_.at(MAX), app);
-    if (svalue == "max") {
-        return MAX_NUM_PIDS;
-    } else {
-        return static_cast<int>(strtol(svalue.c_str(), nullptr, 10));
-    }
+    return CGroupControl::getLine(fileNamesMap_.at(MAX), app);
 }
 
-int PidsControl::getPidsCurrent(App app)
+NumericValue PidsControl::getPidsCurrent(App app)
 {
     return CGroupControl::getValueAsInt(fileNamesMap_.at(CURRENT), app);
 }

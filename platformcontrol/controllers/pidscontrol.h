@@ -2,6 +2,7 @@
 #define PIDSCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../numericvalue.h"
 #include <string>
 #include <map>
 
@@ -27,7 +28,7 @@ public:
      * \param numPids the maximum number of processes that can be forked
      * \param app the application to limit
      */
-    void setPidsMax(int numPids, App app);
+    void setPidsMax(NumericValue numPids, App app);
 
     /*!
      * Gets the maximum number of processes that may be forked by the application.
@@ -35,7 +36,7 @@ public:
      * \param app the application of interest
      * \returns the maximum number of processes that can be froked by the application
      */
-    int getPidsMax(App app);
+    NumericValue getPidsMax(App app);
 
     /*!
      * Gets the number of processes in the cgroup where the application is located and
@@ -43,7 +44,7 @@ public:
      * \param app the application of interest
      * \returns the number of processes in the app's cgroup and descendants
      */
-    int getPidsCurrent(App app);
+    NumericValue getPidsCurrent(App app);
 };
 
 }   // namespace pc

@@ -14,31 +14,33 @@ const std::map<CpuControl::ControllerFile, const char *> CpuControl::fileNamesMa
 };
 
 
-void CpuControl::setCpuMax(int percentage, App app)
+void CpuControl::setCpuMax(NumericValue percentage, App app)
 {
     std::ostringstream os;
     // for cpu.max normalize value between 0 and period_
-    if (percentage == 100) {
-        os << "max " << period_;
+    if (percentage.isMax()) {
+        os << percentage << ' ' << period_;
     } else {
         os << ((percentage * period_) / 100) << ' ' << period_;
     }
     CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
-int CpuControl::getCpuMax(App app)
+NumericValue CpuControl::getCpuMax(App app)
 {
-    std::string svalue = CGroupControl::getValue(fileNamesMap_.at(MAX), app);
+    std::string svalue = CGroupControl::getLine(fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
-    std::string value;
+    NumericValue value;
     int period;
     is >> value >> period;
-    if (is.fail())
-        return -1;      // TODO - fixme
-    if (value == "max")
-        return 100;
-    int intValue = static_cast<int>(strtol(value.c_str(), nullptr, 10));
-    return (intValue * 100) / period;
+    if (is.fail()) {
+        return NumericValue();      // return invalid numeric value
+    } else if (value.isInvalid() || value.isMax()) {
+        return value;
+    } else {
+        // return normalized value
+        return (value * 100) / period;
+    }
 }
 
 std::map<std::string, unsigned long> CpuControl::getCpuStat(App app)

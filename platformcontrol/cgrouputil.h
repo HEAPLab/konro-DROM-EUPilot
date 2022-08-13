@@ -73,12 +73,12 @@ void writeValue(const char *fileName, T value, std::string cgroupPath) {
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file
  */
-std::string getValue(const char *fileName, std::string cgroupPath);
+std::string getLine(const char *fileName, std::string cgroupPath);
 
 /*!
  * \brief Gets the content of a specified cgroup interface file
- * \note This function is capable of reading the content of a multi-line file.
- *       It places each line of the file in one element of a vector.
+ * \note This function reads the content of a multi-line file
+ *       and returns a vector of lines.
  * \param fileName the file to read
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file as a vector of strings

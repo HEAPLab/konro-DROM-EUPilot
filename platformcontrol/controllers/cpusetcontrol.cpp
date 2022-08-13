@@ -20,7 +20,7 @@ void CpusetControl::setCpusetCpus(std::string cpus, App app)
 
 std::string CpusetControl::getCpusetCpusEffective(App app)
 {
-    return CGroupControl::getValue(fileNamesMap_.at(CPUS_EFFECTIVE), app);
+    return CGroupControl::getLine(fileNamesMap_.at(CPUS_EFFECTIVE), app);
 }
 
 void CpusetControl::setCpusetMems(std::string memNodes, App app)
@@ -30,7 +30,7 @@ void CpusetControl::setCpusetMems(std::string memNodes, App app)
 
 std::string CpusetControl::getCpusetMemsEffective(App app)
 {
-    return CGroupControl::getValue(fileNamesMap_.at(MEMS_EFFECTIVE), app);
+    return CGroupControl::getLine(fileNamesMap_.at(MEMS_EFFECTIVE), app);
 }
 
 }   // namespace pc

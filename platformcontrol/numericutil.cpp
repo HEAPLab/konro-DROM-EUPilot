@@ -1,4 +1,5 @@
 #include "numericutil.h"
+#include "pcexception.h"
 #include <cctype>
 #include <cstdlib>
 
@@ -14,6 +15,74 @@ static inline const char *findTokenEnd(const char *pStart)
 
 namespace pc {
 
+/**
+ * @brief Parses a line in the format "major:minor ..."
+ * @param p The line
+ * @param major Major device number
+ * @param minor Minor device number
+ * @return nullptr if major and minor of the line are different from the
+ *         requested values, otherwise a pointer to the first character
+ *         after the minor number
+ * \exception PcException if the format of the line is invalid
+ */
+static const char *parseMajorMinor(const char *p, int major, int minor)
+{
+    const char *endptr;
+
+    if (!isdigit(*p))
+        throw PcException("Invalid line: digit expected for major");
+
+    // Parse major device number
+
+    int devMajor = strtol(p, (char **)&endptr, 10);
+    if (*endptr != ':')
+        throw PcException("Invalid line: ':' expected after major");
+    if (devMajor != major)
+        return nullptr;         // not the device we are looking for
+
+    // Parse minor device number
+
+    p = endptr + 1;
+    if (!isdigit(*p))
+        throw PcException("Invalid line: digit expected for minor");
+
+    int devMinor = strtol(p, (char **)&endptr, 10);
+    if (devMinor != minor)
+        return nullptr;         // not the device we are looking for
+
+    return endptr;
+}
+
+static pair<string, NumericValue> parseKeyValue(const char *ptr, const char **endptr)
+{
+    // parse the tag
+
+    const char *eptr = findTokenEnd(ptr);
+    if (eptr == ptr) {
+        throw PcException("Invalid line: alpha character expected for tag");
+    }
+    if (*eptr != '=' && *eptr != ':') {
+        throw PcException("Invalid line: '=' or ':' expected after tag");
+    }
+    string tag(ptr, eptr);
+    ptr = eptr + 1;
+
+    // parse the value
+
+    eptr = findTokenEnd(ptr);
+    if (eptr == ptr) {
+        throw PcException("Invalid line: alphanumeric character expected for value");
+    }
+
+    NumericValue val(ptr, eptr);
+    if (val.isInvalid())
+        throw PcException("Invalid line: invalid numeric value");
+
+    if (endptr != nullptr)
+        *endptr = eptr;
+    return make_pair<>(tag, val);
+}
+
 /*!
  * Parses a line in the format
  * \code
@@ -27,7 +96,7 @@ namespace pc {
  * \return map of key and values. If the major or minor device numbers
  *         of the line are different from the requested major and minor
  *         numbers, the map is empty
- * \exception runtime_error if the format of the line is invalid
+ * \exception PcException if the format of the line is invalid
  */
 map<string, NumericValue> parseLineNv(const string &line, int major, int minor)
 {
@@ -36,65 +105,32 @@ map<string, NumericValue> parseLineNv(const string &line, int major, int minor)
     const char *p = p0;
     const char *endptr;
 
-    if (!isdigit(*p))
-        throw runtime_error("Invalid line: digit expected for major");
+    endptr = parseMajorMinor(p, major, minor);
+    if (endptr == nullptr)
+        return tags;         // not the device we are looking for
 
-    // Parse major device number
-
-    int devMajor = strtol(p, (char **)&endptr, 10);
-    if (*endptr != ':')
-        throw runtime_error("Invalid line: ':' expected after major");
-    if (devMajor != major)
-        return tags;        // not the device we are looking for
-
-    // Parse minor device number
-
-    p = endptr + 1;
-    if (!isdigit(*p))
-        throw runtime_error("Invalid line: digit expected for minor");
-
-    int devMinor = strtol(p, (char **)&endptr, 10);
     if (*endptr != ' ')
-        throw runtime_error("Invalid line: space expected after minor");
-    if (devMinor != minor)
-        return tags;        // not the device we are looking for
+        throw PcException("Invalid line: space expected after minor");
 
-    p = endptr + 1;
-    while (*p) {
+    return parseLineNv(endptr + 1);
+}
 
-        // parse the tag
+map<string, NumericValue> parseLineNv(const char *ptr)
+{
+    map<string, NumericValue> tags;
+    const char *endptr;
 
-        endptr = findTokenEnd(p);
-        if (endptr == p) {
-            throw runtime_error("Invalid line: alpha character expected for tag");
-        }
-        if (*endptr != '=') {
-            throw runtime_error("Invalid line: '=' expected after tag");
-        }
-        string tag(p, endptr);
-        p = endptr + 1;
-
-        // parse the value
-
-        endptr = findTokenEnd(p);
-        if (endptr == p) {
-            throw runtime_error("Invalid line: alphanumeric character expected for value");
-        }
-
-        NumericValue val(p, endptr);
-        if (val.isInvalid())
-            throw runtime_error("Invalid line: invalid numeric value");
-        tags.emplace(tag, val);
-        p = endptr;
-        if (*p) {
-            if (*p != ' ')
-                throw runtime_error("Invalid line: expected space character after value");
-            ++p;
-            if (!*p)
-                throw runtime_error("Invalid line: expected new tag after last value");
+    while (*ptr) {
+        tags.insert(parseKeyValue(ptr, &endptr));
+        ptr = endptr;
+        if (*ptr) {
+            if (*ptr != ' ')
+                throw PcException("Invalid line: expected space character after value");
+            ++ptr;
+            if (!*ptr)
+                throw PcException("Invalid line: expected new tag after last value");
         }
     }
-
     return tags;
 }
 

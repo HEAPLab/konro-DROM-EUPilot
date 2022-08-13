@@ -2,6 +2,7 @@
 #define CPUCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../numericvalue.h"
 #include <string>
 #include <map>
 #include <iostream>
@@ -31,14 +32,14 @@ public:
      * \param percentage the maximum percentage of cpu utilization allowed
      * \param app the application to limit
      */
-    void setCpuMax(int percentage, App app);
+    void setCpuMax(NumericValue percentage, App app);
 
     /*!
      * Gets the cpu bandwidth limit set for the specified application.
      * \param app the application of interest
      * \returns the maximum percentage of cpu utilization allowed for the app
      */
-    int getCpuMax(App app);
+    NumericValue getCpuMax(App app);
 
     /*!
      * Gets the cpu time statistics for the specified application.

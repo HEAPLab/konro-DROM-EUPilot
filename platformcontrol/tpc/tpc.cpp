@@ -5,6 +5,7 @@
 #include "cpucontrol.h"
 #include "iocontrol.h"
 #include "cgrouputil.h"
+#include "numericvalue.h"
 #include "pcexception.h"
 
 using namespace std;
@@ -29,8 +30,8 @@ static void setCpuMax(pc::App app, int n)
 
 static void setCpuMax(pc::App app)
 {
-    pc::CpuControl().setCpuMax(100, app);
-    cout << "Cpu max: requested " << 100 << " read " << pc::CpuControl().getCpuMax(app) << endl;
+    pc::CpuControl().setCpuMax(pc::NumericValue::max(), app);
+    cout << "Cpu max: requested " << pc::NumericValue::max() << " read " << pc::CpuControl().getCpuMax(app) << endl;
 }
 
 static void getCpuStat(pc::App app)
@@ -42,7 +43,7 @@ static void getCpuStat(pc::App app)
     }
 }
 
-static void getIoMax(pc::App app)
+static void getIoMax(pc::App app, int major, int minor)
 {
     std::string cgroupPath = pc::util::findCgroupPath(app.getPid());
     pc::util::activateController("io", cgroupPath);
@@ -50,13 +51,21 @@ static void getIoMax(pc::App app)
     cout << "Setting max wbps\n";
     pc::IOControl().setIOMax(8, 0, pc::IOControl::WBPS, 1000000, app);
     sleep(2);
-    map<string, long> tags = pc::IOControl().getIOMax(8, 0, app);
+    map<string, pc::NumericValue> tags = pc::IOControl().getIOMax(major, minor, app);
     cout << "IO MAX\n";
     for (const auto& kv : tags) {
-        if (kv.second == pc::IOControl().MAX_IO_CONTROL)
-            cout << kv.first << ":max" << endl;
-        else
-            cout << kv.first << ":" << kv.second << endl;
+        cout << kv.first << ":" << kv.second << endl;
+    }
+}
+
+static void getIoStat(pc::App app, int major, int minor)
+{
+    std::string cgroupPath = pc::util::findCgroupPath(app.getPid());
+    pc::util::activateController("io", cgroupPath);
+    map<string, pc::NumericValue> tags = pc::IOControl().getIOStat(major, minor, app);
+    cout << "IO STAT\n";
+    for (const auto& kv : tags) {
+        cout << kv.first << ":" << kv.second << endl;
     }
 }
 
@@ -77,7 +86,7 @@ int main(int argc, char *argv[])
         setCpuMax(app, 33);
         setCpuMax(app);
         getCpuStat(app);
-        getIoMax(app);
+        getIoStat(app, 253, 0);
     } catch (pc::PcException &e) {
         cerr << "PcException: " << e.what() << endl;
         exit(EXIT_FAILURE);

@@ -95,7 +95,8 @@ void writeValue(const char *fileName, const string &value, std::string cgroupPat
     fileStream.close();
 }
 
-std::string getValue(const char *fileName, std::string cgroupPath) {
+std::string getLine(const char *fileName, std::string cgroupPath)
+{
     string filePath = make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
     if (!in.is_open()) {

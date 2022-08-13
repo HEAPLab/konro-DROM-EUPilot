@@ -22,7 +22,7 @@ public:
      * \brief Initializes NumericValue to default of "max"
      * \param value the initial value
      */
-    NumericValue(long value = NUMERIC_VALUE_MAX) : value_(value) {}
+    NumericValue(long value = NUMERIC_VALUE_INVALID) : value_(value) {}
 
     /*!
      * \brief Initializes a NumericValue from a (part of a) C string
@@ -39,9 +39,19 @@ public:
      */
     NumericValue(const std::string &val);
 
+    /*!
+     * \brief Factory function to get a "max" value
+     * \return A NumericValue initialized to max
+     */
+    static NumericValue max() {
+        return NumericValue(NUMERIC_VALUE_MAX);
+    }
+
     bool isMax() const { return value_ == NUMERIC_VALUE_MAX; }
     bool isInvalid() const { return value_ == NUMERIC_VALUE_INVALID; }
     void set(long value = NUMERIC_VALUE_MAX) { value_ = value; }
+    void setMax() { value_ = NUMERIC_VALUE_MAX; }
+    void setInvalid() { value_ = NUMERIC_VALUE_INVALID; }
 
     operator long() {
         return static_cast<long>(value_);

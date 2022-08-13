@@ -69,7 +69,7 @@ public:
      * This is done by reading the content of a controller interface file associated
      * to the specified application.
      *
-     * \example getValue("cpuset", "cpuset.cpus.effective", app1)
+     * \example getLine("cpuset", "cpuset.cpus.effective", app1)
      *          Returns the CPUs granted for use to app1
      *
      * \param fileName the file to read
@@ -77,7 +77,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::string getValue(const char *fileName, App app) const;
+    std::string getLine(const char *fileName, App app) const;
 
     /*!
      * \brief Returns the content of a specified controller interface file.

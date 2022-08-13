@@ -15,13 +15,13 @@ CGroupControl::~CGroupControl()
 {
 }
 
-std::string CGroupControl::getValue(const char *fileName, App app) const
+std::string CGroupControl::getLine(const char *fileName, App app) const
 {
     // 1 - Find cgroup path
     string cgroupPath = util::findCgroupPath(app.getPid());
 
-    // 2 - Get value from the file
-    return util::getValue(fileName, cgroupPath);
+    // 2 - Get line from the file
+    return util::getLine(fileName, cgroupPath);
 }
 
 std::vector<string> CGroupControl::getContent(const char *fileName, App app) const
@@ -35,7 +35,7 @@ std::vector<string> CGroupControl::getContent(const char *fileName, App app) con
 
 int CGroupControl::getValueAsInt(const char *fileName, App app) const
 {
-    string value = getValue(fileName, app);
+    string value = getLine(fileName, app);
     long n = strtol(value.c_str(), nullptr, 10);
     return static_cast<int>(n);
 }
