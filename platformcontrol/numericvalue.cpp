@@ -9,13 +9,15 @@ void NumericValue::init(const char *pStart, const char *pEnd)
     value_ = NUMERIC_VALUE_INVALID;
     if (!pStart)
         return;
+    if (pEnd == nullptr)
+        pEnd = pStart + strlen(pStart);     // assume zero terminated string
     if (pEnd - pStart == 3 && strncmp(pStart, "max", 3) == 0) {
         value_ = NUMERIC_VALUE_MAX;
         return;
     }
     char *endptr;
     value_ = strtol(pStart, &endptr, 10);
-    if (pEnd && endptr != pEnd) {
+    if (endptr != pEnd) {
         value_ = NUMERIC_VALUE_INVALID;
     }
 }

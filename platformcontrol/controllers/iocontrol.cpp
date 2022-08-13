@@ -1,6 +1,6 @@
 #include "iocontrol.h"
 #include "../tsplit.h"
-#include "../numericutil.h"
+#include "../keyvalueparser.h"
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -31,7 +31,7 @@ std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int maj
     vector<string> lines = CGroupControl::getContent(fileNamesMap_.at(cf), app);
     map<string, NumericValue> tags;
     for (auto &line: lines) {
-        tags = parseLineNv(line, major, minor);
+        tags = KeyValueParser().parseLineNv(line, major, minor);
         if (!tags.empty())
             break;
     }

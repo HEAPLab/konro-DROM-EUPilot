@@ -1,4 +1,4 @@
-#include "numericutil.h"
+#include "keyvalueparser.h"
 #include "pcexception.h"
 #include <cctype>
 #include <cstdlib>
@@ -16,70 +16,70 @@ static inline const char *findTokenEnd(const char *pStart)
 namespace pc {
 
 /**
- * @brief Parses a line in the format "major:minor ..."
- * @param p The line
- * @param major Major device number
- * @param minor Minor device number
- * @return nullptr if major and minor of the line are different from the
+ * \brief Parses a line in the format "major:minor ..."
+ * \param major Major device number
+ * \param minor Minor device number
+ * \return nullptr if major and minor of the line are different from the
  *         requested values, otherwise a pointer to the first character
  *         after the minor number
  * \exception PcException if the format of the line is invalid
  */
-static const char *parseMajorMinor(const char *p, int major, int minor)
+bool KeyValueParser::parseMajorMinor(int major, int minor)
 {
-    const char *endptr;
-
-    if (!isdigit(*p))
+    if (!isdigit(*ptr_))
         throw PcException("Invalid line: digit expected for major");
 
     // Parse major device number
 
-    int devMajor = strtol(p, (char **)&endptr, 10);
-    if (*endptr != ':')
+    int devMajor = strtol(ptr_, (char **)&endptr_, 10);
+    if (*endptr_ != ':')
         throw PcException("Invalid line: ':' expected after major");
     if (devMajor != major)
-        return nullptr;         // not the device we are looking for
+        return false;         // not the device we are looking for
 
     // Parse minor device number
 
-    p = endptr + 1;
-    if (!isdigit(*p))
+    ptr_ = endptr_ + 1;
+    if (!isdigit(*ptr_))
         throw PcException("Invalid line: digit expected for minor");
 
-    int devMinor = strtol(p, (char **)&endptr, 10);
+    int devMinor = strtol(ptr_, (char **)&endptr_, 10);
     if (devMinor != minor)
-        return nullptr;         // not the device we are looking for
+        return false;
 
-    return endptr;
+    return true;
 }
 
-static pair<string, NumericValue> parseKeyValue(const char *ptr, const char **endptr)
+/*!
+ * Parses a key-value pair, such as key=value or key:value
+ *
+ * \return The key-value pair
+ * \exception PcException in case of format error
+ */
+pair<string, NumericValue> KeyValueParser::parseKeyValue()
 {
     // parse the tag
 
-    const char *eptr = findTokenEnd(ptr);
-    if (eptr == ptr) {
+    endptr_ = findTokenEnd(ptr_);
+    if (endptr_ == ptr_) {
         throw PcException("Invalid line: alpha character expected for tag");
     }
-    if (*eptr != '=' && *eptr != ':') {
+    if (*endptr_ != '=' && *endptr_ != ':') {
         throw PcException("Invalid line: '=' or ':' expected after tag");
     }
-    string tag(ptr, eptr);
-    ptr = eptr + 1;
+    string tag(ptr_, endptr_);
+    ptr_ = endptr_ + 1;
 
     // parse the value
 
-    eptr = findTokenEnd(ptr);
-    if (eptr == ptr) {
+    endptr_ = findTokenEnd(ptr_);
+    if (endptr_ == ptr_) {
         throw PcException("Invalid line: alphanumeric character expected for value");
     }
 
-    NumericValue val(ptr, eptr);
+    NumericValue val(ptr_, endptr_);
     if (val.isInvalid())
         throw PcException("Invalid line: invalid numeric value");
-
-    if (endptr != nullptr)
-        *endptr = eptr;
     return make_pair<>(tag, val);
 }
 
@@ -98,36 +98,42 @@ static pair<string, NumericValue> parseKeyValue(const char *ptr, const char **en
  *         numbers, the map is empty
  * \exception PcException if the format of the line is invalid
  */
-map<string, NumericValue> parseLineNv(const string &line, int major, int minor)
+map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int major, int minor)
 {
-    map<string, NumericValue> tags;
-    const char *p0 = line.c_str();
-    const char *p = p0;
-    const char *endptr;
+    ptr_ = line;
+    if (!parseMajorMinor(major, minor))
+        return map<string, NumericValue>();         // not the device we are looking for
 
-    endptr = parseMajorMinor(p, major, minor);
-    if (endptr == nullptr)
-        return tags;         // not the device we are looking for
-
-    if (*endptr != ' ')
+    if (*endptr_ != ' ')
         throw PcException("Invalid line: space expected after minor");
 
-    return parseLineNv(endptr + 1);
+    return parseLineNv(endptr_ + 1);
 }
 
-map<string, NumericValue> parseLineNv(const char *ptr)
+/*!
+ * Parses a line in the format
+ * \code
+ * tag=value [tag=value ...]
+ * \endcode
+ * where value can be numeric or the string "max"
+ *
+ * \param line the line to parse
+ * \return map of key and values
+ * \exception PcException if the format of the line is invalid
+ */
+map<string, NumericValue> KeyValueParser::parseLineNv(const char *line)
 {
     map<string, NumericValue> tags;
-    const char *endptr;
 
-    while (*ptr) {
-        tags.insert(parseKeyValue(ptr, &endptr));
-        ptr = endptr;
-        if (*ptr) {
-            if (*ptr != ' ')
+    ptr_ = line;
+    while (*ptr_) {
+        tags.insert(parseKeyValue());
+        ptr_ = endptr_;
+        if (*ptr_) {
+            if (*ptr_ != ' ')
                 throw PcException("Invalid line: expected space character after value");
-            ++ptr;
-            if (!*ptr)
+            ++ptr_;
+            if (!*ptr_)
                 throw PcException("Invalid line: expected new tag after last value");
         }
     }

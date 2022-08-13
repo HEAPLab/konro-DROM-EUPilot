@@ -1,6 +1,7 @@
 #include "unittest.h"
 #include "numericvalue.h"
-#include "numericutil.h"
+#include "keyvalueparser.h"
+#include "pcexception.h"
 
 #include <vector>
 #include <string>
@@ -15,11 +16,11 @@ using namespace pc;
 static int testParseNvSyntax(int major, int minor, const char *line, bool expectedError = false)
 {
     try {
-        map<string, NumericValue> tags = pc::parseLineNv(line, major, minor);
+        map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, major, minor);
         if (expectedError) {
             return TEST_FAILED;
         }
-#if 0
+#if 1
         if (tags.empty()) {
             cout << "    No tags found\n";
         } else {
@@ -40,7 +41,7 @@ static int testParseNvValues()
 {
     const char line[] = "8:0 abcd=12345 efgh=max pippo=7 pluto=12345678";
 
-    map<string, NumericValue> tags = pc::parseLineNv(line, 8, 0);
+    map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
     if (tags.empty())
         return TEST_FAILED;
     if (tags["abcd"] != 12345)
@@ -55,13 +56,40 @@ static int testParseNvValues()
     return TEST_OK;
 }
 
+static int testParseKeyValue()
+{
+    pair<string, NumericValue> result = pc::KeyValueParser().parseKeyValue("alfa=33");
+    if (result.first != "alfa" || result.second != 33)
+        return TEST_FAILED;
+
+    result = pc::KeyValueParser().parseKeyValue("alfa:33");
+    if (result.first != "alfa" || result.second != 33)
+        return TEST_FAILED;
+
+    result = pc::KeyValueParser().parseKeyValue("alfa:max");
+    if (result.first != "alfa" || !result.second.isMax())
+        return TEST_FAILED;
+
+    result = pc::KeyValueParser().parseKeyValue("alfa=max");
+    if (result.first != "alfa" || !result.second.isMax())
+        return TEST_FAILED;
+
+    try {
+        result = pc::KeyValueParser().parseKeyValue("alfa:abcd");
+        return TEST_FAILED;
+    } catch (pc::PcException &e) {
+        ;
+    }
+
+    return TEST_OK;
+}
+
 int main(int argc, char *argv[])
 {
     // expected to be successful
 
     if (testParseNvSyntax(8, 0, "8:0 abcd=12345 efgh=54321 pippo=7 pluto=12345678") != TEST_OK)
         return TEST_FAILED;
-
     if (testParseNvSyntax(8, 1, "8:0 abcd=12345 efgh=54321 pippo=7 pluto=12345678") != TEST_OK)
         return TEST_FAILED;
 
@@ -113,6 +141,9 @@ int main(int argc, char *argv[])
         return TEST_FAILED;
 
     if (testParseNvValues() != TEST_OK)
+        return TEST_FAILED;
+
+    if (testParseKeyValue() != TEST_OK)
         return TEST_FAILED;
 
     return TEST_OK;
