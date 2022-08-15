@@ -101,8 +101,8 @@ pair<string, NumericValue> KeyValueParser::parseKeyValue()
 map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int major, int minor)
 {
     ptr_ = line;
-    if (!parseMajorMinor(major, minor))
-        return map<string, NumericValue>();         // not the device we are looking for
+    if (!parseMajorMinor(major, minor) || *endptr_ == '\0')
+        return map<string, NumericValue>();         // not the device we are looking for or no tags
 
     if (*endptr_ != ' ')
         throw PcException("Invalid line: space expected after minor");

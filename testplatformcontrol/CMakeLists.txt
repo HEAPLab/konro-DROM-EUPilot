@@ -19,6 +19,7 @@ add_unit_test(test_split)
 add_unit_test(test_findcgrouppath)
 add_unit_test(test_createcgroup)
 add_unit_test(test_keyvalueparser)
+add_unit_test(test_cpusetcontrol)
 
 
 

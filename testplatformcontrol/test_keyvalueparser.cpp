@@ -37,7 +37,7 @@ static int testParseNvSyntax(int major, int minor, const char *line, bool expect
     return TEST_OK;
 }
 
-static int testParseNvValues()
+static int testParseNvValues1()
 {
     const char line[] = "8:0 abcd=12345 efgh=max pippo=7 pluto=12345678";
 
@@ -51,6 +51,17 @@ static int testParseNvValues()
     if (tags["pippo"] != 7)
         return TEST_FAILED;
     if (tags["pluto"] != 12345678)
+        return TEST_FAILED;
+
+    return TEST_OK;
+}
+
+static int testParseNvValues2()
+{
+    const char line[] = "8:0";
+
+    map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
+    if (!tags.empty())
         return TEST_FAILED;
 
     return TEST_OK;
@@ -76,6 +87,27 @@ static int testParseKeyValue()
 
     try {
         result = pc::KeyValueParser().parseKeyValue("alfa:abcd");
+        return TEST_FAILED;
+    } catch (pc::PcException &e) {
+        ;
+    }
+
+    try {
+        result = pc::KeyValueParser().parseKeyValue("alfa:123a");
+        return TEST_FAILED;
+    } catch (pc::PcException &e) {
+        ;
+    }
+
+    try {
+        result = pc::KeyValueParser().parseKeyValue("alfa: 123");
+        return TEST_FAILED;
+    } catch (pc::PcException &e) {
+        ;
+    }
+
+    try {
+        result = pc::KeyValueParser().parseKeyValue("alfa123");
         return TEST_FAILED;
     } catch (pc::PcException &e) {
         ;
@@ -140,7 +172,10 @@ int main(int argc, char *argv[])
     if (testParseNvSyntax(8, 0, "8:0 abcd=12345 efgh=max pippo=7 pluto=1234567 ", true) != TEST_OK)
         return TEST_FAILED;
 
-    if (testParseNvValues() != TEST_OK)
+    if (testParseNvValues1() != TEST_OK)
+        return TEST_FAILED;
+
+    if (testParseNvValues2() != TEST_OK)
         return TEST_FAILED;
 
     if (testParseKeyValue() != TEST_OK)

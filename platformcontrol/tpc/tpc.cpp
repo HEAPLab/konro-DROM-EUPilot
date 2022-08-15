@@ -4,6 +4,7 @@
 #include "cgroupcontrol.h"
 #include "cpucontrol.h"
 #include "iocontrol.h"
+#include "cpusetcontrol.h"
 #include "cgrouputil.h"
 #include "numericvalue.h"
 #include "pcexception.h"
@@ -67,6 +68,14 @@ static void getIoStat(pc::App app, int major, int minor)
     for (const auto& kv : tags) {
         cout << kv.first << ":" << kv.second << endl;
     }
+}
+
+static void setCpuSet(pc::App app)
+{
+    vector<pair<short, short>> request = { {0, 0}, {3, 3} };
+    string cgroupPath = pc::util::findCgroupPath(app.getPid());
+    pc::util::activateController("cpuset", cgroupPath);
+    pc::CpusetControl().setCpusetCpus(request, app);
 }
 
 int main(int argc, char *argv[])
