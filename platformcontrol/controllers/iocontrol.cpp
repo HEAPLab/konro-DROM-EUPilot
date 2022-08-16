@@ -26,7 +26,7 @@ const map<IOControl::IoMax, const char *> IOControl::keyNames_ = {
     { WIOPS, "wiops" },
 };
 
-std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, App app)
+std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app)
 {
     vector<string> lines = getContent(fileNamesMap_.at(cf), app);
     map<string, NumericValue> tags;
@@ -38,7 +38,7 @@ std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int maj
     return tags;
 }
 
-void IOControl::setIOMax(int major, int minor, IoMax ioMax, NumericValue value, App app)
+void IOControl::setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app)
 {
     ostringstream os;
     os << major << ':' << minor << ' ' << keyNames_.at(ioMax) << '=' << value;;

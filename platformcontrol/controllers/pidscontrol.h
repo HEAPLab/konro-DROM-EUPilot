@@ -28,7 +28,7 @@ public:
      * \param numPids the maximum number of processes that can be forked
      * \param app the application to limit
      */
-    void setPidsMax(NumericValue numPids, App app);
+    void setPidsMax(NumericValue numPids, std::shared_ptr<App> app);
 
     /*!
      * Gets the maximum number of processes that may be forked by the application.
@@ -36,7 +36,7 @@ public:
      * \param app the application of interest
      * \returns the maximum number of processes that can be froked by the application
      */
-    NumericValue getPidsMax(App app);
+    NumericValue getPidsMax(std::shared_ptr<App> app);
 
     /*!
      * Gets the number of processes in the cgroup where the application is located and
@@ -44,7 +44,7 @@ public:
      * \param app the application of interest
      * \returns the number of processes in the app's cgroup and descendants
      */
-    NumericValue getPidsCurrent(App app);
+    NumericValue getPidsCurrent(std::shared_ptr<App> app);
 };
 
 }   // namespace pc

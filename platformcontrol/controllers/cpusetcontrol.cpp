@@ -51,7 +51,7 @@ std::vector<std::pair<short, short>> CpusetControl::parseCpuSet(const std::strin
     return vec;
 }
 
-void CpusetControl::setCpusetCpus(const std::vector<std::pair<short, short>> &cpus, App app)
+void CpusetControl::setCpusetCpus(const std::vector<std::pair<short, short>> &cpus, std::shared_ptr<App> app)
 {
     std::ostringstream os;
     for (size_t i = 0; i < cpus.size(); ++i) {
@@ -64,19 +64,19 @@ void CpusetControl::setCpusetCpus(const std::vector<std::pair<short, short>> &cp
     setValue(controllerName_, fileNamesMap_.at(CPUS), os.str(), app);
 }
 
-std::vector<std::pair<short, short>> CpusetControl::getCpusetCpus(App app)
+std::vector<std::pair<short, short>> CpusetControl::getCpusetCpus(std::shared_ptr<App> app)
 {
     std::string line = getLine(fileNamesMap_.at(CPUS), app);
     return parseCpuSet(line);
 }
 
-std::vector<std::pair<short, short>> CpusetControl::getCpusetCpusEffective(App app)
+std::vector<std::pair<short, short>> CpusetControl::getCpusetCpusEffective(std::shared_ptr<App> app)
 {
     std::string line = getLine(fileNamesMap_.at(CPUS_EFFECTIVE), app);
     return parseCpuSet(line);
 }
 
-void CpusetControl::setCpusetMems(const std::vector<std::pair<short, short> > &memNodes, App app)
+void CpusetControl::setCpusetMems(const std::vector<std::pair<short, short> > &memNodes, std::shared_ptr<App> app)
 {
     std::ostringstream os;
     for (size_t i = 0; i < memNodes.size(); ++i) {
@@ -89,13 +89,13 @@ void CpusetControl::setCpusetMems(const std::vector<std::pair<short, short> > &m
     setValue(controllerName_, fileNamesMap_.at(MEMS), os.str(), app);
 }
 
-std::vector<std::pair<short, short> > CpusetControl::getCpusetMems(App app)
+std::vector<std::pair<short, short> > CpusetControl::getCpusetMems(std::shared_ptr<App> app)
 {
     std::string line = getLine(fileNamesMap_.at(MEMS), app);
     return parseCpuSet(line);
 }
 
-std::vector<std::pair<short, short> > CpusetControl::getCpusetMemsEffective(App app)
+std::vector<std::pair<short, short> > CpusetControl::getCpusetMemsEffective(std::shared_ptr<App> app)
 {
     std::string line = getLine(fileNamesMap_.at(MEMS_EFFECTIVE), app);
     return parseCpuSet(line);

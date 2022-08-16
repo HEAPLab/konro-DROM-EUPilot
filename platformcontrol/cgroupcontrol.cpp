@@ -15,32 +15,32 @@ CGroupControl::~CGroupControl()
 {
 }
 
-std::string CGroupControl::getLine(const char *fileName, App app) const
+std::string CGroupControl::getLine(const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::findCgroupPath(app.getPid());
+    string cgroupPath = util::findCgroupPath(app->getPid());
 
     // 2 - Get line from the file
     return util::getLine(fileName, cgroupPath);
 }
 
-std::vector<string> CGroupControl::getContent(const char *fileName, App app) const
+std::vector<string> CGroupControl::getContent(const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::findCgroupPath(app.getPid());
+    string cgroupPath = util::findCgroupPath(app->getPid());
 
     // 2 - Get content from the file
     return util::getContent(fileName, cgroupPath);
 }
 
-int CGroupControl::getValueAsInt(const char *fileName, App app) const
+int CGroupControl::getValueAsInt(const char *fileName, std::shared_ptr<App> app) const
 {
     string value = getLine(fileName, app);
     long n = strtol(value.c_str(), nullptr, 10);
     return static_cast<int>(n);
 }
 
-std::map<string, unsigned long> CGroupControl::getContentAsMap(const char *fileName, App app)
+std::map<string, unsigned long> CGroupControl::getContentAsMap(const char *fileName, std::shared_ptr<App> app)
 {
     std::map<std::string, unsigned long> tags;
     std::vector<std::string> fileContent = getContent(fileName, app);
@@ -56,16 +56,16 @@ std::map<string, unsigned long> CGroupControl::getContentAsMap(const char *fileN
     return tags;
 }
 
-void CGroupControl::addApplication(App app)
+void CGroupControl::addApplication(std::shared_ptr<App> app)
 {
-    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app.getPid());
+    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app->getPid());
     Dir::mkdir_r(cgroupAppBaseDir.c_str());
-    util::moveToCgroup(cgroupAppBaseDir, app.getPid());
+    util::moveToCgroup(cgroupAppBaseDir, app->getPid());
 }
 
-void CGroupControl::removeApplication(App app)
+void CGroupControl::removeApplication(std::shared_ptr<App> app)
 {
-    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app.getPid());
+    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app->getPid());
     Dir::rmdir(cgroupAppBaseDir.c_str());
 }
 

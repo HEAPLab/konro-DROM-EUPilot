@@ -14,7 +14,7 @@ const std::map<CpuControl::ControllerFile, const char *> CpuControl::fileNamesMa
 };
 
 
-void CpuControl::setCpuMax(NumericValue percentage, App app)
+void CpuControl::setCpuMax(NumericValue percentage, std::shared_ptr<App> app)
 {
     std::ostringstream os;
     // for cpu.max normalize value between 0 and period_
@@ -26,7 +26,7 @@ void CpuControl::setCpuMax(NumericValue percentage, App app)
     setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
-NumericValue CpuControl::getCpuMax(App app)
+NumericValue CpuControl::getCpuMax(std::shared_ptr<App> app)
 {
     std::string svalue = getLine(fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
@@ -43,12 +43,12 @@ NumericValue CpuControl::getCpuMax(App app)
     }
 }
 
-std::map<std::string, unsigned long> CpuControl::getCpuStat(App app)
+std::map<std::string, unsigned long> CpuControl::getCpuStat(std::shared_ptr<App> app)
 {
     return getContentAsMap(fileNamesMap_.at(STAT), app);
 }
 
-void CpuControl::setCpuWeight(int weight, App app)
+void CpuControl::setCpuWeight(int weight, std::shared_ptr<App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(WEIGHT), weight, app);
 }

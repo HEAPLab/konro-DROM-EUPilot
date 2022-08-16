@@ -14,37 +14,37 @@ const std::map<MemoryControl::ControllerFile, const char *> MemoryControl::fileN
     { STAT, "memory.stat" }
 };
 
-int MemoryControl::getMemoryCurrent(App app)
+int MemoryControl::getMemoryCurrent(std::shared_ptr<App> app)
 {
     return getValueAsInt(fileNamesMap_.at(CURRENT), app);
 }
 
-void MemoryControl::setMemoryMin(int minMem, App app)
+void MemoryControl::setMemoryMin(int minMem, std::shared_ptr<App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(MIN), minMem, app);
 }
 
-int MemoryControl::getMemoryMin(App app)
+int MemoryControl::getMemoryMin(std::shared_ptr<App> app)
 {
     return getValueAsInt(fileNamesMap_.at(MIN), app);
 }
 
-void MemoryControl::setMemoryMax(NumericValue maxMem, App app)
+void MemoryControl::setMemoryMax(NumericValue maxMem, std::shared_ptr<App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(MAX), maxMem, app);
 }
 
-NumericValue MemoryControl::getMemoryMax(App app)
+NumericValue MemoryControl::getMemoryMax(std::shared_ptr<App> app)
 {
     return getLine(fileNamesMap_.at(MAX), app);
 }
 
-std::map<std::string, unsigned long> MemoryControl::getMemoryEvents(App app)
+std::map<std::string, unsigned long> MemoryControl::getMemoryEvents(std::shared_ptr<App> app)
 {
     return getContentAsMap(fileNamesMap_.at(EVENTS), app);
 }
 
-std::map<std::string, unsigned long> MemoryControl::getMemoryStat(App app)
+std::map<std::string, unsigned long> MemoryControl::getMemoryStat(std::shared_ptr<App> app)
 {
     return getContentAsMap(fileNamesMap_.at(STAT), app);
 }

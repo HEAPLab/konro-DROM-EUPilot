@@ -30,7 +30,7 @@ private:
     static const std::map<ControllerFile, const char *> fileNamesMap_;
     static const std::map<IoMax, const char *> keyNames_;
 
-    std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, App app);
+    std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app);
 
 public:
 
@@ -47,7 +47,7 @@ public:
      * \param app the application of interest
      * \returns the IO usage statistics
      */
-    std::map<std::string, NumericValue> getIOStat(int major, int minor, App app) {
+    std::map<std::string, NumericValue> getIOStat(int major, int minor, std::shared_ptr<App> app) {
         return getIOHelper(STAT, major, minor, app);
     }
 
@@ -67,7 +67,7 @@ public:
      * \param value the maximum value allowed for the IO resource
      * \param app the application to limit
      */
-    void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, App app);
+    void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app);
 
     /*!
      * Gets the specified application's IO limits.
@@ -80,7 +80,7 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, NumericValue> getIOMax(int major, int minor, App app) {
+    std::map<std::string, NumericValue> getIOMax(int major, int minor, std::shared_ptr<App> app) {
         return getIOHelper(MAX, major, minor, app);
     }
 };

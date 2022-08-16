@@ -41,7 +41,7 @@ public:
      * \param cpus the list of requested cpus
      * \param app the application to limit
      */
-    void setCpusetCpus(const CpusetVector &cpus, App app);
+    void setCpusetCpus(const CpusetVector &cpus, std::shared_ptr<App> app);
 
     /*!
      * Returns the list of cpus that are requested to the specified application
@@ -52,14 +52,14 @@ public:
      * \param app the application of interest
      * \returns the cpus requested for use by the application
      */
-    CpusetVector getCpusetCpus(App app);
+    CpusetVector getCpusetCpus(std::shared_ptr<App> app);
 
     /*!
      * Returns the list of cpus that are granted to the specified application
      * \param app the application of interest
      * \returns the cpus available for use by the application
      */
-    CpusetVector getCpusetCpusEffective(App app);
+    CpusetVector getCpusetCpusEffective(std::shared_ptr<App> app);
 
     /*!
      * Requests the use of a set of memory nodes by the application.
@@ -79,16 +79,16 @@ public:
      * \param memNodes the list of requested memory nodes
      * \param app the application to limit
      */
-    void setCpusetMems(const CpusetVector &memNodes, App app);
+    void setCpusetMems(const CpusetVector &memNodes, std::shared_ptr<App> app);
 
-    CpusetVector getCpusetMems(App app);
+    CpusetVector getCpusetMems(std::shared_ptr<App> app);
 
     /*!
      * Returns the list of memory nodes that are granted to the specified application
      * \param app the application of interest
      * \returns the memory nodes available for use by the application
      */
-    CpusetVector getCpusetMemsEffective(App app);
+    CpusetVector getCpusetMemsEffective(std::shared_ptr<App> app);
 
 };
 

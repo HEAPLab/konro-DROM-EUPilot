@@ -36,9 +36,9 @@ public:
      * \throws PcException in case of error
      */
     template<typename T>
-    void setValue(const char *controllerName, const char *fileName, T value, App app) const {
+    void setValue(const char *controllerName, const char *fileName, T value, std::shared_ptr<App> app) const {
         // 1 - Find cgroup path
-        std::string cgroupPath = util::findCgroupPath(app.getPid());
+        std::string cgroupPath = util::findCgroupPath(app->getPid());
 
         // 2 - If the controller interface file doesn't exist, activate the controller
         std::string filePath = make_path(cgroupPath, fileName);
@@ -79,7 +79,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::string getLine(const char *fileName, App app) const;
+    std::string getLine(const char *fileName, std::shared_ptr<App> app) const;
 
     /*!
      * \brief Returns the content of a specified controller interface file.
@@ -92,7 +92,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::vector<std::string> getContent(const char *fileName, App app) const;
+    std::vector<std::string> getContent(const char *fileName, std::shared_ptr<App> app) const;
 
     /*!
      * \brief Returns the current limit applied to an application for a specific resource
@@ -102,9 +102,9 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    int getValueAsInt(const char *fileName, App app) const;
+    int getValueAsInt(const char *fileName, std::shared_ptr<App> app) const;
 
-    std::map<std::string, unsigned long> getContentAsMap(const char *fileName, App app);
+    std::map<std::string, unsigned long> getContentAsMap(const char *fileName, std::shared_ptr<App> app);
 
     /*!
      * \brief Adds an application under the management of Konro.
@@ -115,7 +115,7 @@ public:
      *
      * \param app the application to manage
      */
-    void addApplication(App app);
+    void addApplication(std::shared_ptr<App> app);
 
     /*!
      * \brief Removes an application from the management of Konro.
@@ -124,7 +124,7 @@ public:
      *
      * \param app the application to manage
      */
-    void removeApplication(App app);
+    void removeApplication(std::shared_ptr<App> app);
 };
 
 }
