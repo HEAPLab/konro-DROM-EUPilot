@@ -65,12 +65,8 @@ void CGroupControl::addApplication(App app)
 
 void CGroupControl::removeApplication(App app)
 {
-#if 0
-    string cgroupBasePath = "/sys/fs/cgroup/konro.slice/";
-    ostringstream os;
-    os << cgroupBasePath << "app-" << app.getPid() <<".scope";
-    Dir::rmdir(os.str().c_str());
-#endif
+    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app.getPid());
+    Dir::rmdir(cgroupAppBaseDir.c_str());
 }
 
 }

@@ -40,9 +40,11 @@ public:
         // 1 - Find cgroup path
         std::string cgroupPath = util::findCgroupPath(app.getPid());
 
-        // 2 - Activate controller
-        util::activateController(controllerName, cgroupPath);
-
+        // 2 - If the controller interface file doesn't exist, activate the controller
+        std::string filePath = make_path(cgroupPath, fileName);
+        if (!util::fileExists(filePath.c_str())) {
+            util::activateController(controllerName, cgroupPath);
+        }
         // 3 - Write value in the correct cgroup
         util::writeValue(fileName, value, cgroupPath);
     }

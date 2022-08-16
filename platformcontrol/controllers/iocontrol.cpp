@@ -28,7 +28,7 @@ const map<IOControl::IoMax, const char *> IOControl::keyNames_ = {
 
 std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, App app)
 {
-    vector<string> lines = CGroupControl::getContent(fileNamesMap_.at(cf), app);
+    vector<string> lines = getContent(fileNamesMap_.at(cf), app);
     map<string, NumericValue> tags;
     for (auto &line: lines) {
         tags = KeyValueParser().parseLineNv(line, major, minor);
@@ -42,7 +42,7 @@ void IOControl::setIOMax(int major, int minor, IoMax ioMax, NumericValue value, 
 {
     ostringstream os;
     os << major << ':' << minor << ' ' << keyNames_.at(ioMax) << '=' << value;;
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
+    setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
 }   // namespace pc

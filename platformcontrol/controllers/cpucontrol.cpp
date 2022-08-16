@@ -23,12 +23,12 @@ void CpuControl::setCpuMax(NumericValue percentage, App app)
     } else {
         os << ((percentage * period_) / 100) << ' ' << period_;
     }
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
+    setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
 NumericValue CpuControl::getCpuMax(App app)
 {
-    std::string svalue = CGroupControl::getLine(fileNamesMap_.at(MAX), app);
+    std::string svalue = getLine(fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
     NumericValue value;
     int period;
@@ -50,7 +50,7 @@ std::map<std::string, unsigned long> CpuControl::getCpuStat(App app)
 
 void CpuControl::setCpuWeight(int weight, App app)
 {
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(WEIGHT), weight, app);
+    setValue(controllerName_, fileNamesMap_.at(WEIGHT), weight, app);
 }
 
 

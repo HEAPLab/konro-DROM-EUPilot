@@ -23,7 +23,9 @@ private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
 public:
-    std::vector<std::pair<short, short>> parseCpuSet(const std::string &line);
+    typedef std::vector<std::pair<short,short>> CpusetVector;
+
+    CpusetVector parseCpuSet(const std::string &line);
 
     /*!
      * Requests the use of a set of cpus by the application.
@@ -39,7 +41,7 @@ public:
      * \param cpus the list of requested cpus
      * \param app the application to limit
      */
-    void setCpusetCpus(const std::vector<std::pair<short,short>> &cpus, App app);
+    void setCpusetCpus(const CpusetVector &cpus, App app);
 
     /*!
      * Returns the list of cpus that are requested to the specified application
@@ -50,14 +52,14 @@ public:
      * \param app the application of interest
      * \returns the cpus requested for use by the application
      */
-    std::vector<std::pair<short,short>> getCpusetCpus(App app);
+    CpusetVector getCpusetCpus(App app);
 
     /*!
      * Returns the list of cpus that are granted to the specified application
      * \param app the application of interest
      * \returns the cpus available for use by the application
      */
-    std::vector<std::pair<short,short>> getCpusetCpusEffective(App app);
+    CpusetVector getCpusetCpusEffective(App app);
 
     /*!
      * Requests the use of a set of memory nodes by the application.
@@ -77,16 +79,16 @@ public:
      * \param memNodes the list of requested memory nodes
      * \param app the application to limit
      */
-    void setCpusetMems(const std::vector<std::pair<short,short>> &memNodes, App app);
+    void setCpusetMems(const CpusetVector &memNodes, App app);
 
-    std::vector<std::pair<short,short>> getCpusetMems(App app);
+    CpusetVector getCpusetMems(App app);
 
     /*!
      * Returns the list of memory nodes that are granted to the specified application
      * \param app the application of interest
      * \returns the memory nodes available for use by the application
      */
-    std::vector<std::pair<short,short>> getCpusetMemsEffective(App app);
+    CpusetVector getCpusetMemsEffective(App app);
 
 };
 

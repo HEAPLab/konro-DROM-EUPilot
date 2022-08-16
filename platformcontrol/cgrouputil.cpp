@@ -145,5 +145,14 @@ void moveToCgroup(string cgroupPath, pid_t pid)
     fileStream.close();
 }
 
+bool fileExists(const char *path)
+{
+    struct stat statbuf;
+
+    if (stat(path, &statbuf) != 0)
+        return false;
+    return S_ISREG(statbuf.st_mode);
+}
+
 }   // namespace util
 }   // namespace pc

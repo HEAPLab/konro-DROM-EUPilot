@@ -5,7 +5,10 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
+
 
 namespace pc {
 namespace util {
@@ -99,6 +102,13 @@ std::string createCgroup(std::string cgroupPath, std::string name);
  * \param pid the pid of the process to move
  */
 void moveToCgroup(std::string cgroupPath, pid_t pid);
+
+/*!
+ * \brief Checks if the specified file exists
+ * \param path the filename with path
+ * \return
+ */
+bool fileExists(const char *path);
 
 }   // namespace util
 }   // namespace pc

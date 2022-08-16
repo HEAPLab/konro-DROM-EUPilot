@@ -61,18 +61,18 @@ void CpusetControl::setCpusetCpus(const std::vector<std::pair<short, short>> &cp
         if (cpus[i].second != cpus[i].first)
             os << '-' << cpus[i].second;
     }
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(CPUS), os.str(), app);
+    setValue(controllerName_, fileNamesMap_.at(CPUS), os.str(), app);
 }
 
 std::vector<std::pair<short, short>> CpusetControl::getCpusetCpus(App app)
 {
-    std::string line = CGroupControl::getLine(fileNamesMap_.at(CPUS), app);
+    std::string line = getLine(fileNamesMap_.at(CPUS), app);
     return parseCpuSet(line);
 }
 
 std::vector<std::pair<short, short>> CpusetControl::getCpusetCpusEffective(App app)
 {
-    std::string line = CGroupControl::getLine(fileNamesMap_.at(CPUS_EFFECTIVE), app);
+    std::string line = getLine(fileNamesMap_.at(CPUS_EFFECTIVE), app);
     return parseCpuSet(line);
 }
 
@@ -86,18 +86,18 @@ void CpusetControl::setCpusetMems(const std::vector<std::pair<short, short> > &m
         if (memNodes[i].second != memNodes[i].first)
             os << '-' << memNodes[i].second;
     }
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MEMS), os.str(), app);
+    setValue(controllerName_, fileNamesMap_.at(MEMS), os.str(), app);
 }
 
 std::vector<std::pair<short, short> > CpusetControl::getCpusetMems(App app)
 {
-    std::string line = CGroupControl::getLine(fileNamesMap_.at(MEMS), app);
+    std::string line = getLine(fileNamesMap_.at(MEMS), app);
     return parseCpuSet(line);
 }
 
 std::vector<std::pair<short, short> > CpusetControl::getCpusetMemsEffective(App app)
 {
-    std::string line = CGroupControl::getLine(fileNamesMap_.at(MEMS_EFFECTIVE), app);
+    std::string line = getLine(fileNamesMap_.at(MEMS_EFFECTIVE), app);
     return parseCpuSet(line);
 }
 

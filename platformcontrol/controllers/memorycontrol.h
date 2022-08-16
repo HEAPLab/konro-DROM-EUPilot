@@ -2,6 +2,7 @@
 #define MEMORYCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../numericvalue.h"
 #include <string>
 #include <map>
 
@@ -27,6 +28,11 @@ public:
     /*!
      * Gets the total amount of memory currently being used by the specified
      * application and its descendants.
+     * For example:
+     * \code
+     * 2571833344
+     * \endcode
+     *
      * \returns the amount of memory used by the app and its descendants
      */
     int getMemoryCurrent(App app);
@@ -34,7 +40,9 @@ public:
     /*!
      * Sets a minimum amount of memory that the application must always retain.
      * It is a hard memory protection.
-     * \param minMem the min amount of memory that the app must retain
+     * \param minMem the min amount of memory that the app must retain.
+     *               minMem must be a multiple of the page size (for example: 4096)
+     *               or it will be rounded
      * \param app the application to limit
      */
     void setMemoryMin(int minMem, App app);
@@ -50,17 +58,19 @@ public:
      * Sets a memory usage hard limit for the application.
      * If the app's memory usage reaches this limit and can't be reduced,
      * the system OOM killer is invoked on the app.
-     * \param maxMem the max amount of memory that the app can use
+     * \param maxMem the max amount of memory that the app can use.
+     *        maxMem must be a multiple of the page size (for example: 4096)
+     *        or it will be rounded
      * \param app the application to limit
      */
-    void setMemoryMax(int maxMem, App app);
+    void setMemoryMax(NumericValue maxMem, App app);
 
     /*!
      * Gets the memory usage hard limit for the application.
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    int getMemoryMax(App app);
+    NumericValue getMemoryMax(App app);
 
     /*!
      * Gets the number of times certain memory events have occurred

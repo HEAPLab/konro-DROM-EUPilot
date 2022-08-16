@@ -14,17 +14,17 @@ const std::map<PidsControl::ControllerFile, const char *> PidsControl::fileNames
 
 void PidsControl::setPidsMax(NumericValue numPids, App app)
 {
-    CGroupControl::setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);
+    setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);
 }
 
 NumericValue PidsControl::getPidsMax(App app)
 {
-    return CGroupControl::getLine(fileNamesMap_.at(MAX), app);
+    return getLine(fileNamesMap_.at(MAX), app);
 }
 
 NumericValue PidsControl::getPidsCurrent(App app)
 {
-    return CGroupControl::getValueAsInt(fileNamesMap_.at(CURRENT), app);
+    return getValueAsInt(fileNamesMap_.at(CURRENT), app);
 }
 
 }   // namespace pc
