@@ -13,7 +13,7 @@
 namespace pc {
 namespace util {
 
-void throwCouldNotOpenFile(std::string funcName, std::string fileName);
+void throwCouldNotOpenFile(const std::string &funcName, const std::string &fileName);
 
 /*!
  * Gets the path of the root folder of the cgroup hierarchy
@@ -56,7 +56,7 @@ void activateController(const char *controllerName, const std::string &cgroupPat
  * \param cgroupPath the target directory
  */
 template<typename T>
-void writeValue(const char *fileName, T value, std::string cgroupPath) {
+void writeValue(const char *fileName, T value, const std::string &cgroupPath) {
     std::string filePath = make_path(cgroupPath, fileName);
     std::ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
@@ -76,7 +76,7 @@ void writeValue(const char *fileName, T value, std::string cgroupPath) {
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file
  */
-std::string getLine(const char *fileName, std::string cgroupPath);
+std::string getLine(const char *fileName, const std::string &cgroupPath);
 
 /*!
  * \brief Gets the content of a specified cgroup interface file
@@ -86,7 +86,7 @@ std::string getLine(const char *fileName, std::string cgroupPath);
  * \param cgroupPath the directory where the file is located
  * \returns the content of the file as a vector of strings
  */
-std::vector<std::string> getContent(const char *fileName, std::string cgroupPath);
+std::vector<std::string> getContent(const char *fileName, const std::string &cgroupPath);
 
 /*!
  * \brief Creates a new cgroup
@@ -94,14 +94,14 @@ std::vector<std::string> getContent(const char *fileName, std::string cgroupPath
  * \param name the name of the cgroup to create
  * \returns the path of the new cgroup
  */
-std::string createCgroup(std::string cgroupPath, std::string name);
+std::string createCgroup(std::string cgroupPath, const std::string &name);
 
 /*!
  * \brief Moves a process to the specified cgroup directory
  * \param cgroupPath the cgroup directory where to move the process
  * \param pid the pid of the process to move
  */
-void moveToCgroup(std::string cgroupPath, pid_t pid);
+void moveToCgroup(const std::string &cgroupPath, pid_t pid);
 
 /*!
  * \brief Checks if the specified file exists

@@ -32,7 +32,7 @@ string getCgroupAppBaseDir(pid_t pid)
 /*!
  * \brief Throws a PcException
  */
-void throwCouldNotOpenFile(string funcName, string fileName)
+void throwCouldNotOpenFile(const string &funcName, const string &fileName)
 {
     ostringstream os;
     os << funcName << ": could not open file " << fileName << ": " << strerror(errno);
@@ -95,7 +95,7 @@ void writeValue(const char *fileName, const string &value, std::string cgroupPat
     fileStream.close();
 }
 
-std::string getLine(const char *fileName, std::string cgroupPath)
+std::string getLine(const char *fileName, const string &cgroupPath)
 {
     string filePath = make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
@@ -107,7 +107,7 @@ std::string getLine(const char *fileName, std::string cgroupPath)
     return line;
 }
 
-std::vector<string> getContent(const char *fileName, std::string cgroupPath)
+std::vector<string> getContent(const char *fileName, const std::string &cgroupPath)
 {
     string filePath = make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
@@ -121,7 +121,7 @@ std::vector<string> getContent(const char *fileName, std::string cgroupPath)
     return content;
 }
 
-string createCgroup(string cgroupPath, string name)
+string createCgroup(string cgroupPath, const std::string &name)
 {
     string newPath = make_path(cgroupPath, name);
     int rc = mkdir(newPath.c_str(), S_IRWXU|S_IRWXU|S_IRWXG|S_IRWXG);
@@ -134,7 +134,7 @@ string createCgroup(string cgroupPath, string name)
     return newPath;
 }
 
-void moveToCgroup(string cgroupPath, pid_t pid)
+void moveToCgroup(const string &cgroupPath, pid_t pid)
 {
     string filePath = make_path(cgroupPath, "cgroup.procs");
     ofstream fileStream(filePath.c_str());
