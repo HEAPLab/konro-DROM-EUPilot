@@ -16,7 +16,7 @@ void NumericValue::init(const char *pStart, const char *pEnd)
         return;
     }
     char *endptr;
-    value_ = strtol(pStart, &endptr, 10);
+    value_ = strtoull(pStart, &endptr, 10);
     if (endptr != pEnd) {
         value_ = NUMERIC_VALUE_INVALID;
     }

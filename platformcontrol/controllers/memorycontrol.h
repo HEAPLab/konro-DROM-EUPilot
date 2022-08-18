@@ -84,7 +84,7 @@ public:
      * \param app the application of interest
      * \returns the pairs of memory events
      */
-    std::map<std::string, unsigned long> getMemoryEvents(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getMemoryEvents(std::shared_ptr<App> app);
 
     /*!
      * Gets memory statistics for the specified applications.
@@ -97,7 +97,7 @@ public:
      * \param app the application of interest
      * \returns the memory statistics
      */
-    std::map<std::string, unsigned long> getMemoryStat(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getMemoryStat(std::shared_ptr<App> app);
 
 };
 

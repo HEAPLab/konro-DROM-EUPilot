@@ -28,7 +28,7 @@ const map<IOControl::IoMax, const char *> IOControl::keyNames_ = {
 
 std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app)
 {
-    vector<string> lines = getContent(fileNamesMap_.at(cf), app);
+    vector<string> lines = getContent(controllerName_, fileNamesMap_.at(cf), app);
     map<string, NumericValue> tags;
     for (auto &line: lines) {
         tags = KeyValueParser().parseLineNv(line, major, minor);

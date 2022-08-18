@@ -4,6 +4,7 @@
 #include "iplatformcontrol.h"
 #include "app.h"
 #include "cgrouputil.h"
+#include "dir.h"
 
 #include <string>
 #include <vector>
@@ -16,6 +17,8 @@ namespace pc {
  * \class a class for interacting with the cgroup hieararchy
  */
 class CGroupControl : public IPlatformControl {
+
+    void checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const;
 
 public:
     virtual ~CGroupControl();
@@ -41,10 +44,8 @@ public:
         std::string cgroupPath = util::findCgroupPath(app->getPid());
 
         // 2 - If the controller interface file doesn't exist, activate the controller
-        std::string filePath = make_path(cgroupPath, fileName);
-        if (!util::fileExists(filePath.c_str())) {
-            util::activateController(controllerName, cgroupPath);
-        }
+        checkActivateController(controllerName, fileName, cgroupPath);
+
         // 3 - Write value in the correct cgroup
         util::writeValue(fileName, value, cgroupPath);
     }
@@ -57,7 +58,7 @@ public:
      * \throws PcException in case of error
      */
     template<typename T>
-    void setValue(const char *controllerName, const char *fileName, T value) const {
+    void setValueForKonro(const char *controllerName, const char *fileName, T value) const {
         // 1 - Find cgroup konro path
         std::string cgroupKonroBaseDir = util::getCgroupKonroBaseDir();
 
@@ -79,7 +80,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::string getLine(const char *fileName, std::shared_ptr<App> app) const;
+    std::string getLine(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
 
     /*!
      * \brief Returns the content of a specified controller interface file.
@@ -92,7 +93,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::vector<std::string> getContent(const char *fileName, std::shared_ptr<App> app) const;
+    std::vector<std::string> getContent(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
 
     /*!
      * \brief Returns the current limit applied to an application for a specific resource
@@ -102,9 +103,9 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    int getValueAsInt(const char *fileName, std::shared_ptr<App> app) const;
+    int getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
 
-    std::map<std::string, unsigned long> getContentAsMap(const char *fileName, std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app);
 
     /*!
      * \brief Adds an application under the management of Konro.

@@ -28,7 +28,7 @@ void CpuControl::setCpuMax(NumericValue percentage, std::shared_ptr<App> app)
 
 NumericValue CpuControl::getCpuMax(std::shared_ptr<App> app)
 {
-    std::string svalue = getLine(fileNamesMap_.at(MAX), app);
+    std::string svalue = getLine(controllerName_, fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
     NumericValue value;
     int period;
@@ -43,9 +43,9 @@ NumericValue CpuControl::getCpuMax(std::shared_ptr<App> app)
     }
 }
 
-std::map<std::string, unsigned long> CpuControl::getCpuStat(std::shared_ptr<App> app)
+std::map<std::string, uint64_t> CpuControl::getCpuStat(std::shared_ptr<App> app)
 {
-    return getContentAsMap(fileNamesMap_.at(STAT), app);
+    return getContentAsMap(controllerName_, fileNamesMap_.at(STAT), app);
 }
 
 void CpuControl::setCpuWeight(int weight, std::shared_ptr<App> app)

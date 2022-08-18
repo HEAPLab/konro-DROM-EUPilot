@@ -12,9 +12,9 @@ namespace pc {
  * which can have the value "max"
  */
 class NumericValue {
-    static constexpr long NUMERIC_VALUE_MAX = std::numeric_limits<long>::max();
-    static constexpr long NUMERIC_VALUE_INVALID = std::numeric_limits<long>::min();
-    long value_;
+    static constexpr uint64_t NUMERIC_VALUE_MAX = std::numeric_limits<uint64_t>::max();
+    static constexpr uint64_t NUMERIC_VALUE_INVALID = NUMERIC_VALUE_MAX - 1;
+    uint64_t value_;
 
     void init(const char *pStart, const char *pEnd);
 public:
@@ -22,7 +22,7 @@ public:
      * \brief Initializes NumericValue to default of "max"
      * \param value the initial value
      */
-    NumericValue(long value = NUMERIC_VALUE_INVALID) : value_(value) {}
+    NumericValue(uint64_t value = NUMERIC_VALUE_INVALID) : value_(value) {}
 
     /*!
      * \brief Initializes a NumericValue from a (part of a) C string
@@ -49,12 +49,12 @@ public:
 
     bool isMax() const { return value_ == NUMERIC_VALUE_MAX; }
     bool isInvalid() const { return value_ == NUMERIC_VALUE_INVALID; }
-    void set(long value = NUMERIC_VALUE_MAX) { value_ = value; }
+    void set(uint64_t value = NUMERIC_VALUE_MAX) { value_ = value; }
     void setMax() { value_ = NUMERIC_VALUE_MAX; }
     void setInvalid() { value_ = NUMERIC_VALUE_INVALID; }
 
-    operator long() {
-        return static_cast<long>(value_);
+    operator uint64_t() {
+        return static_cast<uint64_t>(value_);
     }
 
     friend std::ostream &operator <<(std::ostream &os, const NumericValue &num) {
@@ -74,7 +74,7 @@ public:
             if (s == "max")
                 num.set(NUMERIC_VALUE_MAX);
             else
-                num.set(strtol(s.c_str(), nullptr, 10));
+                num.set(strtoull(s.c_str(), nullptr, 10));
         }
         return is;
     }

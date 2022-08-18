@@ -52,7 +52,7 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, unsigned long> getCpuStat(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getCpuStat(std::shared_ptr<App> app);
 
     /*!
      * Sets a proportional cpu bandwidth limit for the specified application.

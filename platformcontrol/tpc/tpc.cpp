@@ -50,7 +50,7 @@ static void setCpuMax(std::shared_ptr<App> app)
 
 static void getCpuStat(std::shared_ptr<App> app)
 {
-    map<string, unsigned long> tags = pc::CpuControl().getCpuStat(app);
+    map<string, uint64_t> tags = pc::CpuControl().getCpuStat(app);
     cout << "CPU STAT\n";
     for (const auto& kv : tags) {
         cout << "    " << kv.first << ":" << kv.second << endl;
@@ -110,7 +110,7 @@ static void testMemoryControl(std::shared_ptr<App> app)
         return;
     }
 
-    map<string, unsigned long> events = pc::MemoryControl().getMemoryEvents(app);
+    map<string, uint64_t> events = pc::MemoryControl().getMemoryEvents(app);
     cout << "MEMORY EVENTS\n";
     for (const auto &ev: events) {
         cout << "    " << ev.first << ' ' << ev.second << endl;

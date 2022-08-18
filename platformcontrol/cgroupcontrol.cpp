@@ -15,38 +15,55 @@ CGroupControl::~CGroupControl()
 {
 }
 
-std::string CGroupControl::getLine(const char *fileName, std::shared_ptr<App> app) const
+void CGroupControl::checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const
+{
+    std::string filePath = make_path(cgroupPath, fileName);
+    if (!Dir::file_exists(filePath.c_str())) {
+        util::activateController(controllerName, cgroupPath);
+    }
+}
+
+std::string CGroupControl::getLine(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
     string cgroupPath = util::findCgroupPath(app->getPid());
 
-    // 2 - Get line from the file
+    // 2 - If the controller interface file doesn't exist, activate the controller
+    checkActivateController(controllerName, fileName, cgroupPath);
+
+    // 3 - Get line from the file
     return util::getLine(fileName, cgroupPath);
 }
 
-std::vector<string> CGroupControl::getContent(const char *fileName, std::shared_ptr<App> app) const
+std::vector<string> CGroupControl::getContent(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
     string cgroupPath = util::findCgroupPath(app->getPid());
 
-    // 2 - Get content from the file
+    // 2 - If the controller interface file doesn't exist, activate the controller
+    checkActivateController(controllerName, fileName, cgroupPath);
+
+    // 3 - Get content from the file
     return util::getContent(fileName, cgroupPath);
 }
 
-int CGroupControl::getValueAsInt(const char *fileName, std::shared_ptr<App> app) const
+int CGroupControl::getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
 {
-    string value = getLine(fileName, app);
-    long n = strtol(value.c_str(), nullptr, 10);
+    string value = getLine(controllerName, fileName, app);
+    uint64_t n = strtoull(value.c_str(), nullptr, 10);
     return static_cast<int>(n);
 }
 
-std::map<string, unsigned long> CGroupControl::getContentAsMap(const char *fileName, std::shared_ptr<App> app)
+std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app)
 {
-    std::map<std::string, unsigned long> tags;
-    std::vector<std::string> fileContent = getContent(fileName, app);
+    string cgroupPath = util::findCgroupPath(app->getPid());
+    checkActivateController(controllerName, fileName, cgroupPath);
+
+    std::map<std::string, uint64_t> tags;
+    std::vector<std::string> fileContent = getContent(controllerName, fileName, app);
     for (auto &line: fileContent) {
         std::string tag;
-        unsigned long value;
+        uint64_t value;
         std::istringstream is(line);
         is >> tag >> value;
         if (is.fail())

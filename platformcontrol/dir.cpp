@@ -59,6 +59,15 @@ bool Dir::dir_exists(const char *path)
     return S_ISDIR(sbuf.st_mode);
 }
 
+bool Dir::file_exists(const char *path)
+{
+    struct stat statbuf;
+
+    if (stat(path, &statbuf) != 0)
+        return false;
+    return S_ISREG(statbuf.st_mode);
+}
+
 /*static*/
 Dir Dir::localdir(const char *path)
 {
@@ -94,7 +103,13 @@ Dir Dir::localdir(const char *path)
 	}
 
 	closedir(dir);
-	return directory;
+    return directory;
+}
+
+void Dir::mkdir(const char *path)
+{
+    mode_t create_mode = S_IRWXU|S_IRWXG|S_IRWXO;
+    create_dir(path, create_mode);
 }
 
 

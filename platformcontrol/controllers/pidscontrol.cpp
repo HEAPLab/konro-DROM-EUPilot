@@ -19,12 +19,12 @@ void PidsControl::setPidsMax(NumericValue numPids, std::shared_ptr<App> app)
 
 NumericValue PidsControl::getPidsMax(std::shared_ptr<App> app)
 {
-    return getLine(fileNamesMap_.at(MAX), app);
+    return getLine(controllerName_, fileNamesMap_.at(MAX), app);
 }
 
 NumericValue PidsControl::getPidsCurrent(std::shared_ptr<App> app)
 {
-    return getValueAsInt(fileNamesMap_.at(CURRENT), app);
+    return getValueAsInt(controllerName_, fileNamesMap_.at(CURRENT), app);
 }
 
 }   // namespace pc

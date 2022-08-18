@@ -78,7 +78,16 @@ public:
 	}
 
     static bool dir_exists(const char *path);
+    static bool file_exists(const char *path);
 	static Dir localdir(const char *path);
+
+    /*!
+     * Creates the specified directory
+     *
+     * \param path the path of the directory
+     * \throws PcException in case of error
+     */
+    static void mkdir(const char *path);
 
     /*!
      * Recursively creates all the directories of a path
