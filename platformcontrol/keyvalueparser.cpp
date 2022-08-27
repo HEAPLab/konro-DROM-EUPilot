@@ -15,15 +15,6 @@ static inline const char *findTokenEnd(const char *pStart)
 
 namespace pc {
 
-/**
- * \brief Parses a line in the format "major:minor ..."
- * \param major Major device number
- * \param minor Minor device number
- * \return nullptr if major and minor of the line are different from the
- *         requested values, otherwise a pointer to the first character
- *         after the minor number
- * \exception PcException if the format of the line is invalid
- */
 bool KeyValueParser::parseMajorMinor(int major, int minor)
 {
     if (!isdigit(*ptr_))
@@ -50,12 +41,6 @@ bool KeyValueParser::parseMajorMinor(int major, int minor)
     return true;
 }
 
-/*!
- * Parses a key-value pair, such as key=value or key:value
- *
- * \return The key-value pair
- * \exception PcException in case of format error
- */
 pair<string, NumericValue> KeyValueParser::parseKeyValue()
 {
     // parse the tag
@@ -83,21 +68,6 @@ pair<string, NumericValue> KeyValueParser::parseKeyValue()
     return make_pair<>(tag, val);
 }
 
-/*!
- * Parses a line in the format
- * \code
- * major:minor tag=value [tag=value ...]
- * \endcode
- * where value can be numeric or the string "max"
- *
- * \param line the line to parse
- * \param major expected device major number
- * \param minor expected device minor number
- * \return map of key and values. If the major or minor device numbers
- *         of the line are different from the requested major and minor
- *         numbers, the map is empty
- * \exception PcException if the format of the line is invalid
- */
 map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int major, int minor)
 {
     ptr_ = line;
@@ -110,17 +80,6 @@ map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int majo
     return parseLineNv(endptr_ + 1);
 }
 
-/*!
- * Parses a line in the format
- * \code
- * tag=value [tag=value ...]
- * \endcode
- * where value can be numeric or the string "max"
- *
- * \param line the line to parse
- * \return map of key and values
- * \exception PcException if the format of the line is invalid
- */
 map<string, NumericValue> KeyValueParser::parseLineNv(const char *line)
 {
     map<string, NumericValue> tags;

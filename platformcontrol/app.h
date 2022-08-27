@@ -33,7 +33,7 @@ public:
      * \brief Factory function to create a shared_ptr to an App
      * \param pid the pid of the App
      * \param appType the type of the app
-     * \return shared_ptr<App>
+     * \returns the shared_ptr to the App
      */
     static std::shared_ptr<App> makeApp(pid_t pid, AppType appType) {
         // Note: to use std::make_shared, the constructor must be public;

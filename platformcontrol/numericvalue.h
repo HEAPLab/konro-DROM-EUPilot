@@ -19,15 +19,17 @@ class NumericValue {
     void init(const char *pStart, const char *pEnd);
 public:
     /*!
-     * \brief Initializes NumericValue to default of "max"
+     * \brief Initializes NumericValue to the specified value
      * \param value the initial value
      */
     NumericValue(uint64_t value = NUMERIC_VALUE_INVALID) : value_(value) {}
 
     /*!
      * \brief Initializes a NumericValue from a (part of a) C string
-     * \param pStart Start of the numeric value
-     * \param pEnd End of the numeric value (i.e. points to first
+     *        "max" is the only non-numeric string allowed.
+     *        If any other string is specified, the value is set to invalid.
+     * \param pStart the start of the numeric value
+     * \param pEnd the end of the numeric value (i.e. points to first
      *             character after the numeric value).
      *             nullptr means that the string is asciiz.
      */
@@ -35,13 +37,13 @@ public:
 
     /*!
      * \brief Initializes a NumericValue from a C++ string
-     * \param val The numeric value
+     * \param val the numeric value
      */
     NumericValue(const std::string &val);
 
     /*!
      * \brief Factory function to get a "max" value
-     * \return A NumericValue initialized to max
+     * \returns a NumericValue initialized to max
      */
     static NumericValue max() {
         return NumericValue(NUMERIC_VALUE_MAX);

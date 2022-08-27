@@ -9,6 +9,9 @@
 namespace pc {
 namespace util {
 
+/*!
+ * \brief Throws a PcException
+ */
 void throwCouldNotOpenFile(const std::string &funcName, const std::string &fileName);
 
 /*!
@@ -26,7 +29,7 @@ std::string getCgroupKonroBaseDir();
 /*!
  * Gets the path of the cgroup directory containing the specified process
  * \param pid the pid of the process
- * \returns the path
+ * \returns the path of the directory containing the process
  */
 std::string getCgroupAppBaseDir(pid_t pid);
 

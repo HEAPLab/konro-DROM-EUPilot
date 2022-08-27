@@ -29,9 +29,6 @@ string getCgroupAppBaseDir(pid_t pid)
     return os.str();
 }
 
-/*!
- * \brief Throws a PcException
- */
 void throwCouldNotOpenFile(const string &funcName, const string &fileName)
 {
     ostringstream os;

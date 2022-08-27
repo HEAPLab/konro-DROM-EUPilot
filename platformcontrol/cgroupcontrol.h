@@ -18,6 +18,14 @@ namespace pc {
  */
 class CGroupControl : public IPlatformControl {
 
+    /*!
+     * Checks if the specified controller interface file exists in a folder.
+     * If it doesn't, the function activates the proper cgroup controller in order
+     * to spawn the file.
+     * \param controllerName the type of resource of interest
+     * \param fileName the file we want to check the existence of
+     * \param cgroupPath the location of the file
+     */
     void checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const;
 
 public:
@@ -48,22 +56,6 @@ public:
 
         // 3 - Write value in the correct cgroup
         util::writeValue(fileName, value, cgroupPath);
-    }
-
-    /*!
-     * \brief Enforces a resource constraint on all konro applications
-     * \param controllerName the type of resource to limit
-     * \param fileName the file to write to
-     * \param value the value to write
-     * \throws PcException in case of error
-     */
-    template<typename T>
-    void setValueForKonro(const char *controllerName, const char *fileName, T value) const {
-        // 1 - Find cgroup konro path
-        std::string cgroupKonroBaseDir = util::getCgroupKonroBaseDir();
-
-        // 2 - Write value in the correct cgroup
-        util::writeValue(fileName, value, cgroupKonroBaseDir);
     }
 
     /*!
@@ -100,11 +92,22 @@ public:
      *        as an integer.
      * \param fileName the file to read
      * \param app the application of interest
-     * \returns the content of the controller interface file
+     * \returns the content of the controller interface file as integer
      * \throws PcException in case of error
      */
     int getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
 
+    /*!
+     * \brief Returns the content of a specified controller interface file as a map.
+     *
+     * This function should be used to retrieve the content of a multi-line flat-keyed
+     * file, such as memory.events.
+     *
+     * \param fileName the file to read
+     * \param app the application of interest
+     * \returns the content of the controller interface file as map
+     * \throws PcException in case of error
+     */
     std::map<std::string, uint64_t> getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app);
 
     /*!
@@ -121,9 +124,11 @@ public:
     /*!
      * \brief Removes an application from the management of Konro.
      *
-     * TBD
+     * This function only removes the app's directory from the cgroup hierarchy.
+     * Hence, the caller should always ensure the app has terminated before calling
+     * this function.
      *
-     * \param app the application to manage
+     * \param app the application to remove from Konro's management
      */
     void removeApplication(std::shared_ptr<App> app);
 };
