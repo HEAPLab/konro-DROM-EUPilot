@@ -82,11 +82,16 @@ public:
         return parseLineNv(line.c_str(), major, minor);
     }
 
+    /*!
+     * Parses a single key-value pair, such as key=value or key:value
+     * \param line the line to parse
+     * \returns the key-value pair
+     * \throws PcException in case of format error
+     */
     std::pair<std::string, NumericValue> parseKeyValue(const char *line) {
         ptr_ = line;
         return parseKeyValue();
     }
-
     std::pair<std::string, NumericValue> parseKeyValue(const std::string &line) {
         return parseKeyValue(line.c_str());
     }

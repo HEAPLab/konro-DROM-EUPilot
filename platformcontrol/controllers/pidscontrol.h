@@ -24,7 +24,7 @@ public:
 
     /*!
      * Limits the number of processes that may be forked by the specified application.
-     * To remove all limits, the caller must pass the MAX_NUM_PIDS constant as parameter.
+     * To remove all limits, the caller must pass the string "max" as parameter.
      * \param numPids the maximum number of processes that can be forked
      * \param app the application to limit
      */
@@ -32,7 +32,7 @@ public:
 
     /*!
      * Gets the maximum number of processes that may be forked by the application.
-     * The function returns the MAX_NUM_PIDS constant if no upper bound is set.
+     * The function returns "max" if no upper bound is set.
      * \param app the application of interest
      * \returns the maximum number of processes that can be froked by the application
      */

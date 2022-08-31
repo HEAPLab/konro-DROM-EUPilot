@@ -8,7 +8,7 @@
 
 namespace pc {
 /*!
- * \class a class for interacting with the cgroup memory controller
+ * \class a class for interacting with the cgroup memory controller.
  * All memory amounts are in bytes.
  */
 class MemoryControl : public CGroupControl {
@@ -40,6 +40,7 @@ public:
     /*!
      * Sets a minimum amount of memory that the application must always retain.
      * It is a hard memory protection.
+     * To remove a limit, minMem must be set to 0.
      * \param minMem the min amount of memory that the app must retain.
      *               minMem must be a multiple of the page size (for example: 4096)
      *               or it will be rounded
@@ -49,6 +50,7 @@ public:
 
     /*!
      * Gets the minimum amount of memory that the application must always retain.
+     * The default value is 0.
      * \param app the application of interest
      * \returns the min amount of memory that the app must retain
      */
@@ -58,6 +60,7 @@ public:
      * Sets a memory usage hard limit for the application.
      * If the app's memory usage reaches this limit and can't be reduced,
      * the system OOM killer is invoked on the app.
+     * To remove a limit, maxMem must be set to "max".
      * \param maxMem the max amount of memory that the app can use.
      *        maxMem must be a multiple of the page size (for example: 4096)
      *        or it will be rounded
@@ -67,6 +70,7 @@ public:
 
     /*!
      * Gets the memory usage hard limit for the application.
+     * The default value is "max".
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */

@@ -28,8 +28,17 @@ public:
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
+    // IO resources that can be constrained
     static const std::map<IoMax, const char *> keyNames_;
 
+    /*!
+     * Helper function returning a map of key-values for the specified IO device and controller
+     * interface file.
+     * \param cf the controller interface file
+     * \param major the device major number
+     * \param minor the device minor number
+     * \param app the application of interest
+     */
     std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app);
 
 public:
@@ -56,7 +65,7 @@ public:
      *
      * The device number is specified through a <major, minor> pair.
      * The IO resource to constraint is specified through a member of the IoMax struct.
-     * To remove a limit, the caller must pass the MAX_IO_CONTROL constant as value argument.
+     * To remove a limit, the caller must pass the string "max" as value argument.
      *
      * \example setIOMax(8, 16, WIOPS, 120, app1)
      *          Sets a write limit at 120 IOPS for device 8:16.

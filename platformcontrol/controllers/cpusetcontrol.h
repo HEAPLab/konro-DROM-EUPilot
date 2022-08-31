@@ -25,29 +25,41 @@ private:
 public:
     typedef std::vector<std::pair<short,short>> CpusetVector;
 
+    /*!
+     * Parses the content of a cpuset interface file and converts it to
+     * a vector of pairs.
+     *
+     * \example "1, 2-3" is converted to {1,1}, {2,3}
+     *
+     * \param line the content of the cpuset interface file
+     * \returns the equivalent vector of pairs
+     */
     CpusetVector parseCpuSet(const std::string &line);
 
     /*!
      * Requests the use of a set of cpus by the application.
      *
-     * The cpu numbers are expressed through a comma-separated list of numbers
-     * or ranges, where ranges are represented through dashes.
-     * An empty value indicates that the cgroup is using the same setting as the
+     * The cpu numbers are expressed through a vector of pairs. A pair with equal
+     * numbers, such as {1,1}, represents a single cpu (e.g. CPU 1). A pair with
+     * different numbers, such as {0,2} represents a range of cpu numbers
+     * (e.g. CPUs 0,1 and 2).
+     * An empty vector indicates that the cgroup is using the same setting as the
      * nearest cgroup ancestor with a non-empty cpuset.cpus or all the available
      * cpus if none is found.
      *
-     * \example 0-2,16 represents CPUs 0, 1, 2 and 16
+     * \example {0, 0}, {2, 3} represents CPUs 0, 2 and 3
      *
-     * \param cpus the list of requested cpus
+     * \param cpus the vector of requested cpus
      * \param app the application to limit
      */
     void setCpusetCpus(const CpusetVector &cpus, std::shared_ptr<App> app);
 
     /*!
-     * Returns the list of cpus that are requested to the specified application
+     * Returns the list of cpus that are requested by the specified application
+     * as a vector of pairs.
      *
-     * If no request for CPU sets has been issued, this filw will be empty and
-     * cpuset.cpus.effective will contain all the cpus
+     * If no request for CPU sets has been issued, the function will
+     * return an empty vector.
      *
      * \param app the application of interest
      * \returns the cpus requested for use by the application
@@ -56,6 +68,7 @@ public:
 
     /*!
      * Returns the list of cpus that are granted to the specified application
+     * as a vector of pairs.
      * \param app the application of interest
      * \returns the cpus available for use by the application
      */
@@ -64,15 +77,17 @@ public:
     /*!
      * Requests the use of a set of memory nodes by the application.
      *
-     * The memory node numbers are expressed through a comma-separated list of numbers
-     * or ranges, where ranges are represented through dashes.
-     * An empty value indicates that the cgroup is using the same setting as the
+     * The memory node numbers are expressed through a vector of pairs. A pair with
+     * equal numbers, such as {1,1}, represents a single memory node (e.g. node 1).
+     * A pair with different numbers, such as {0,2} represents a range of nodes
+     * (e.g. nodes 0,1 and 2).
+     * An empty vector indicates that the cgroup is using the same setting as the
      * nearest cgroup ancestor with a non-empty cpuset.mems or all the available
-     * memory nodes if none is found.
+     * cpus if none is found.
      *
-     * \example 0-2,16 represents memory nodes 0, 1, 2 and 16
+     * \example {0, 0}, {2, 3} represents memory nodes 0, 2 and 3
      *
-     * \note Setting a non-empty value to cpuset.mems causes memory of tasks within
+     * \note Setting a non-empty value causes memory of tasks within
      * the cgroup to be migrated to the designated nodes if they are currently using
      * memory outside of the designated nodes.
      *
@@ -81,10 +96,21 @@ public:
      */
     void setCpusetMems(const CpusetVector &memNodes, std::shared_ptr<App> app);
 
+    /*!
+     * Returns the list of memory nodes that are requested by the specified application
+     * as a vector of pairs.
+     *
+     * If no request for memory nodes has been issued, the function will
+     * return an empty vector.
+     *
+     * \param app the application of interest
+     * \returns the memory nodes requested for use by the application
+     */
     CpusetVector getCpusetMems(std::shared_ptr<App> app);
 
     /*!
      * Returns the list of memory nodes that are granted to the specified application
+     * as a vector of pairs.
      * \param app the application of interest
      * \returns the memory nodes available for use by the application
      */
