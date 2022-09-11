@@ -1,5 +1,5 @@
 set(CMAKE_CXX_STANDARD 14)
-include_directories("../platformcontrol")
+include_directories("../rm/platformcontrol")
 
 # Test init
 include(CTest)
