@@ -2,6 +2,7 @@
 #define CPUSETCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../icpusetcontrol.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -11,7 +12,7 @@ namespace pc {
 /*!
  * \class a class for interacting with the cgroup cpuset controller
  */
-class CpusetControl : public CGroupControl {
+class CpusetControl : public ICpusetControl, CGroupControl {
 public:
     enum ControllerFile {
         CPUS,               // read-write
@@ -23,7 +24,6 @@ private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
 public:
-    typedef std::vector<std::pair<short,short>> CpusetVector;
 
     /*!
      * Parses the content of a cpuset interface file and converts it to
@@ -52,7 +52,7 @@ public:
      * \param cpus the vector of requested cpus
      * \param app the application to limit
      */
-    void setCpusetCpus(const CpusetVector &cpus, std::shared_ptr<App> app);
+    void setCpusetCpus(const CpusetVector &cpus, std::shared_ptr<App> app) override;
 
     /*!
      * Returns the list of cpus that are requested by the specified application
@@ -64,7 +64,7 @@ public:
      * \param app the application of interest
      * \returns the cpus requested for use by the application
      */
-    CpusetVector getCpusetCpus(std::shared_ptr<App> app);
+    CpusetVector getCpusetCpus(std::shared_ptr<App> app) override;
 
     /*!
      * Returns the list of cpus that are granted to the specified application
@@ -72,7 +72,7 @@ public:
      * \param app the application of interest
      * \returns the cpus available for use by the application
      */
-    CpusetVector getCpusetCpusEffective(std::shared_ptr<App> app);
+    CpusetVector getCpusetCpusEffective(std::shared_ptr<App> app) override;
 
     /*!
      * Requests the use of a set of memory nodes by the application.
@@ -94,7 +94,7 @@ public:
      * \param memNodes the list of requested memory nodes
      * \param app the application to limit
      */
-    void setCpusetMems(const CpusetVector &memNodes, std::shared_ptr<App> app);
+    void setCpusetMems(const CpusetVector &memNodes, std::shared_ptr<App> app) override;
 
     /*!
      * Returns the list of memory nodes that are requested by the specified application
@@ -106,7 +106,7 @@ public:
      * \param app the application of interest
      * \returns the memory nodes requested for use by the application
      */
-    CpusetVector getCpusetMems(std::shared_ptr<App> app);
+    CpusetVector getCpusetMems(std::shared_ptr<App> app) override;
 
     /*!
      * Returns the list of memory nodes that are granted to the specified application
@@ -114,7 +114,7 @@ public:
      * \param app the application of interest
      * \returns the memory nodes available for use by the application
      */
-    CpusetVector getCpusetMemsEffective(std::shared_ptr<App> app);
+    CpusetVector getCpusetMemsEffective(std::shared_ptr<App> app) override;
 
 };
 

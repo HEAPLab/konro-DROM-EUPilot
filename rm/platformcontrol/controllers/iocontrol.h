@@ -2,6 +2,7 @@
 #define IOCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../iiocontrol.h"
 #include "../numericvalue.h"
 #include <string>
 #include <map>
@@ -10,19 +11,13 @@ namespace pc {
 /*!
  * \class a class for interacting with the cgroup IO controller
  */
-class IOControl : public CGroupControl {
+class IOControl : public IIoControl, CGroupControl {
 public:
     const int MAX_IO_CONTROL = -1;
 
     enum ControllerFile {
         STAT,   // read-only
         MAX     // read-write
-    };
-    enum IoMax {
-        RBPS,   // Max read bytes per second
-        WBPS,   // Max write bytes per second
-        RIOPS,  // Max read IO operations per second
-        WIOPS   // Max write IO operations per second
     };
 
 private:
@@ -76,7 +71,7 @@ public:
      * \param value the maximum value allowed for the IO resource
      * \param app the application to limit
      */
-    void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app);
+    void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app) override;
 
     /*!
      * Gets the specified application's IO limits.
@@ -89,7 +84,7 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, NumericValue> getIOMax(int major, int minor, std::shared_ptr<App> app) {
+    std::map<std::string, NumericValue> getIOMax(int major, int minor, std::shared_ptr<App> app) override {
         return getIOHelper(MAX, major, minor, app);
     }
 };

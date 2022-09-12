@@ -2,6 +2,7 @@
 #define MEMORYCONTROL_H
 
 #include "../cgroupcontrol.h"
+#include "../imemorycontrol.h"
 #include "../numericvalue.h"
 #include <string>
 #include <map>
@@ -11,7 +12,7 @@ namespace pc {
  * \class a class for interacting with the cgroup memory controller.
  * All memory amounts are in bytes.
  */
-class MemoryControl : public CGroupControl {
+class MemoryControl : public IMemoryControl, CGroupControl {
 public:
     enum ControllerFile {
         CURRENT,    // read-only
@@ -35,7 +36,7 @@ public:
      *
      * \returns the amount of memory used by the app and its descendants
      */
-    int getMemoryCurrent(std::shared_ptr<App> app);
+    int getMemoryCurrent(std::shared_ptr<App> app) override;
 
     /*!
      * Sets a minimum amount of memory that the application must always retain.
@@ -46,7 +47,7 @@ public:
      *               or it will be rounded
      * \param app the application to limit
      */
-    void setMemoryMin(int minMem, std::shared_ptr<App> app);
+    void setMemoryMin(int minMem, std::shared_ptr<App> app) override;
 
     /*!
      * Gets the minimum amount of memory that the application must always retain.
@@ -54,7 +55,7 @@ public:
      * \param app the application of interest
      * \returns the min amount of memory that the app must retain
      */
-    int getMemoryMin(std::shared_ptr<App> app);
+    int getMemoryMin(std::shared_ptr<App> app) override;
 
     /*!
      * Sets a memory usage hard limit for the application.
@@ -66,7 +67,7 @@ public:
      *        or it will be rounded
      * \param app the application to limit
      */
-    void setMemoryMax(NumericValue maxMem, std::shared_ptr<App> app);
+    void setMemoryMax(NumericValue maxMem, std::shared_ptr<App> app) override;
 
     /*!
      * Gets the memory usage hard limit for the application.
@@ -74,7 +75,7 @@ public:
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    NumericValue getMemoryMax(std::shared_ptr<App> app);
+    NumericValue getMemoryMax(std::shared_ptr<App> app) override;
 
     /*!
      * Gets the number of times certain memory events have occurred

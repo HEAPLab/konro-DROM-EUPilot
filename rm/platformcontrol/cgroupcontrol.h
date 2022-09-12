@@ -1,7 +1,6 @@
 #ifndef CGROUPCONTROL_H
 #define CGROUPCONTROL_H
 
-#include "iplatformcontrol.h"
 #include "app.h"
 #include "cgrouputil.h"
 #include "dir.h"
@@ -16,7 +15,7 @@ namespace pc {
 /*!
  * \class a class for interacting with the cgroup hieararchy
  */
-class CGroupControl : public IPlatformControl {
+class CGroupControl {
 
     /*!
      * Checks if the specified controller interface file exists in a folder.

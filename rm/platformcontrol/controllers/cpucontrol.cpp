@@ -1,3 +1,4 @@
+#include "../cgroupcontrol.h"
 #include "cpucontrol.h"
 #include <cstdlib>
 

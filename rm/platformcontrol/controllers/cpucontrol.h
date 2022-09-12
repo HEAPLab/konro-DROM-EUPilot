@@ -3,6 +3,7 @@
 
 #include "../cgroupcontrol.h"
 #include "../numericvalue.h"
+#include "../icpucontrol.h"
 #include <string>
 #include <map>
 #include <iostream>
@@ -13,7 +14,7 @@ namespace pc {
 /*!
  * \class a class for interacting with the cgroup cpu controller
  */
-class CpuControl : public CGroupControl {
+class CpuControl : public ICpuControl, CGroupControl {
     // the default period duration for each process
     const int period_ = 100000;
 public:
@@ -32,14 +33,14 @@ public:
      * \param percentage the maximum percentage of cpu utilization allowed
      * \param app the application to limit
      */
-    void setCpuMax(NumericValue percentage, std::shared_ptr<App> app);
+    void setCpuMax(NumericValue percentage, std::shared_ptr<App> app) override;
 
     /*!
      * Gets the cpu bandwidth limit set for the specified application.
      * \param app the application of interest
      * \returns the maximum percentage of cpu utilization allowed for the app
      */
-    NumericValue getCpuMax(std::shared_ptr<App> app);
+    NumericValue getCpuMax(std::shared_ptr<App> app) override;
 
     /*!
      * Gets the cpu time statistics for the specified application.
