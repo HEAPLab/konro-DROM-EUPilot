@@ -1,9 +1,9 @@
 #ifndef IOCONTROL_H
 #define IOCONTROL_H
 
+#include "../utilities/numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../iiocontrol.h"
-#include "../numericvalue.h"
 #include <string>
 #include <map>
 

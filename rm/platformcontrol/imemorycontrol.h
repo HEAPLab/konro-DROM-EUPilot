@@ -1,7 +1,7 @@
 #ifndef IMEMORYCONTROL_H
 #define IMEMORYCONTROL_H
 
-#include "numericvalue.h"
+#include "utilities/numericvalue.h"
 #include "app.h"
 
 namespace pc {

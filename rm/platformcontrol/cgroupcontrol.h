@@ -3,7 +3,7 @@
 
 #include "app.h"
 #include "cgrouputil.h"
-#include "dir.h"
+#include "utilities/dir.h"
 
 #include <string>
 #include <vector>

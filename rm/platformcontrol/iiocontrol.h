@@ -1,7 +1,7 @@
 #ifndef IIOCONTROL_H
 #define IIOCONTROL_H
 
-#include "numericvalue.h"
+#include "utilities/numericvalue.h"
 #include "app.h"
 
 #include <map>

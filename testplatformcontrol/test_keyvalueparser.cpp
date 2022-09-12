@@ -88,28 +88,28 @@ static int testParseKeyValue()
     try {
         result = pc::KeyValueParser().parseKeyValue("alfa:abcd");
         return TEST_FAILED;
-    } catch (pc::PcException &e) {
+    } catch (runtime_error &e) {
         ;
     }
 
     try {
         result = pc::KeyValueParser().parseKeyValue("alfa:123a");
         return TEST_FAILED;
-    } catch (pc::PcException &e) {
+    } catch (runtime_error &e) {
         ;
     }
 
     try {
         result = pc::KeyValueParser().parseKeyValue("alfa: 123");
         return TEST_FAILED;
-    } catch (pc::PcException &e) {
+    } catch (runtime_error &e) {
         ;
     }
 
     try {
         result = pc::KeyValueParser().parseKeyValue("alfa123");
         return TEST_FAILED;
-    } catch (pc::PcException &e) {
+    } catch (runtime_error &e) {
         ;
     }
 

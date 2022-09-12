@@ -1,7 +1,7 @@
 #include "cgrouputil.h"
-#include "tsplit.h"
 #include "pcexception.h"
-#include "dir.h"
+#include "utilities/tsplit.h"
+#include "utilities/dir.h"
 #include <vector>
 #include <sstream>
 #include <cstring>

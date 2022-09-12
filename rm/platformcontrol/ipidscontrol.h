@@ -1,7 +1,7 @@
 #ifndef IPIDSCONTROL_H
 #define IPIDSCONTROL_H
 
-#include "numericvalue.h"
+#include "utilities/numericvalue.h"
 #include "app.h"
 
 #include <vector>

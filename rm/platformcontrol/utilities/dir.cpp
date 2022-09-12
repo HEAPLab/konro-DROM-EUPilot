@@ -1,9 +1,9 @@
 #include "dir.h"
 #include "makepath.h"
 #include "tsplit.h"
-#include "pcexception.h"
 #include <sstream>
 #include <iostream>
+#include <stdexcept>
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
@@ -32,7 +32,7 @@ namespace {
                 os << "Could not create directory "
                    << path
                    << ": " << strerror(errno);
-                throw pc::PcException(os.str());
+                throw runtime_error(os.str());
             }
         }
     }
@@ -144,7 +144,7 @@ void Dir::rmdir(const char *path)
         os << "Could not remove directory "
            << path
            << ": " << strerror(errno);
-        throw pc::PcException(os.str());
+        throw runtime_error(os.str());
     }
 }
 

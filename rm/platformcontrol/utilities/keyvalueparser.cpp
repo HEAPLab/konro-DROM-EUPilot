@@ -1,5 +1,5 @@
 #include "keyvalueparser.h"
-#include "pcexception.h"
+#include <stdexcept>
 #include <cctype>
 #include <cstdlib>
 
@@ -18,13 +18,13 @@ namespace pc {
 bool KeyValueParser::parseMajorMinor(int major, int minor)
 {
     if (!isdigit(*ptr_))
-        throw PcException("Invalid line: digit expected for major");
+        throw runtime_error("Invalid line: digit expected for major");
 
     // Parse major device number
 
     int devMajor = strtol(ptr_, (char **)&endptr_, 10);
     if (*endptr_ != ':')
-        throw PcException("Invalid line: ':' expected after major");
+        throw runtime_error("Invalid line: ':' expected after major");
     if (devMajor != major)
         return false;         // not the device we are looking for
 
@@ -32,7 +32,7 @@ bool KeyValueParser::parseMajorMinor(int major, int minor)
 
     ptr_ = endptr_ + 1;
     if (!isdigit(*ptr_))
-        throw PcException("Invalid line: digit expected for minor");
+        throw runtime_error("Invalid line: digit expected for minor");
 
     int devMinor = strtol(ptr_, (char **)&endptr_, 10);
     if (devMinor != minor)
@@ -47,10 +47,10 @@ pair<string, NumericValue> KeyValueParser::parseKeyValue()
 
     endptr_ = findTokenEnd(ptr_);
     if (endptr_ == ptr_) {
-        throw PcException("Invalid line: alpha character expected for tag");
+        throw runtime_error("Invalid line: alpha character expected for tag");
     }
     if (*endptr_ != '=' && *endptr_ != ':') {
-        throw PcException("Invalid line: '=' or ':' expected after tag");
+        throw runtime_error("Invalid line: '=' or ':' expected after tag");
     }
     string tag(ptr_, endptr_);
     ptr_ = endptr_ + 1;
@@ -59,12 +59,12 @@ pair<string, NumericValue> KeyValueParser::parseKeyValue()
 
     endptr_ = findTokenEnd(ptr_);
     if (endptr_ == ptr_) {
-        throw PcException("Invalid line: alphanumeric character expected for value");
+        throw runtime_error("Invalid line: alphanumeric character expected for value");
     }
 
     NumericValue val(ptr_, endptr_);
     if (val.isInvalid())
-        throw PcException("Invalid line: invalid numeric value");
+        throw runtime_error("Invalid line: invalid numeric value");
     return make_pair<>(tag, val);
 }
 
@@ -75,7 +75,7 @@ map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int majo
         return map<string, NumericValue>();         // not the device we are looking for or no tags
 
     if (*endptr_ != ' ')
-        throw PcException("Invalid line: space expected after minor");
+        throw runtime_error("Invalid line: space expected after minor");
 
     return parseLineNv(endptr_ + 1);
 }
@@ -90,10 +90,10 @@ map<string, NumericValue> KeyValueParser::parseLineNv(const char *line)
         ptr_ = endptr_;
         if (*ptr_) {
             if (*ptr_ != ' ')
-                throw PcException("Invalid line: expected space character after value");
+                throw runtime_error("Invalid line: expected space character after value");
             ++ptr_;
             if (!*ptr_)
-                throw PcException("Invalid line: expected new tag after last value");
+                throw runtime_error("Invalid line: expected new tag after last value");
         }
     }
     return tags;

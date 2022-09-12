@@ -1,8 +1,8 @@
 #ifndef CPUCONTROL_H
 #define CPUCONTROL_H
 
+#include "../utilities/numericvalue.h"
 #include "../cgroupcontrol.h"
-#include "../numericvalue.h"
 #include "../icpucontrol.h"
 #include <string>
 #include <map>

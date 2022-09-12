@@ -1,7 +1,6 @@
 ﻿#include "cgroupcontrol.h"
-#include "tsplit.h"
+#include "utilities/tsplit.h"
 #include "pcexception.h"
-#include "dir.h"
 #include <string>
 #include <sstream>
 #include <fstream>

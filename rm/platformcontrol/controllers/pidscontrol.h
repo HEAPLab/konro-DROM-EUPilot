@@ -1,9 +1,9 @@
 #ifndef PIDSCONTROL_H
 #define PIDSCONTROL_H
 
+#include "../utilities/numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../ipidscontrol.h"
-#include "../numericvalue.h"
 #include <string>
 #include <map>
 

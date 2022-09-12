@@ -1,7 +1,7 @@
 #ifndef ICPUCONTROL_H
 #define ICPUCONTROL_H
 
-#include "numericvalue.h"
+#include "utilities/numericvalue.h"
 #include "app.h"
 
 namespace pc {

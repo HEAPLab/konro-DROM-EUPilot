@@ -1,9 +1,9 @@
 #ifndef MEMORYCONTROL_H
 #define MEMORYCONTROL_H
 
+#include "../utilities/numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../imemorycontrol.h"
-#include "../numericvalue.h"
 #include <string>
 #include <map>
 
