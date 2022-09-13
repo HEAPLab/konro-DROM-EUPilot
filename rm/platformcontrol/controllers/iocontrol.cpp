@@ -38,7 +38,7 @@ std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int maj
     return tags;
 }
 
-void IOControl::setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app)
+void IOControl::setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app)
 {
     ostringstream os;
     os << major << ':' << minor << ' ' << keyNames_.at(ioMax) << '=' << value;;

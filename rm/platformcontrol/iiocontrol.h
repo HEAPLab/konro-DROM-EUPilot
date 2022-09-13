@@ -38,14 +38,14 @@ public:
      * \param value the maximum value allowed for the IO resource
      * \param app the application to limit
      */
-    virtual void setIOMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app) = 0;
+    virtual void setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app) = 0;
 
     /*!
      * Gets the specified application's IO limits.
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    virtual std::map<std::string, NumericValue> getIOMax(int major, int minor, std::shared_ptr<App> app) = 0;
+    virtual std::map<std::string, NumericValue> getMax(int major, int minor, std::shared_ptr<App> app) = 0;
 
 };
 

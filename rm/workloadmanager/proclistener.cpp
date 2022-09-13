@@ -20,10 +20,6 @@ namespace pc {
 #define KERNEL_PID                  0
 #define NLMSG_STOP_MESSAGE_TYPE     (NLMSG_MIN_TYPE+12345)
 
-/*!
- * \brief Creates a socket for the Netlink protocol
- * \return The socket or -1 in case of error
- */
 int ProcListener::createNetlinkSocket()
 {
     int sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
@@ -33,14 +29,6 @@ int ProcListener::createNetlinkSocket()
     return sock;
 }
 
-/*!
- * Bind the netlink socket to the specified address (pid) in the
- * CN_IDX_PROC group (multicast)
- *
- * \param sock the Netlink socket
- * \param pid the Netlink address (unique id)
- * \return the outcome of the operation
- */
 bool ProcListener::bindNetlinkSocket(int sock, unsigned int pid)
 {
     sockaddr_nl addrNl;
@@ -94,12 +82,6 @@ bool ProcListener::sendNetlinkMessage(int sock, void *buf, std::size_t bufsize, 
     return rc;
 }
 
-/*!
- * \brief Sends a message over the specified socket
- * \param socket The socket to use to send the message
- * \param op The message to send
- * \return Outcome of the operation
- */
 bool ProcListener::sendConnectorNetlinkMessageToKernel(int socket, MessageData op)
 {
     constexpr size_t dataSize = sizeof(op);
@@ -150,14 +132,6 @@ bool ProcListener::sendConnectorNetlinkMessageToThread(int socket, MessageData o
     return sendNetlinkMessage(socket, messageBuffer, nlmsgSize, 0, CN_IDX_PROC);
 }
 
-/*!
- * Receives a Netlink message from the kernel (Proc Connector)
- *
- * \param socket
- * \param buffer
- * \param buffer_size
- * \return The outcome of the operation
- */
 bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size_t bufferSize)
 {
     // the sender
@@ -297,10 +271,6 @@ void ProcListener::run()
     cout << "ProcConn exiting\n";
 }
 
-/*!
- * \brief Sends a STOP message to the thread using Netlink
- * \return The outcome of the operation
- */
 bool ProcListener::stop()
 {
     // Sender

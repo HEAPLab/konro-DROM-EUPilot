@@ -33,14 +33,14 @@ public:
      * \param percentage the maximum percentage of cpu utilization allowed
      * \param app the application to limit
      */
-    void setCpuMax(NumericValue percentage, std::shared_ptr<App> app) override;
+    void setMax(NumericValue percentage, std::shared_ptr<App> app) override;
 
     /*!
      * Gets the cpu bandwidth limit set for the specified application.
      * \param app the application of interest
      * \returns the maximum percentage of cpu utilization allowed for the app
      */
-    NumericValue getCpuMax(std::shared_ptr<App> app) override;
+    NumericValue getMax(std::shared_ptr<App> app) override;
 
     /*!
      * Gets the cpu time statistics for the specified application.
@@ -53,7 +53,7 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, uint64_t> getCpuStat(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getStat(std::shared_ptr<App> app);
 
     /*!
      * Sets a proportional cpu bandwidth limit for the specified application.
@@ -68,14 +68,14 @@ public:
      * \param weight the share of total cpu resources held by the app
      * \param app the application to limit
      */
-    void setCpuWeight(int weight, std::shared_ptr<App> app);
+    void setWeight(int weight, std::shared_ptr<App> app);
 
     /*!
      * Gets the fraction of cpu time assigned to the specified application.
      * \param app the application of interest
      * \returns the fraction of cpu time as a int in the range [0,1]
      */
-    int getCpuWeight(std::shared_ptr<App> app);
+    int getWeight(std::shared_ptr<App> app);
 
 };
 
