@@ -5,12 +5,21 @@ file(GLOB platformcontrol_controllers_SOURCES "controllers/*.cpp")
 file(GLOB platformcontrol_controllers_HEADERS "controllers/*.h")
 file(GLOB utilities_SOURCES "utilities/*.cpp")
 file(GLOB utilities_HEADERS "utilities/*.h")
+file(GLOB cgroup_SOURCES "cgroup/*.cpp" "cgroup/controllers/*.cpp")
+file(GLOB cgroup_HEADERS "cgroup/*.h" "cgroup/controllers/*.h")
+
 
 add_library(platformcontrol
     ${platformcontrol_SOURCES} ${platformcontrol_HEADERS}
     ${platformcontrol_controllers_SOURCES} ${platformcontrol_controllers_HEADERS}
+    ${cgroup_SOURCES} ${cgroup_HEADERS}
     ${utilities_SOURCES} ${utilities_HEADERS}
 )
+
+include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol)
+include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/utilities)
+include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup)
+include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup/controllers)
 
 target_include_directories(platformcontrol INTERFACE .)
 target_include_directories(platformcontrol INTERFACE controllers)
