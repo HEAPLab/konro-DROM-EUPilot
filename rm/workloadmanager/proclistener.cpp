@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace pc {
+namespace wm {
 
 #define KERNEL_PID                  0
 #define NLMSG_STOP_MESSAGE_TYPE     (NLMSG_MIN_TYPE+12345)
@@ -184,43 +184,46 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
     return true;
 }
 
-void pc::ProcListener::processEvent(uint8_t *data)
+void ProcListener::processEvent(uint8_t *data)
 {
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_NONE:
-        cout << "PROC_EVENT_NONE received\n";
+        cout << "ProcListener: PROC_EVENT_NONE received\n";
         break;
     case proc_event::PROC_EVENT_FORK:
-        cout << "PROC_EVENT_FORK received\n";
+        cout << "ProcListener: PROC_EVENT_FORK received\n";
+        notify(data);
         break;
     case proc_event::PROC_EVENT_EXEC:
-        cout << "PROC_EVENT_EXEC received\n";
+        cout << "ProcListener: PROC_EVENT_EXEC received\n";
+        notify(data);
         break;
     case proc_event::PROC_EVENT_UID:
-        cout << "PROC_EVENT_UID received\n";
+        cout << "ProcListener: PROC_EVENT_UID received\n";
         break;
     case proc_event::PROC_EVENT_GID:
-        cout << "PROC_EVENT_GID received\n";
+        cout << "ProcListener: PROC_EVENT_GID received\n";
         break;
     case proc_event::PROC_EVENT_SID:
-        cout << "PROC_EVENT_SID received\n";
+        cout << "ProcListener: PROC_EVENT_SID received\n";
         break;
     case proc_event::PROC_EVENT_PTRACE:
-        cout << "PROC_EVENT_PTRACE received\n";
+        cout << "ProcListener: PROC_EVENT_PTRACE received\n";
         break;
     case proc_event::PROC_EVENT_COMM:
-        cout << "PROC_EVENT_COMM received\n";
+        cout << "ProcListener: PROC_EVENT_COMM received\n";
         break;
     case proc_event::PROC_EVENT_COREDUMP:
-        cout << "PROC_EVENT_COREDUMP received\n";
+        cout << "ProcListener: PROC_EVENT_COREDUMP received\n";
         break;
     case proc_event::PROC_EVENT_EXIT:
-        cout << "PROC_EVENT_EXIT received\n";
+        cout << "ProcListener: PROC_EVENT_EXIT received\n";
+        notify(data);
         break;
     default:
-        cout << "Event " << ev->what << " received\n";
+        cout << "ProcListener: Event " << ev->what << " received\n";
         break;
     }
 }
@@ -271,6 +274,12 @@ void ProcListener::run()
     cout << "ProcConn exiting\n";
 }
 
+void ProcListener::notify(uint8_t *data)
+{
+    if (observer_)
+        observer_->update(data);
+}
+
 bool ProcListener::stop()
 {
     // Sender
@@ -310,5 +319,4 @@ bool ProcListener::stop()
     }
 }
 
-
-}   // namespace pc
+}   // namespace wm

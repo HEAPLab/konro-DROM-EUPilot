@@ -1,11 +1,12 @@
 #ifndef PROCLISTENER_H
 #define PROCLISTENER_H
 
+#include "iprocobserver.h"
 #include <cstdint>
 #include <cctype>
 #include <atomic>
 
-namespace pc {
+namespace wm {
 
 /*!
  * \brief Interface to the Linux kernel Proc Connector
@@ -28,9 +29,11 @@ class ProcListener final {
     /*! stop flag for the thread */
     std::atomic_bool stop_;
 
+    IProcObserver *observer_;
+
     /*!
      * \brief Creates a socket for the Netlink protocol
-     * \return The socket or -1 in case of error
+     * \return the socket or -1 in case of error
      */
     int createNetlinkSocket();
 
@@ -47,9 +50,9 @@ class ProcListener final {
 
     /*!
      * \brief Sends a message over the specified socket
-     * \param socket The socket to use to send the message
-     * \param op The message to send
-     * \return Outcome of the operation
+     * \param socket the socket to use to send the message
+     * \param op the message to send
+     * \return the outcome of the operation
      */
     bool sendConnectorNetlinkMessageToKernel(int socket, MessageData op);
     bool sendConnectorNetlinkMessageToThread(int socket, MessageData op);
@@ -67,7 +70,11 @@ class ProcListener final {
     void processEvent(std::uint8_t *data);
     void run();
 
+    void notify(std::uint8_t *data);
+
 public:
+    ProcListener() : observer_(nullptr) {
+    }
 
     void operator()() {
         run();
@@ -75,11 +82,19 @@ public:
 
     /*!
      * \brief Sends a STOP message to the thread using Netlink
-     * \return The outcome of the operation
+     * \return the outcome of the operation
      */
     bool stop();
+
+    void attach(IProcObserver *o) {
+        observer_ = o;
+    }
+
+    void detach() {
+        observer_ = nullptr;
+    }
 };
 
-}   // namespace pc
+}   // namespace wm
 
 #endif // PROCLISTENER_H

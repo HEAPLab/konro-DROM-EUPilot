@@ -2,6 +2,7 @@
 #define APP_H
 
 #include <memory>
+#include <string>
 #include <unistd.h>
 
 namespace pc {
@@ -19,6 +20,7 @@ public:
 private:
     pid_t pid_;
     AppType appType_;
+    std::string name;
 
     App(pid_t pid, AppType appType) : pid_(pid), appType_(appType) {}
 
@@ -56,6 +58,23 @@ public:
     AppType getAppType() const {
         return appType_;
     }
+
+    /*!
+     * \brief Gets the name of the application
+     * \return the application's name
+     */
+    const std::string &getName() const {
+        return name;
+    }
+
+    /*!
+     * \brief Sets the name of the application
+     * \param name the application's name
+     */
+    void setName(const std::string &appName) {
+        name = appName;
+    }
+
 };
 
 }
