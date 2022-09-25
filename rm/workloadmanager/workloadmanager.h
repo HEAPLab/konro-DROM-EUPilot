@@ -3,18 +3,24 @@
 
 #include "app.h"
 #include "iprocobserver.h"
-#include "cgroup/cgroupcontrol.h"
-#include <vector>
+#include "iplatformcontrol.h"
+#include <set>
 #include <memory>
 
 namespace wm {
 /*!
- * \brief The WorkloadManager class
+ * \brief a class for handling and manipulating a set of applications
  */
 class WorkloadManager : public IProcObserver {
+    pc::IPlatformControl &pc_;
     /*! pid to monitor */
     int pid_;
-    std::vector<std::shared_ptr<pc::App>> apps_;
+
+    /*! Comparison function for the set */
+    using AppComparator = bool (*)(const std::shared_ptr<pc::App> &lhs,
+                                   const std::shared_ptr<pc::App> &rhs);
+
+    std::set<std::shared_ptr<pc::App>, AppComparator> apps_;
 
     /*!
      * Processes a fork event.
@@ -39,13 +45,19 @@ class WorkloadManager : public IProcObserver {
      * from Konro's management.
      */
     void processExitEvent(std::uint8_t *data);
+    void processCoreDumpEvent(std::uint8_t *data);
 
     void dumpApps();
 
+    /*!
+     * Gets the app with the specified pid from the set of Konro's applications.
+     * \param pid the pid of the application of interest
+     * \return a shared ptr to the app with the specified pid
+     */
     std::shared_ptr<pc::App> getApp(pid_t pid);
 
 public:
-    WorkloadManager(int pid);
+    WorkloadManager(pc::IPlatformControl &pc, int pid);
 
     /*!
      * Adds the specified application under the management of Konro.

@@ -12,6 +12,7 @@ namespace pc {
 class App {
 public:
     enum AppType {
+        UNKNOWN,
         STANDALONE,
         INTEGRATED,
         KUBERNETES
@@ -20,11 +21,12 @@ public:
 private:
     pid_t pid_;
     AppType appType_;
-    std::string name;
+    std::string name_;
 
     App(pid_t pid, AppType appType) : pid_(pid), appType_(appType) {}
 
 public:
+    typedef std::shared_ptr<App> Ptr;
     App(const App &rhs) = delete;
     App &operator = (const App &rhs) = delete;
     App(App &&rhs) noexcept = delete;
@@ -64,7 +66,7 @@ public:
      * \return the application's name
      */
     const std::string &getName() const {
-        return name;
+        return name_;
     }
 
     /*!
@@ -72,7 +74,7 @@ public:
      * \param name the application's name
      */
     void setName(const std::string &appName) {
-        name = appName;
+        name_ = appName;
     }
 
 };

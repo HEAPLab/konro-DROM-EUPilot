@@ -1,8 +1,8 @@
-
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 14)
 
 add_subdirectory (platformcontrol)
 add_subdirectory (workloadmanager)
+add_subdirectory (resourcepolicies)
 
 set(KONRO_SOURCES "src/main.cpp")
 

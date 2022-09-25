@@ -217,6 +217,7 @@ void ProcListener::processEvent(uint8_t *data)
         break;
     case proc_event::PROC_EVENT_COREDUMP:
         cout << "ProcListener: PROC_EVENT_COREDUMP received\n";
+        notify(data);
         break;
     case proc_event::PROC_EVENT_EXIT:
         cout << "ProcListener: PROC_EVENT_EXIT received\n";

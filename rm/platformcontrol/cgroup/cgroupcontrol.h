@@ -4,6 +4,7 @@
 #include "app.h"
 #include "cgrouputil.h"
 #include "utilities/dir.h"
+#include "../iplatformcontrol.h"
 
 #include <string>
 #include <vector>
@@ -15,7 +16,7 @@ namespace pc {
 /*!
  * \class a class for interacting with the cgroup hieararchy
  */
-class CGroupControl {
+class CGroupControl : public IPlatformControl {
 
     /*!
      * Checks if the specified controller interface file exists in a folder.
@@ -118,7 +119,7 @@ public:
      *
      * \param app the application to manage
      */
-    void addApplication(std::shared_ptr<App> app);
+    void addApplication(std::shared_ptr<App> app) override;
 
     /*!
      * \brief Removes an application from the management of Konro.
@@ -129,7 +130,7 @@ public:
      *
      * \param app the application to remove from Konro's management
      */
-    void removeApplication(std::shared_ptr<App> app);
+    void removeApplication(std::shared_ptr<App> app) override;
 };
 
 }

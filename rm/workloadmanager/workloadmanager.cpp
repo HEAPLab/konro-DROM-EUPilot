@@ -28,44 +28,55 @@ static string getProcessNameByPid(int pid)
     return cmdline;
 }
 
-WorkloadManager::WorkloadManager(int pid)
+/*!
+ * Compares two Apps ("less" function)
+ *
+ * \param lhs the first app to compare
+ * \param rhs the second app to compare
+ * \return true if pid of lsh is < than pid of rhs
+ */
+static bool appComp(const shared_ptr<pc::App> &lhs, const shared_ptr<pc::App> &rhs)
+{
+    return lhs->getPid() < rhs->getPid();
+}
+
+WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, int pid) :
+    pc_(pc),
+    pid_(0),
+    apps_(appComp)
 {
     add(pc::App::makeApp(pid, pc::App::STANDALONE));
 }
 
 void WorkloadManager::add(shared_ptr<pc::App> app)
 {
-    apps_.push_back(app);
-    pc::CGroupControl cgc;
-    cgc.addApplication(app);
+    apps_.insert(app);
+    pc_.addApplication(app);
 }
 
-shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid) {
-    auto it = find_if(begin(apps_), end(apps_),
-                 [pid](const shared_ptr<pc::App>& obj)
-                    { return obj->getPid() == pid;});
+shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
+{
+    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    auto it = apps_.find(key);
     return *it;
 }
 
 
 void WorkloadManager::remove(pid_t pid)
 {
-    auto it = find_if(begin(apps_), end(apps_),
-                 [pid](const shared_ptr<pc::App>& obj)
-                    { return obj->getPid() == pid;});
+    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    auto it = apps_.find(key);
     if (it != end(apps_)) {
-        pc::CGroupControl cgc;
-        cgc.removeApplication(*it);
+        pc_.removeApplication(*it);
         apps_.erase(it);
     }
 }
 
 bool WorkloadManager::isInKonro(pid_t pid)
 {
-    auto it = find_if(begin(apps_), end(apps_),
-                 [pid](const shared_ptr<pc::App>& obj)
-                    { return obj->getPid() == pid;});
-    return it != end(apps_);
+    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    return apps_.find(key) != end(apps_);
+
 }
 
 void WorkloadManager::update(uint8_t *data)
@@ -101,6 +112,8 @@ void WorkloadManager::update(uint8_t *data)
         break;
     case proc_event::PROC_EVENT_COREDUMP:
         cout << "WorkloadManager: PROC_EVENT_COREDUMP received\n";
+        cout.flush();
+        processCoreDumpEvent(data);
         break;
     case proc_event::PROC_EVENT_EXIT:
         cout << "WorkloadManager: PROC_EVENT_EXIT received\n";
@@ -170,6 +183,27 @@ void WorkloadManager::processExitEvent(uint8_t *data)
              << " exited" << endl;
         cout << "    process_tgid:" << ev->event_data.exit.process_tgid << " exited" << endl;
     }
+    dumpApps();
+}
+
+void WorkloadManager::processCoreDumpEvent(uint8_t *data)
+{
+    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
+
+    pid_t pid = ev->event_data.coredump.process_pid;
+    if (isInKonro(pid)) {
+        // remove will be done by the EXIT event which follows
+        //remove(pid);
+
+        cout << "    process_pid:" << ev->event_data.coredump.process_pid
+             << " (" << getProcessNameByPid(ev->event_data.exit.process_pid) << ")"
+             << " exited" << endl;
+        cout << "    parent_pid:" << ev->event_data.coredump.parent_pid
+             << " (" << getProcessNameByPid(ev->event_data.coredump.parent_pid) << ")"
+             << " exited" << endl;
+        cout << "    process_tgid:" << ev->event_data.coredump.process_tgid << " exited" << endl;
+    }
+    dumpApps();
 }
 
 void WorkloadManager::dumpApps()
