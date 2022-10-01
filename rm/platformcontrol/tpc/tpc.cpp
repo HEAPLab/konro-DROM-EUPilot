@@ -28,8 +28,8 @@ static void checkAppDir(int pid)
 static void setCpuMax(std::shared_ptr<App> app, int n)
 {
     //pc::CpuControl().setValue(pc::CpuControl::MAX, n, app);
-    pc::CpuControl().setMax(n, app);
-    pc::NumericValue nv = pc::CpuControl().getMax(app);
+    pc::CpuControl::instance().setMax(n, app);
+    pc::NumericValue nv = pc::CpuControl::instance().getMax(app);
     cout << "Cpu max: requested " << n << " read " << nv << endl;
     if (nv != n)
         cout << "ERROR setCpuMax\n";
@@ -39,8 +39,8 @@ static void setCpuMax(std::shared_ptr<App> app, int n)
 
 static void setCpuMax(std::shared_ptr<App> app)
 {
-    pc::CpuControl().setMax(pc::NumericValue::max(), app);
-    pc::NumericValue nv = pc::CpuControl().getMax(app);
+    pc::CpuControl::instance().setMax(pc::NumericValue::max(), app);
+    pc::NumericValue nv = pc::CpuControl::instance().getMax(app);
     cout << "Cpu max: requested " << pc::NumericValue::max() << " read " << nv << endl;
     if (!nv.isMax())
         cout << "ERROR setCpuMax(max)\n";
@@ -50,7 +50,7 @@ static void setCpuMax(std::shared_ptr<App> app)
 
 static void getCpuStat(std::shared_ptr<App> app)
 {
-    map<string, uint64_t> tags = pc::CpuControl().getStat(app);
+    map<string, uint64_t> tags = pc::CpuControl::instance().getStat(app);
     cout << "CPU STAT\n";
     for (const auto& kv : tags) {
         cout << "    " << kv.first << ":" << kv.second << endl;
@@ -60,9 +60,9 @@ static void getCpuStat(std::shared_ptr<App> app)
 static void getIoMax(std::shared_ptr<App> app, int major, int minor)
 {
     cout << "Setting max wbps\n";
-    pc::IOControl().setMax(8, 0, pc::IOControl::WBPS, 1000000, app);
+    pc::IOControl::instance().setMax(8, 0, pc::IOControl::WBPS, 1000000, app);
     sleep(2);
-    map<string, pc::NumericValue> tags = pc::IOControl().getMax(major, minor, app);
+    map<string, pc::NumericValue> tags = pc::IOControl::instance().getMax(major, minor, app);
     cout << "IO MAX\n";
     for (const auto& kv : tags) {
         cout << "    " << kv.first << ":" << kv.second << endl;
@@ -75,7 +75,7 @@ static void getIoMax(std::shared_ptr<App> app, int major, int minor)
 
 static void getIoStat(std::shared_ptr<App> app, int major, int minor)
 {
-    map<string, pc::NumericValue> tags = pc::IOControl().getStat(major, minor, app);
+    map<string, pc::NumericValue> tags = pc::IOControl::instance().getStat(major, minor, app);
     cout << "IO STAT\n";
     for (const auto& kv : tags) {
         cout << kv.first << ":" << kv.second << endl;
@@ -84,8 +84,8 @@ static void getIoStat(std::shared_ptr<App> app, int major, int minor)
 
 static void setCpuSet(std::shared_ptr<App> app)
 {
-    pc::CpusetControl().setCpus({ {0, 0}, {3, 3} }, app);
-    pc::CpusetControl::CpusetVector cpus = pc::CpusetControl().getCpus(app);
+    pc::CpusetControl::instance().setCpus({ {0, 0}, {3, 3} }, app);
+    pc::CpusetControl::CpusetVector cpus = pc::CpusetControl::instance().getCpus(app);
     if (std::find(begin(cpus), end(cpus), std::make_pair((short)0, (short)0)) == cpus.end() ||
             std::find(begin(cpus), end(cpus), std::make_pair((short)3, (short)3)) == cpus.end()) {
         cout << "ERROR setCpuSet\n";
@@ -96,21 +96,21 @@ static void setCpuSet(std::shared_ptr<App> app)
 
 static void testMemoryControl(std::shared_ptr<App> app)
 {
-    pc::MemoryControl().setMin(16384, app);
-    int mmin = pc::MemoryControl().getMin(app);
+    pc::MemoryControl::instance().setMin(16384, app);
+    int mmin = pc::MemoryControl::instance().getMin(app);
     if (mmin != 16384) {
         cout << "ERROR testMemoryControl setMemoryMin. Requested 16384, got " << mmin << "\n";
         return;
     }
 
-    pc::MemoryControl().setMax(98304, app);
-    int mmax = pc::MemoryControl().getMax(app);
-    if (pc::MemoryControl().getMax(app) != 98304) {
+    pc::MemoryControl::instance().setMax(98304, app);
+    int mmax = pc::MemoryControl::instance().getMax(app);
+    if (pc::MemoryControl::instance().getMax(app) != 98304) {
         cout << "ERROR testMemoryControl setMemoryMax. Requested 100000, got " << mmax << "\n";
         return;
     }
 
-    map<string, uint64_t> events = pc::MemoryControl().getEvents(app);
+    map<string, uint64_t> events = pc::MemoryControl::instance().getEvents(app);
     cout << "MEMORY EVENTS\n";
     for (const auto &ev: events) {
         cout << "    " << ev.first << ' ' << ev.second << endl;

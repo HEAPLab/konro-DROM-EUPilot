@@ -38,6 +38,12 @@ std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int maj
     return tags;
 }
 
+IOControl &IOControl::instance()
+{
+    static IOControl ioc;
+    return ioc;
+}
+
 void IOControl::setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app)
 {
     ostringstream os;

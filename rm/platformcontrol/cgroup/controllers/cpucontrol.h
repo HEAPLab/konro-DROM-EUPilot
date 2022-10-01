@@ -26,8 +26,11 @@ public:
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
+
+    CpuControl() = default;
 public:
 
+    static CpuControl &instance();
     /*!
      * Sets a maximum cpu bandwidth limit for the specified application.
      * \param percentage the maximum percentage of cpu utilization allowed

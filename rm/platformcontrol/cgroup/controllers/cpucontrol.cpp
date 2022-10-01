@@ -15,6 +15,13 @@ const std::map<CpuControl::ControllerFile, const char *> CpuControl::fileNamesMa
 };
 
 
+/*static*/
+CpuControl &CpuControl::instance()
+{
+    static CpuControl cc;
+    return cc;
+}
+
 void CpuControl::setMax(NumericValue percentage, std::shared_ptr<App> app)
 {
     std::ostringstream os;

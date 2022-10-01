@@ -12,6 +12,12 @@ const std::map<PidsControl::ControllerFile, const char *> PidsControl::fileNames
     { CURRENT, "pids.current" }
 };
 
+PidsControl &PidsControl::instance()
+{
+    static PidsControl pc;
+    return pc;
+}
+
 void PidsControl::setMax(NumericValue numPids, std::shared_ptr<App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);

@@ -17,6 +17,12 @@ const std::map<CpusetControl::ControllerFile, const char *> CpusetControl::fileN
     { MEMS_EFFECTIVE, "cpuset.mems.effective" }
 };
 
+CpusetControl &CpusetControl::instance()
+{
+    static CpusetControl cc;
+    return cc;
+}
+
 std::vector<std::pair<short, short>> CpusetControl::parseCpuSet(const std::string &line)
 {
     std::vector<std::pair<short, short>> vec;

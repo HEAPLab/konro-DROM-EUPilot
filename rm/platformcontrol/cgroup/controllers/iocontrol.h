@@ -20,6 +20,7 @@ public:
         MAX     // read-write
     };
 
+
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
@@ -36,7 +37,11 @@ private:
      */
     std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app);
 
+    IOControl() = default;
+
 public:
+
+    static IOControl &instance();
 
     /*!
      * Gets the IO usage statistics for the specified applications.

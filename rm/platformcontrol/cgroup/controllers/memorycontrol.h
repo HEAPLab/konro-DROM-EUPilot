@@ -24,7 +24,12 @@ public:
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
+
+    MemoryControl() = default;
+
 public:
+
+    static MemoryControl &instance();
 
     /*!
      * Gets the total amount of memory currently being used by the specified

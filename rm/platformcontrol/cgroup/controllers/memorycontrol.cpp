@@ -14,6 +14,12 @@ const std::map<MemoryControl::ControllerFile, const char *> MemoryControl::fileN
     { STAT, "memory.stat" }
 };
 
+MemoryControl &MemoryControl::instance()
+{
+    static MemoryControl mc;
+    return mc;
+}
+
 int MemoryControl::getCurrent(std::shared_ptr<App> app)
 {
     return getValueAsInt(controllerName_, fileNamesMap_.at(CURRENT), app);

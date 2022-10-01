@@ -23,7 +23,11 @@ public:
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
+
+    CpusetControl() = default;
 public:
+
+    static CpusetControl &instance();
 
     /*!
      * Parses the content of a cpuset interface file and converts it to

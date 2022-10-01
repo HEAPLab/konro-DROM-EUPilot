@@ -16,7 +16,7 @@ using namespace pc;
 static int testParseCpuSet(const char *line)
 {
     try {
-        vector<std::pair<short, short>> cpus = CpusetControl().parseCpuSet(line);
+        vector<std::pair<short, short>> cpus = CpusetControl::instance().parseCpuSet(line);
     } catch (PcException &e) {
         return TEST_FAILED;
     }
@@ -26,7 +26,7 @@ static int testParseCpuSet(const char *line)
 static int testParseCpuSetFail(const char *line)
 {
     try {
-        vector<std::pair<short, short>> cpus = CpusetControl().parseCpuSet(line);
+        vector<std::pair<short, short>> cpus = CpusetControl::instance().parseCpuSet(line);
     } catch (PcException &e) {
         return TEST_OK;
     }
@@ -37,7 +37,7 @@ static int testParseCpusetValues1()
 {
     const char *line = "0-1,3,4-6,5";
     try {
-        vector<pair<short, short>> cpus = CpusetControl().parseCpuSet(line);
+        vector<pair<short, short>> cpus = CpusetControl::instance().parseCpuSet(line);
         vector<pair<short, short>>::iterator it;
         it = find(begin(cpus), end(cpus), make_pair((short)0, (short)1));
         if (it == cpus.end())

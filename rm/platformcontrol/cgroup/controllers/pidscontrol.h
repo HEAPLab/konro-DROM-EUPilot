@@ -21,7 +21,12 @@ public:
 private:
     static const char *controllerName_;
     static const std::map<ControllerFile, const char *> fileNamesMap_;
+
+    PidsControl() = default;
+
 public:
+
+    static PidsControl &instance();
 
     /*!
      * Limits the number of processes that may be forked by the specified application.
