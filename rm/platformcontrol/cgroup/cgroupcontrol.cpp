@@ -1,5 +1,5 @@
 ﻿#include "cgroupcontrol.h"
-#include "utilities/tsplit.h"
+#include "tsplit.h"
 #include "pcexception.h"
 #include <string>
 #include <sstream>

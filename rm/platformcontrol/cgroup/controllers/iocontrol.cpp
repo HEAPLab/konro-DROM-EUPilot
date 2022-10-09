@@ -1,5 +1,5 @@
 #include "iocontrol.h"
-#include "../utilities/tsplit.h"
+#include "tsplit.h"
 #include "../utilities/keyvalueparser.h"
 #include <vector>
 #include <sstream>

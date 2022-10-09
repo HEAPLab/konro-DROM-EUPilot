@@ -1,5 +1,4 @@
 set(CMAKE_CXX_STANDARD 14)
-include_directories("../rm/include")
 
 # Test init
 include(CTest)
@@ -11,7 +10,7 @@ macro(add_unit_test testname)
     FILE(GLOB sources ${testname}*.cpp unittest.h)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/testresourcepolicies/${testname}")
-    target_link_libraries(${testname} PUBLIC platformcontrol)
+    target_link_libraries(${testname} PUBLIC rmcommon platformcontrol)
   #endif()
 endmacro(add_unit_test)
 

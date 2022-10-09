@@ -17,7 +17,6 @@ add_library(platformcontrol
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol)
-include_directories(${PROJECT_SOURCE_DIR}/rm/include)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/utilities)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup/controllers)
@@ -26,8 +25,10 @@ target_include_directories(platformcontrol INTERFACE .)
 target_include_directories(platformcontrol INTERFACE controllers)
 target_include_directories(platformcontrol INTERFACE utilities)
 
+target_link_libraries(platformcontrol PRIVATE rmcommon)
+
 file(GLOB tpc_SOURCES "tpc/*.cpp")
 file(GLOB tpc_HEADERS "tpc/*.h")
 
 add_executable(tpc ${tpc_SOURCES} ${tpc_HEADERS})
-target_link_libraries(tpc platformcontrol)
+target_link_libraries(tpc rmcommon platformcontrol)

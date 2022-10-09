@@ -1,11 +1,8 @@
 set(CMAKE_CXX_STANDARD 14)
-include_directories("../rm/platformcontrol")
 
 # Test init
 include(CTest)
 enable_testing()
-
-include_directories(${PROJECT_SOURCE_DIR}/rm/include)
 
 # Test macro add_unit_test
 macro(add_unit_test testname)
@@ -13,7 +10,7 @@ macro(add_unit_test testname)
     FILE(GLOB sources ${testname}*.cpp unittest.h)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/testplatformcontrol/${testname}")
-    target_link_libraries(${testname} PUBLIC platformcontrol)
+    target_link_libraries(${testname} PUBLIC rmcommon platformcontrol)
   #endif()
 endmacro(add_unit_test)
 

@@ -1,7 +1,7 @@
 #ifndef CGROUPUTIL_H
 #define CGROUPUTIL_H
 
-#include "utilities/makepath.h"
+#include "makepath.h"
 #include <string>
 #include <vector>
 #include <fstream>

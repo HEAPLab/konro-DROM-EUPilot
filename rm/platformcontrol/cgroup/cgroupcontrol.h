@@ -3,7 +3,7 @@
 
 #include "app.h"
 #include "cgrouputil.h"
-#include "utilities/dir.h"
+#include "dir.h"
 #include "../iplatformcontrol.h"
 
 #include <string>

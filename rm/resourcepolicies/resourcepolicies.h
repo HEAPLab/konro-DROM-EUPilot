@@ -1,10 +1,10 @@
 #ifndef RESOURCEPOLICIES_H
 #define RESOURCEPOLICIES_H
 
-#include "../include/threadsafequeue.h"
-#include "../include/baseevent.h"
-#include "../include/addprocevent.h"
-#include "../include/removeprocevent.h"
+#include "threadsafequeue.h"
+#include "baseevent.h"
+#include "addprocevent.h"
+#include "removeprocevent.h"
 #include <chrono>
 #include <memory>
 

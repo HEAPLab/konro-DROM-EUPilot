@@ -1,5 +1,6 @@
 set (CMAKE_CXX_STANDARD 14)
 
+add_subdirectory (librmcommon)
 add_subdirectory (platformcontrol)
 add_subdirectory (workloadmanager)
 add_subdirectory (resourcepolicies)
@@ -12,6 +13,6 @@ include_directories(${PROJECT_SOURCE_DIR}/rm/include)
 
 add_executable (konro ${konro_SOURCES} ${konro_HEADERS})
 target_compile_definitions(konro PUBLIC KONRO_RM)
-target_link_libraries(konro PUBLIC konro-common platformcontrol workloadmanager resourcepolicies)
+target_link_libraries(konro PUBLIC konro-common rmcommon platformcontrol workloadmanager resourcepolicies)
 
 configure_file(konro.ini.in konro.ini)

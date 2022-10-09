@@ -7,6 +7,6 @@ add_library(resourcepolicies
 )
 
 include_directories("../include")
-#include_directories("../platformcontrol")
+target_link_libraries(resourcepolicies PRIVATE rmcommon)
 target_include_directories(resourcepolicies INTERFACE .)
 
