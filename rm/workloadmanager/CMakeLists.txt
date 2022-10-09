@@ -6,7 +6,5 @@ add_library(workloadmanager
     ${workloadmanager_SOURCES} ${workloadmanager_HEADERS}
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/rm/include)
-
 target_link_libraries(workloadmanager rmcommon platformcontrol resourcepolicies)
 target_include_directories(workloadmanager INTERFACE .)

@@ -53,7 +53,7 @@ void WorkloadManager::add(shared_ptr<pc::App> app)
 {
     apps_.insert(app);
     pc_.addApplication(app);
-
+    rp_.addEvent(make_shared<AddProcEvent>(app));
 }
 
 shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
@@ -69,6 +69,7 @@ void WorkloadManager::remove(pid_t pid)
     shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
+        rp_.addEvent(make_shared<RemoveProcEvent>(*it));
         pc_.removeApplication(*it);
         apps_.erase(it);
     }

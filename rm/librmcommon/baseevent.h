@@ -7,6 +7,7 @@
  * \class a generic event related to a process managed by Konro
  */
 class BaseEvent {
+public:
     virtual void printOnOstream(std::ostream &os) const {
         std::cout << "BaseEvent\n";
     }

@@ -64,6 +64,7 @@ static void testWorkloadManager(int pid)
     ResourcePolicies rp;
     wm::WorkloadManager workloadManager(cgc, rp, pid);
 
+    rp.start();
     procListener.attach(&workloadManager);
     procListener();
 }
