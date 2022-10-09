@@ -189,9 +189,6 @@ void ProcListener::processEvent(uint8_t *data)
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
     switch (ev->what) {
-    case proc_event::PROC_EVENT_NONE:
-        cout << "ProcListener: PROC_EVENT_NONE received\n";
-        break;
     case proc_event::PROC_EVENT_FORK:
         cout << "ProcListener: PROC_EVENT_FORK received\n";
         notify(data);
@@ -200,29 +197,12 @@ void ProcListener::processEvent(uint8_t *data)
         cout << "ProcListener: PROC_EVENT_EXEC received\n";
         notify(data);
         break;
-    case proc_event::PROC_EVENT_UID:
-        cout << "ProcListener: PROC_EVENT_UID received\n";
-        break;
-    case proc_event::PROC_EVENT_GID:
-        cout << "ProcListener: PROC_EVENT_GID received\n";
-        break;
-    case proc_event::PROC_EVENT_SID:
-        cout << "ProcListener: PROC_EVENT_SID received\n";
-        break;
-    case proc_event::PROC_EVENT_PTRACE:
-        cout << "ProcListener: PROC_EVENT_PTRACE received\n";
-        break;
-    case proc_event::PROC_EVENT_COMM:
-        cout << "ProcListener: PROC_EVENT_COMM received\n";
-        break;
-    case proc_event::PROC_EVENT_COREDUMP:
-        cout << "ProcListener: PROC_EVENT_COREDUMP received\n";
-        notify(data);
-        break;
     case proc_event::PROC_EVENT_EXIT:
         cout << "ProcListener: PROC_EVENT_EXIT received\n";
         notify(data);
         break;
+    /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
+       PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COMM, PROC_EVENT_COREDUMP */
     default:
         cout << "ProcListener: Event " << ev->what << " received\n";
         break;

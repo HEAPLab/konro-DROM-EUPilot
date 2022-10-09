@@ -6,6 +6,7 @@
 #include "proclistener.h"
 #include "cgroup/cgroupcontrol.h"
 #include "workloadmanager.h"
+#include "resourcepolicies.h"
 #include <cstdlib>
 #include <cstring>
 #include <signal.h>
@@ -60,7 +61,8 @@ static void testWorkloadManager(int pid)
     trapCtrlC();
 
     pc::CGroupControl cgc;
-    wm::WorkloadManager workloadManager(cgc, pid);
+    ResourcePolicies rp;
+    wm::WorkloadManager workloadManager(cgc, rp, pid);
 
     procListener.attach(&workloadManager);
     procListener();

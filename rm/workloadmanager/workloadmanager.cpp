@@ -40,8 +40,9 @@ static bool appComp(const shared_ptr<pc::App> &lhs, const shared_ptr<pc::App> &r
     return lhs->getPid() < rhs->getPid();
 }
 
-WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, int pid) :
+WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid) :
     pc_(pc),
+    rp_(rp),
     pid_(0),
     apps_(appComp)
 {
@@ -52,6 +53,7 @@ void WorkloadManager::add(shared_ptr<pc::App> app)
 {
     apps_.insert(app);
     pc_.addApplication(app);
+
 }
 
 shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
@@ -84,9 +86,6 @@ void WorkloadManager::update(uint8_t *data)
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
     switch (ev->what) {
-    case proc_event::PROC_EVENT_NONE:
-        cout << "WorkloadManager: PROC_EVENT_NONE received\n";
-        break;
     case proc_event::PROC_EVENT_FORK:
         cout << "WorkloadManager: PROC_EVENT_FORK received\n";
         processForkEvent(data);
@@ -94,26 +93,6 @@ void WorkloadManager::update(uint8_t *data)
     case proc_event::PROC_EVENT_EXEC:
         cout << "WorkloadManager: PROC_EVENT_EXEC received\n";
         processExecEvent(data);
-        break;
-    case proc_event::PROC_EVENT_UID:
-        cout << "WorkloadManager: PROC_EVENT_UID received\n";
-        break;
-    case proc_event::PROC_EVENT_GID:
-        cout << "WorkloadManager: PROC_EVENT_GID received\n";
-        break;
-    case proc_event::PROC_EVENT_SID:
-        cout << "WorkloadManager: PROC_EVENT_SID received\n";
-        break;
-    case proc_event::PROC_EVENT_PTRACE:
-        cout << "WorkloadManager: PROC_EVENT_PTRACE received\n";
-        break;
-    case proc_event::PROC_EVENT_COMM:
-        cout << "WorkloadManager: PROC_EVENT_COMM received\n";
-        break;
-    case proc_event::PROC_EVENT_COREDUMP:
-        cout << "WorkloadManager: PROC_EVENT_COREDUMP received\n";
-        cout.flush();
-        processCoreDumpEvent(data);
         break;
     case proc_event::PROC_EVENT_EXIT:
         cout << "WorkloadManager: PROC_EVENT_EXIT received\n";
@@ -182,26 +161,6 @@ void WorkloadManager::processExitEvent(uint8_t *data)
              << " (" << getProcessNameByPid(ev->event_data.exit.parent_pid) << ")"
              << " exited" << endl;
         cout << "    process_tgid:" << ev->event_data.exit.process_tgid << " exited" << endl;
-    }
-    dumpApps();
-}
-
-void WorkloadManager::processCoreDumpEvent(uint8_t *data)
-{
-    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
-
-    pid_t pid = ev->event_data.coredump.process_pid;
-    if (isInKonro(pid)) {
-        // remove will be done by the EXIT event which follows
-        //remove(pid);
-
-        cout << "    process_pid:" << ev->event_data.coredump.process_pid
-             << " (" << getProcessNameByPid(ev->event_data.exit.process_pid) << ")"
-             << " exited" << endl;
-        cout << "    parent_pid:" << ev->event_data.coredump.parent_pid
-             << " (" << getProcessNameByPid(ev->event_data.coredump.parent_pid) << ")"
-             << " exited" << endl;
-        cout << "    process_tgid:" << ev->event_data.coredump.process_tgid << " exited" << endl;
     }
     dumpApps();
 }

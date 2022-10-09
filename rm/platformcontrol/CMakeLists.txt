@@ -17,6 +17,7 @@ add_library(platformcontrol
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol)
+include_directories(${PROJECT_SOURCE_DIR}/rm/include)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/utilities)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup/controllers)

@@ -8,7 +8,7 @@
 
 using namespace std;
 
-static bool testFind1()
+static int testFind1()
 {
     string path1 = pc::util::findCgroupPath((pid_t)1);
     if (path1 != "/sys/fs/cgroup/init.scope")

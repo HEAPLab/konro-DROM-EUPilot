@@ -9,7 +9,7 @@
 
 using namespace std;
 
-static bool testSplit1()
+static int testSplit1()
 {
     vector<string> parts = split::tsplit(string("/1/2/3"), "/");
     if (parts.size() != 4)
@@ -25,7 +25,7 @@ static bool testSplit1()
     return TEST_OK;
 }
 
-static bool testSplit2()
+static int testSplit2()
 {
     vector<string> parts = split::tsplit(string("1/2/3"), "/");
     if (parts.size() != 3)
@@ -39,7 +39,7 @@ static bool testSplit2()
     return TEST_OK;
 }
 
-static bool testSplit3()
+static int testSplit3()
 {
     vector<string> parts = split::tsplit(string("0::/init.scope"), ":");
     if (parts.size() != 3)

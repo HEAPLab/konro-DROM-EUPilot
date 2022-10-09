@@ -4,6 +4,7 @@
 #include "app.h"
 #include "iprocobserver.h"
 #include "iplatformcontrol.h"
+#include "resourcepolicies.h"
 #include <set>
 #include <memory>
 
@@ -13,6 +14,8 @@ namespace wm {
  */
 class WorkloadManager : public IProcObserver {
     pc::IPlatformControl &pc_;
+
+    ResourcePolicies &rp_;
     /*! pid to monitor */
     int pid_;
 
@@ -57,7 +60,7 @@ class WorkloadManager : public IProcObserver {
     std::shared_ptr<pc::App> getApp(pid_t pid);
 
 public:
-    WorkloadManager(pc::IPlatformControl &pc, int pid);
+    WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid);
 
     /*!
      * Adds the specified application under the management of Konro.
