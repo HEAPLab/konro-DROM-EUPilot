@@ -1,12 +1,12 @@
 #include "config.h"
 #include "constants.h"
 
-#include <iostream> // Just for testing purposes
-
+#include "dir.h"
 #include "proclistener.h"
 #include "cgroup/cgroupcontrol.h"
 #include "workloadmanager.h"
 #include "resourcepolicies.h"
+#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <signal.h>
@@ -14,12 +14,15 @@
 
 static void testWorkloadManager(int pid);
 
-int main(int argc, char *argv[]) {
-	auto &c = konro::Config::get(CONFIG_PATH);
+int main(int argc, char *argv[])
+{
+    if (pc::Dir::file_exists(CONFIG_PATH)) {
+        auto &c = konro::Config::get(CONFIG_PATH);
 
-	std::cout << c.read<std::string>("test", "name") << std::endl;
-	std::cout << c.read<int>("test", "number") << std::endl;
-	
+        std::cout << c.read<std::string>("test", "name") << std::endl;
+        std::cout << c.read<int>("test", "number") << std::endl;
+    }
+
     if (argc >= 2) {
         testWorkloadManager(atoi(argv[1]));
     }
@@ -61,7 +64,7 @@ static void testWorkloadManager(int pid)
     trapCtrlC();
 
     pc::CGroupControl cgc;
-    ResourcePolicies rp;
+    ResourcePolicies rp(ResourcePolicies::Policy::RandPolicy);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
 
     rp.start();

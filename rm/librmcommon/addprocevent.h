@@ -18,6 +18,10 @@ public:
         os << "AddProcEvent for PID " << app_->getPid() << std::endl;
     }
 
+    std::shared_ptr<pc::App> getApp() const {
+        return app_;
+    }
+
 };
 
 #endif // ADDPROCEVENT_H

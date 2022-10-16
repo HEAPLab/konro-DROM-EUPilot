@@ -16,6 +16,11 @@ public:
     void printOnOstream(std::ostream &os) const override {
         os << "RemoveProcEvent for PID " << app_->getPid() << std::endl;
     }
+
+    std::shared_ptr<pc::App> getApp() const {
+        return app_;
+    }
+
 };
 
 #endif // REMOVEPROCEVENT_H

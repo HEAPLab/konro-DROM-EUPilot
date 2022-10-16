@@ -21,7 +21,7 @@ std::string getCgroupKonroBaseDir()
     return "/sys/fs/cgroup/konro.slice/";
 }
 
-string getCgroupAppBaseDir(pid_t pid)
+string getCgroupKonroAppDir(pid_t pid)
 {
     string cgroupBasePath = util::getCgroupKonroBaseDir();
     ostringstream os;

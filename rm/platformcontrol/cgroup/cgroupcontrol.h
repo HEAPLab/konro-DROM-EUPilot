@@ -49,7 +49,7 @@ public:
     template<typename T>
     void setValue(const char *controllerName, const char *fileName, T value, std::shared_ptr<App> app) const {
         // 1 - Find cgroup path
-        std::string cgroupPath = util::findCgroupPath(app->getPid());
+        std::string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
 
         // 2 - If the controller interface file doesn't exist, activate the controller
         checkActivateController(controllerName, fileName, cgroupPath);
@@ -118,6 +118,7 @@ public:
      * /sys/fs/cgroup/konro.slice.
      *
      * \param app the application to manage
+     * \throws PcException in case of error
      */
     void addApplication(std::shared_ptr<App> app) override;
 
@@ -129,6 +130,7 @@ public:
      * this function.
      *
      * \param app the application to remove from Konro's management
+     * \throws runtime_error
      */
     void removeApplication(std::shared_ptr<App> app) override;
 };

@@ -17,7 +17,7 @@ using namespace pc;
 static void checkAppDir(int pid)
 {
     string realDir = pc::util::findCgroupPath(static_cast<pid_t>(pid));
-    string wantedDir = pc::util::getCgroupAppBaseDir(static_cast<pid_t>(pid));
+    string wantedDir = pc::util::getCgroupKonroAppDir(static_cast<pid_t>(pid));
     if (realDir != wantedDir) {
         cerr << "checkAppDir: invalid app base dir\n";
         exit(EXIT_FAILURE);

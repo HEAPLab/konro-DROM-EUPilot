@@ -27,22 +27,28 @@ std::string getCgroupBaseDir();
 std::string getCgroupKonroBaseDir();
 
 /*!
- * Gets the path of the cgroup directory containing the specified process
+ * Gets the path of the cgroup directory in the Konro hierarchy containing
+ * the specified process
+ *
  * \param pid the pid of the process
  * \returns the path of the directory containing the process
  */
-std::string getCgroupAppBaseDir(pid_t pid);
+std::string getCgroupKonroAppDir(pid_t pid);
 
 /*!
- * \brief Finds the location in the cgroup hierarchy of the specified process
+ * Finds the location in the cgroup hierarchy of the specified process
+ * by looking at the "/proc" filesystem
+ *
  * \param pid the pid of the process
  * \returns the absolute path of the cgroup to which the process belongs
+ * \throws PcException if the path in "/proc" does not exist
  */
 std::string findCgroupPath(pid_t pid);
 
 /*!
- * \brief Enables control of a specified resource type for the processes
- *        inside the target directory
+ * Enables control of a specified resource type for the processes
+ * inside the target directory
+ *
  * \param controllerName the type of controller to activate
  * \param cgroupPath the target directory
  */

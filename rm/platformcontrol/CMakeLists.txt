@@ -22,7 +22,7 @@ include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup)
 include_directories(${PROJECT_SOURCE_DIR}/rm/platformcontrol/cgroup/controllers)
 
 target_include_directories(platformcontrol INTERFACE .)
-target_include_directories(platformcontrol INTERFACE controllers)
+target_include_directories(platformcontrol INTERFACE cgroup/controllers)
 target_include_directories(platformcontrol INTERFACE utilities)
 
 target_link_libraries(platformcontrol PRIVATE rmcommon)

@@ -29,7 +29,8 @@ static string getProcessNameByPid(int pid)
 }
 
 /*!
- * Compares two Apps ("less" function)
+ * Compares two App ("less" function) handled
+ * by shared pointers
  *
  * \param lhs the first app to compare
  * \param rhs the second app to compare
@@ -41,8 +42,8 @@ static bool appComp(const shared_ptr<pc::App> &lhs, const shared_ptr<pc::App> &r
 }
 
 WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid) :
-    pc_(pc),
-    rp_(rp),
+    platformControl_(pc),
+    resourcePolicies_(rp),
     pid_(0),
     apps_(appComp)
 {
@@ -52,8 +53,8 @@ WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp,
 void WorkloadManager::add(shared_ptr<pc::App> app)
 {
     apps_.insert(app);
-    pc_.addApplication(app);
-    rp_.addEvent(make_shared<AddProcEvent>(app));
+    platformControl_.addApplication(app);
+    resourcePolicies_.addEvent(make_shared<AddProcEvent>(app));
 }
 
 shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
@@ -69,8 +70,8 @@ void WorkloadManager::remove(pid_t pid)
     shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
-        rp_.addEvent(make_shared<RemoveProcEvent>(*it));
-        pc_.removeApplication(*it);
+        resourcePolicies_.addEvent(make_shared<RemoveProcEvent>(*it));
+        platformControl_.removeApplication(*it);
         apps_.erase(it);
     }
 }
@@ -119,15 +120,21 @@ void WorkloadManager::processForkEvent(uint8_t *data)
         app->setName(getProcessNameByPid(app->getPid()));
         add(app);
 
-        cout << "    parent_pid:"
-             << ev->event_data.fork.parent_pid
-             << " (" << getProcessNameByPid(ev->event_data.fork.parent_pid) << ")"
-             << " forked" << endl;
-        cout << "   parent_tgid:" << ev->event_data.fork.parent_tgid << endl;
-        cout << "     child_pid:" << ev->event_data.fork.child_pid
-             << " (" << getProcessNameByPid(ev->event_data.fork.parent_pid) << ")"
-             << " was forked" << endl;
-        cout << "    child_tgid:" << ev->event_data.fork.child_tgid << " was forked" << endl;
+        ostringstream os;
+        os << "    parent_pid:"
+           << ev->event_data.fork.parent_pid
+           << " (" << getProcessNameByPid(ev->event_data.fork.parent_pid) << ")"
+           << " forked" << endl;
+        os << "   parent_tgid:"
+           << ev->event_data.fork.parent_tgid << endl;
+        os << "     child_pid:"
+           << ev->event_data.fork.child_pid
+           << " (" << getProcessNameByPid(ev->event_data.fork.child_pid) << ")"
+           << " was forked" << endl;
+        os << "    child_tgid:"
+           << ev->event_data.fork.child_tgid
+           << " was forked" << endl;
+        cout << os.str();
     }
     dumpApps();
 }
@@ -168,7 +175,7 @@ void WorkloadManager::processExitEvent(uint8_t *data)
 
 void WorkloadManager::dumpApps()
 {
-    cout << "WorkloadManager: monitoring ";
+    cout << "WorkloadManager: monitoring PIDS {";
     bool first = true;
     for (auto &app: apps_) {
         if (first)
@@ -177,7 +184,7 @@ void WorkloadManager::dumpApps()
             cout << ",";
         cout << app->getPid();
     }
-    cout << endl;
+    cout << "}" << endl;
 }
 
 }   // namespace wm

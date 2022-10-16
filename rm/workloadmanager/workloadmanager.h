@@ -13,9 +13,9 @@ namespace wm {
  * \brief a class for handling and manipulating a set of applications
  */
 class WorkloadManager : public IProcObserver {
-    pc::IPlatformControl &pc_;
+    pc::IPlatformControl &platformControl_;
 
-    ResourcePolicies &rp_;
+    ResourcePolicies &resourcePolicies_;
     /*! pid to monitor */
     int pid_;
 

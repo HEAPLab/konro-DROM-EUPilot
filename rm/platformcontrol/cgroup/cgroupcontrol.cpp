@@ -25,7 +25,7 @@ void CGroupControl::checkActivateController(const char *controllerName, const ch
 std::string CGroupControl::getLine(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::findCgroupPath(app->getPid());
+    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
 
     // 2 - If the controller interface file doesn't exist, activate the controller
     checkActivateController(controllerName, fileName, cgroupPath);
@@ -37,7 +37,7 @@ std::string CGroupControl::getLine(const char *controllerName, const char *fileN
 std::vector<string> CGroupControl::getContent(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::findCgroupPath(app->getPid());
+    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
 
     // 2 - If the controller interface file doesn't exist, activate the controller
     checkActivateController(controllerName, fileName, cgroupPath);
@@ -55,7 +55,7 @@ int CGroupControl::getValueAsInt(const char *controllerName, const char *fileNam
 
 std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app)
 {
-    string cgroupPath = util::findCgroupPath(app->getPid());
+    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
     checkActivateController(controllerName, fileName, cgroupPath);
 
     std::map<std::string, uint64_t> tags;
@@ -74,14 +74,14 @@ std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controller
 
 void CGroupControl::addApplication(std::shared_ptr<App> app)
 {
-    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app->getPid());
+    string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
     Dir::mkdir_r(cgroupAppBaseDir.c_str());
     util::moveToCgroup(cgroupAppBaseDir, app->getPid());
 }
 
 void CGroupControl::removeApplication(std::shared_ptr<App> app)
 {
-    string cgroupAppBaseDir = util::getCgroupAppBaseDir(app->getPid());
+    string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
     Dir::rmdir(cgroupAppBaseDir.c_str());
 }
 
