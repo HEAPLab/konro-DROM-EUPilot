@@ -16,13 +16,13 @@ CGroupControl::~CGroupControl()
 
 void CGroupControl::checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const
 {
-    std::string filePath = make_path(cgroupPath, fileName);
-    if (!Dir::file_exists(filePath.c_str())) {
+    std::string filePath = rmcommon::make_path(cgroupPath, fileName);
+    if (!rmcommon::Dir::file_exists(filePath.c_str())) {
         util::activateController(controllerName, cgroupPath);
     }
 }
 
-std::string CGroupControl::getLine(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
+std::string CGroupControl::getLine(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const
 {
     // 1 - Find cgroup path
     string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
@@ -34,7 +34,7 @@ std::string CGroupControl::getLine(const char *controllerName, const char *fileN
     return util::getLine(fileName, cgroupPath);
 }
 
-std::vector<string> CGroupControl::getContent(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
+std::vector<string> CGroupControl::getContent(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const
 {
     // 1 - Find cgroup path
     string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
@@ -46,14 +46,14 @@ std::vector<string> CGroupControl::getContent(const char *controllerName, const 
     return util::getContent(fileName, cgroupPath);
 }
 
-int CGroupControl::getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const
+int CGroupControl::getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const
 {
     string value = getLine(controllerName, fileName, app);
     uint64_t n = strtoull(value.c_str(), nullptr, 10);
     return static_cast<int>(n);
 }
 
-std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app)
+std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app)
 {
     string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
     checkActivateController(controllerName, fileName, cgroupPath);
@@ -72,17 +72,17 @@ std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controller
     return tags;
 }
 
-void CGroupControl::addApplication(std::shared_ptr<App> app)
+void CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
-    Dir::mkdir_r(cgroupAppBaseDir.c_str());
+    rmcommon::Dir::mkdir_r(cgroupAppBaseDir.c_str());
     util::moveToCgroup(cgroupAppBaseDir, app->getPid());
 }
 
-void CGroupControl::removeApplication(std::shared_ptr<App> app)
+void CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
-    Dir::rmdir(cgroupAppBaseDir.c_str());
+    rmcommon::Dir::rmdir(cgroupAppBaseDir.c_str());
 }
 
 }

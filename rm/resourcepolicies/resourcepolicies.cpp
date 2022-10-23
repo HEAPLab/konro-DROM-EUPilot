@@ -15,21 +15,26 @@ using namespace std;
  * \param rhs the second app to compare
  * \return true if pid of lsh is < than pid of rhs
  */
-static bool appComp(const shared_ptr<AppInfo> &lhs, const shared_ptr<AppInfo> &rhs)
+static bool appInfoComp(const shared_ptr<AppInfo> &lhs, const shared_ptr<AppInfo> &rhs)
 {
     return lhs->getPid() < rhs->getPid();
 }
 
-ResourcePolicies::ResourcePolicies(Policy policy) :
-    apps_(appComp)
+ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy) :
+    platformDescription_(pd),
+    apps_(appInfoComp)
+{
+    policy_ = makePolicy(policy);
+}
+
+std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
 {
     switch (policy) {
     case Policy::RandPolicy:
-        policy_.reset(new RandPolicy);
-        break;
+        return make_unique<RandPolicy>();
     case Policy::NoPolicy:
     default:
-        policy_.reset(new NoPolicy);
+        return make_unique<NoPolicy>();
         break;
     }
 }
@@ -46,7 +51,7 @@ void ResourcePolicies::run()
 {
     cout << "ResourcePolicies thread starting\n";
     while (true) {
-        shared_ptr<BaseEvent> event;
+        shared_ptr<rmcommon::BaseEvent> event;
         bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
         if (!rc) {
             cout << "ResourcePolicies: no message received\n";
@@ -57,7 +62,7 @@ void ResourcePolicies::run()
     cout << "ResourcePolicies thread exiting\n";
 }
 
-void ResourcePolicies::processEvent(std::shared_ptr<BaseEvent> event)
+void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
 #if 1
     ostringstream os;
@@ -67,14 +72,14 @@ void ResourcePolicies::processEvent(std::shared_ptr<BaseEvent> event)
     cout << os.str();
 #endif
 
-    if (AddProcEvent *e = dynamic_cast<AddProcEvent *>(event.get())) {
+    if (rmcommon::AddProcEvent *e = dynamic_cast<rmcommon::AddProcEvent *>(event.get())) {
         processAddProcEvent(e);
-    } else if (RemoveProcEvent *e = dynamic_cast<RemoveProcEvent *>(event.get())) {
+    } else if (rmcommon::RemoveProcEvent *e = dynamic_cast<rmcommon::RemoveProcEvent *>(event.get())) {
         processRemoveProcEvent(e);
     }
 }
 
-void ResourcePolicies::processAddProcEvent(AddProcEvent *ev)
+void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)
 {
     shared_ptr<AppInfo> appInfo = make_shared<AppInfo>(ev->getApp());
     apps_.insert(appInfo);
@@ -82,7 +87,7 @@ void ResourcePolicies::processAddProcEvent(AddProcEvent *ev)
     policy_->addApp(appInfo);
 }
 
-void ResourcePolicies::processRemoveProcEvent(RemoveProcEvent *ev)
+void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 {
     // search target
     shared_ptr<AppInfo> appInfo = make_shared<AppInfo>(ev->getApp());

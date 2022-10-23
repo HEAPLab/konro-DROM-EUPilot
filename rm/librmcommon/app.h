@@ -5,7 +5,7 @@
 #include <string>
 #include <unistd.h>
 
-namespace pc {
+namespace rmcommon {
 /*!
  * \class a class containing basic information about a generic application.
  */
@@ -26,7 +26,8 @@ private:
     App(pid_t pid, AppType appType) : pid_(pid), appType_(appType) {}
 
 public:
-    typedef std::shared_ptr<App> Ptr;
+    typedef std::shared_ptr<App> AppPtr;
+
     App(const App &rhs) = delete;
     App &operator = (const App &rhs) = delete;
     App(App &&rhs) noexcept = delete;
@@ -76,8 +77,8 @@ public:
     void setName(const std::string &appName) {
         name_ = appName;
     }
-
 };
+
 
 }
 #endif // APP_H

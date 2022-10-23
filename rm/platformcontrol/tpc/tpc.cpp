@@ -25,7 +25,7 @@ static void checkAppDir(int pid)
     cout << pid << " base directory is " << realDir << endl;
 }
 
-static void setCpuMax(std::shared_ptr<App> app, int n)
+static void setCpuMax(std::shared_ptr<rmcommon::App> app, int n)
 {
     //pc::CpuControl().setValue(pc::CpuControl::MAX, n, app);
     pc::CpuControl::instance().setMax(n, app);
@@ -37,7 +37,7 @@ static void setCpuMax(std::shared_ptr<App> app, int n)
         cout << "setCpuMax OK\n";
 }
 
-static void setCpuMax(std::shared_ptr<App> app)
+static void setCpuMax(std::shared_ptr<rmcommon::App> app)
 {
     pc::CpuControl::instance().setMax(pc::NumericValue::max(), app);
     pc::NumericValue nv = pc::CpuControl::instance().getMax(app);
@@ -48,7 +48,7 @@ static void setCpuMax(std::shared_ptr<App> app)
         cout << "setCpuMax(max) OK\n";
 }
 
-static void getCpuStat(std::shared_ptr<App> app)
+static void getCpuStat(std::shared_ptr<rmcommon::App> app)
 {
     map<string, uint64_t> tags = pc::CpuControl::instance().getStat(app);
     cout << "CPU STAT\n";
@@ -57,7 +57,7 @@ static void getCpuStat(std::shared_ptr<App> app)
     }
 }
 
-static void getIoMax(std::shared_ptr<App> app, int major, int minor)
+static void getIoMax(std::shared_ptr<rmcommon::App> app, int major, int minor)
 {
     cout << "Setting max wbps\n";
     pc::IOControl::instance().setMax(8, 0, pc::IOControl::WBPS, 1000000, app);
@@ -73,7 +73,7 @@ static void getIoMax(std::shared_ptr<App> app, int major, int minor)
         cout << "getIoMax OK\n";
 }
 
-static void getIoStat(std::shared_ptr<App> app, int major, int minor)
+static void getIoStat(std::shared_ptr<rmcommon::App> app, int major, int minor)
 {
     map<string, pc::NumericValue> tags = pc::IOControl::instance().getStat(major, minor, app);
     cout << "IO STAT\n";
@@ -82,7 +82,7 @@ static void getIoStat(std::shared_ptr<App> app, int major, int minor)
     }
 }
 
-static void setCpuSet(std::shared_ptr<App> app)
+static void setCpuSet(std::shared_ptr<rmcommon::App> app)
 {
     pc::CpusetControl::instance().setCpus({ {0, 0}, {3, 3} }, app);
     pc::CpusetControl::CpusetVector cpus = pc::CpusetControl::instance().getCpus(app);
@@ -94,7 +94,7 @@ static void setCpuSet(std::shared_ptr<App> app)
     }
 }
 
-static void testMemoryControl(std::shared_ptr<App> app)
+static void testMemoryControl(std::shared_ptr<rmcommon::App> app)
 {
     pc::MemoryControl::instance().setMin(16384, app);
     int mmin = pc::MemoryControl::instance().getMin(app);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     int pid = atoi(argv[1]);
 
     pc::CGroupControl cgc;
-    std::shared_ptr<App> app = App::makeApp(pid, pc::App::STANDALONE);
+    std::shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE);
 
     int major = 8, minor = 0;
     try {

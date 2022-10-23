@@ -48,7 +48,7 @@ string findCgroupPath(pid_t pid)
     // for example: "0::/init.scope"
     if (!(in >> cgroupPath))
         throw PcException("findCgroupPath: could not read cgroup path for pid");
-    vector<string> parts = split::tsplit(cgroupPath, ":");
+    vector<string> parts = rmcommon::tsplit(cgroupPath, ":");
     return getCgroupBaseDir() + parts[2];
 }
 
@@ -69,11 +69,11 @@ void activateController(const char *controllerName, const string &cgroupPath)
     // [2] : "fs"
     // [3] : "cgroup"
     // [4] : "konro.slice"
-    vector<string> subPath = split::tsplit(cgroupPath, "/");
-    string currentFolder = make_path("/" + subPath[1], subPath[2]);
+    vector<string> subPath = rmcommon::tsplit(cgroupPath, "/");
+    string currentFolder = rmcommon::make_path("/" + subPath[1], subPath[2]);
     for (int i = 3; i < subPath.size()-1; ++i) {
         currentFolder += "/" + subPath[i];
-        string currentFile = make_path(currentFolder, "cgroup.subtree_control");
+        string currentFile = rmcommon::make_path(currentFolder, "cgroup.subtree_control");
         ofstream fileStream(currentFile.c_str());
         if (!fileStream.is_open()) {
             throwCouldNotOpenFile(__func__, currentFile);
@@ -85,7 +85,7 @@ void activateController(const char *controllerName, const string &cgroupPath)
 
 std::string getLine(const char *fileName, const string &cgroupPath)
 {
-    string filePath = make_path(cgroupPath, fileName);
+    string filePath = rmcommon::make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
     if (!in.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
@@ -97,7 +97,7 @@ std::string getLine(const char *fileName, const string &cgroupPath)
 
 std::vector<string> getContent(const char *fileName, const std::string &cgroupPath)
 {
-    string filePath = make_path(cgroupPath, fileName);
+    string filePath = rmcommon::make_path(cgroupPath, fileName);
     ifstream in(filePath.c_str());
     if (!in.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);
@@ -111,14 +111,14 @@ std::vector<string> getContent(const char *fileName, const std::string &cgroupPa
 
 string createCgroup(string cgroupPath, const std::string &name)
 {
-    string newPath = make_path(cgroupPath, name);
-    Dir::mkdir(newPath.c_str());
+    string newPath = rmcommon::make_path(cgroupPath, name);
+    rmcommon::Dir::mkdir(newPath.c_str());
     return newPath;
 }
 
 void moveToCgroup(const string &cgroupPath, pid_t pid)
 {
-    string filePath = make_path(cgroupPath, "cgroup.procs");
+    string filePath = rmcommon::make_path(cgroupPath, "cgroup.procs");
     ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);

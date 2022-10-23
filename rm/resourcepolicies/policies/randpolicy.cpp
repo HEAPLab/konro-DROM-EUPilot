@@ -18,6 +18,10 @@ int getRandNumber(int cpusNum)
     return uni(rng);
 }
 
+RandPolicy::RandPolicy()
+{
+}
+
 void RandPolicy::addApp(std::shared_ptr<AppInfo> appInfo)
 {
     try {

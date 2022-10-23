@@ -62,7 +62,7 @@ void activateController(const char *controllerName, const std::string &cgroupPat
  */
 template<typename T>
 void writeValue(const char *fileName, T value, const std::string &cgroupPath) {
-    std::string filePath = make_path(cgroupPath, fileName);
+    std::string filePath = rmcommon::make_path(cgroupPath, fileName);
     std::ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
         throwCouldNotOpenFile(__func__, filePath);

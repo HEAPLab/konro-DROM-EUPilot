@@ -7,7 +7,7 @@ using namespace std;
 
 static int testThreadsafeQueue1()
 {
-    ThreadsafeQueue<int> tsQueue;
+    rmcommon::ThreadsafeQueue<int> tsQueue;
     tsQueue.push(1);
     tsQueue.push(2);
     tsQueue.push(3);
@@ -26,7 +26,7 @@ static int testThreadsafeQueue1()
 
 static int testThreadsafeQueue2()
 {
-    ThreadsafeQueue<int> tsQueue;
+    rmcommon::ThreadsafeQueue<int> tsQueue;
     int val;
     if (tsQueue.waitAndPop(val, std::chrono::milliseconds(100)))
         return TEST_FAILED;
@@ -34,10 +34,10 @@ static int testThreadsafeQueue2()
 }
 
 class Consumer {
-    ThreadsafeQueue<int> &queue_;
+    rmcommon::ThreadsafeQueue<int> &queue_;
     long tot_;
 public:
-    Consumer(ThreadsafeQueue<int> &queue) : queue_(queue), tot_() { }
+    Consumer(rmcommon::ThreadsafeQueue<int> &queue) : queue_(queue), tot_() { }
 
     void operator()() {
         int n;
@@ -56,7 +56,7 @@ public:
  */
 static int testThreadsafeQueue3()
 {
-    ThreadsafeQueue<int> tsQueue;
+    rmcommon::ThreadsafeQueue<int> tsQueue;
     Consumer c1(tsQueue), c2(tsQueue), c3(tsQueue);
     thread t1(ref(c1));
     thread t2(ref(c2));

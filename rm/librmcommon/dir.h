@@ -5,7 +5,7 @@
 #include <string>
 #include <iterator>
 
-namespace pc {
+namespace rmcommon {
 /*!
  * \class a class for handling directories
  */
@@ -85,21 +85,21 @@ public:
      * Creates the specified directory
      *
      * \param path the path of the directory
-     * \throws PcException in case of error
+     * \throws std::runtime_error in case of error
      */
     static void mkdir(const char *path);
 
     /*!
      * Recursively creates all the directories of a path
      * \param path the path containing the folders to create
-     * \throws PcException in case of error
+     * \throws std::runtime_error in case of error
      */
     static void mkdir_r(const char *path);
 
     /*!
      * \brief Removes the directory "path"
      * \param path the name of the directory
-     * \throws PcException in case of error
+     * \throws std::runtime_error in case of error
      */
     static void rmdir(const char *path);
 

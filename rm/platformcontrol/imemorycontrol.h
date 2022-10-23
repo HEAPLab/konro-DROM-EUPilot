@@ -17,7 +17,7 @@ public:
      * application and its descendants.
      * \returns the amount of memory used by the app and its descendants
      */
-    virtual int getCurrent(std::shared_ptr<App> app) = 0;
+    virtual int getCurrent(std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Sets a minimum amount of memory that the application must always retain.
@@ -25,7 +25,7 @@ public:
      * \param minMem the min amount of memory that the app must retain.
      * \param app the application to limit
      */
-    virtual void setMin(int minMem, std::shared_ptr<App> app) = 0;
+    virtual void setMin(int minMem, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the minimum amount of memory that the application must always retain.
@@ -33,7 +33,7 @@ public:
      * \param app the application of interest
      * \returns the min amount of memory that the app must retain
      */
-    virtual int getMin(std::shared_ptr<App> app) = 0;
+    virtual int getMin(std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Sets a memory usage hard limit for the application.
@@ -41,7 +41,7 @@ public:
      * \param maxMem the max amount of memory that the app can use.
      * \param app the application to limit
      */
-    virtual void setMax(NumericValue maxMem, std::shared_ptr<App> app) = 0;
+    virtual void setMax(NumericValue maxMem, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the memory usage hard limit for the application.
@@ -49,7 +49,7 @@ public:
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    virtual NumericValue getMax(std::shared_ptr<App> app) = 0;
+    virtual NumericValue getMax(std::shared_ptr<rmcommon::App> app) = 0;
 
 };
 

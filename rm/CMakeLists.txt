@@ -1,5 +1,6 @@
 set (CMAKE_CXX_STANDARD 14)
 
+add_subdirectory (platformdescription)
 add_subdirectory (librmcommon)
 add_subdirectory (platformcontrol)
 add_subdirectory (workloadmanager)

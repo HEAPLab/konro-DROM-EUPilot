@@ -20,7 +20,7 @@ public:
      * \param numPids the maximum number of processes that can be forked
      * \param app the application to limit
      */
-    virtual void setMax(NumericValue numPids, std::shared_ptr<App> app) = 0;
+    virtual void setMax(NumericValue numPids, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the maximum number of processes that may be forked by the application.
@@ -28,7 +28,7 @@ public:
      * \param app the application of interest
      * \returns the maximum number of processes that can be froked by the application
      */
-    virtual NumericValue getMax(std::shared_ptr<App> app) = 0;
+    virtual NumericValue getMax(std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the number of processes that have been forked by the specified
@@ -36,7 +36,7 @@ public:
      * \param app the application of interest
      * \returns the number of processes forked by the app
      */
-    virtual NumericValue getCurrent(std::shared_ptr<App> app) = 0;
+    virtual NumericValue getCurrent(std::shared_ptr<rmcommon::App> app) = 0;
 
 };
 

@@ -15,13 +15,13 @@ public:
      * \brief Adds an application under the management of Konro.
      * \param app the application to manage
      */
-    virtual void addApplication(std::shared_ptr<App> app) = 0;
+    virtual void addApplication(std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * \brief Removes an application from the management of Konro.
      * \param app the application to remove from Konro's management
      */
-    virtual void removeApplication(std::shared_ptr<App> app) = 0;
+    virtual void removeApplication(std::shared_ptr<rmcommon::App> app) = 0;
 };
 
 }

@@ -3,12 +3,13 @@
 
 #include "ibasepolicy.h"
 /*!
- * \class random scheduling policy.
- * This policy assigns each new process to a random CPU.
+ * \class random resource management policy
+ *
+ * Assigns each new process to a random CPU core.
  */
 class RandPolicy : public IBasePolicy {
 public:
-    RandPolicy() = default;
+    explicit RandPolicy();
     virtual const char *name() override {
         return "RandPolicy";
     }

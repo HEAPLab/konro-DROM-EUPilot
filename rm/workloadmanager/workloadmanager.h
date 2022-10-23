@@ -20,10 +20,10 @@ class WorkloadManager : public IProcObserver {
     int pid_;
 
     /*! Comparison function for the set */
-    using AppComparator = bool (*)(const std::shared_ptr<pc::App> &lhs,
-                                   const std::shared_ptr<pc::App> &rhs);
+    using AppComparator = bool (*)(const std::shared_ptr<rmcommon::App> &lhs,
+                                   const std::shared_ptr<rmcommon::App> &rhs);
 
-    std::set<std::shared_ptr<pc::App>, AppComparator> apps_;
+    std::set<std::shared_ptr<rmcommon::App>, AppComparator> apps_;
 
     /*!
      * Processes a fork event.
@@ -48,7 +48,6 @@ class WorkloadManager : public IProcObserver {
      * from Konro's management.
      */
     void processExitEvent(std::uint8_t *data);
-    void processCoreDumpEvent(std::uint8_t *data);
 
     void dumpApps();
 
@@ -57,7 +56,7 @@ class WorkloadManager : public IProcObserver {
      * \param pid the pid of the application of interest
      * \return a shared ptr to the app with the specified pid
      */
-    std::shared_ptr<pc::App> getApp(pid_t pid);
+    std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
 public:
     WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid);
@@ -66,13 +65,13 @@ public:
      * Adds the specified application under the management of Konro.
      * \param app the application to add
      */
-    void add(std::shared_ptr<pc::App> app);
+    void add(std::shared_ptr<rmcommon::App> app);
 
     /*!
      * Removes the specified application from the management of Konro.
      * \param app the application to remove
      */
-    void remove(std::shared_ptr<pc::App> app);
+    void remove(std::shared_ptr<rmcommon::App> app);
 
     /*!
      * Removes the application with the specified pid from the management of Konro.

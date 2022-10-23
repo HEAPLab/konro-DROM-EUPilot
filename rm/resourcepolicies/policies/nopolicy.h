@@ -4,10 +4,14 @@
 #include "ibasepolicy.h"
 
 /*!
- * \class an empty scheduling policy.
- * Useful for testing purposes.
+ * \class empty resource management policy
+ *
+ * Useful for testing.
  */
 class NoPolicy : public IBasePolicy {
+public:
+    explicit NoPolicy();
+
     virtual const char *name() override {
         return "NoPolicy";
     }

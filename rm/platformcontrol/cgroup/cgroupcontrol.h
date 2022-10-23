@@ -47,7 +47,7 @@ public:
      * \throws PcException in case of error
      */
     template<typename T>
-    void setValue(const char *controllerName, const char *fileName, T value, std::shared_ptr<App> app) const {
+    void setValue(const char *controllerName, const char *fileName, T value, std::shared_ptr<rmcommon::App> app) const {
         // 1 - Find cgroup path
         std::string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
 
@@ -72,7 +72,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::string getLine(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
+    std::string getLine(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const;
 
     /*!
      * \brief Returns the content of a specified controller interface file.
@@ -85,7 +85,7 @@ public:
      * \returns the content of the controller interface file
      * \throws PcException in case of error
      */
-    std::vector<std::string> getContent(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
+    std::vector<std::string> getContent(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const;
 
     /*!
      * \brief Returns the current limit applied to an application for a specific resource
@@ -95,7 +95,7 @@ public:
      * \returns the content of the controller interface file as integer
      * \throws PcException in case of error
      */
-    int getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<App> app) const;
+    int getValueAsInt(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const;
 
     /*!
      * \brief Returns the content of a specified controller interface file as a map.
@@ -108,7 +108,7 @@ public:
      * \returns the content of the controller interface file as map
      * \throws PcException in case of error
      */
-    std::map<std::string, uint64_t> getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app);
 
     /*!
      * \brief Adds an application under the management of Konro.
@@ -120,7 +120,7 @@ public:
      * \param app the application to manage
      * \throws PcException in case of error
      */
-    void addApplication(std::shared_ptr<App> app) override;
+    void addApplication(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * \brief Removes an application from the management of Konro.
@@ -132,7 +132,7 @@ public:
      * \param app the application to remove from Konro's management
      * \throws runtime_error
      */
-    void removeApplication(std::shared_ptr<App> app) override;
+    void removeApplication(std::shared_ptr<rmcommon::App> app) override;
 };
 
 }

@@ -5,7 +5,7 @@
 #include <string>
 #include <locale>
 
-namespace split {
+namespace rmcommon {
 
 namespace detail {
 

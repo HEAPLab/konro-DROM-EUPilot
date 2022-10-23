@@ -57,7 +57,7 @@ std::vector<std::pair<short, short>> CpusetControl::parseCpuSet(const std::strin
     return vec;
 }
 
-void CpusetControl::setCpus(const std::vector<std::pair<short, short>> &cpus, std::shared_ptr<App> app)
+void CpusetControl::setCpus(const std::vector<std::pair<short, short>> &cpus, std::shared_ptr<rmcommon::App> app)
 {
     std::ostringstream os;
     for (size_t i = 0; i < cpus.size(); ++i) {
@@ -70,19 +70,19 @@ void CpusetControl::setCpus(const std::vector<std::pair<short, short>> &cpus, st
     setValue(controllerName_, fileNamesMap_.at(CPUS), os.str(), app);
 }
 
-std::vector<std::pair<short, short>> CpusetControl::getCpus(std::shared_ptr<App> app)
+std::vector<std::pair<short, short>> CpusetControl::getCpus(std::shared_ptr<rmcommon::App> app)
 {
     std::string line = getLine(controllerName_, fileNamesMap_.at(CPUS), app);
     return parseCpuSet(line);
 }
 
-std::vector<std::pair<short, short>> CpusetControl::getCpusEffective(std::shared_ptr<App> app)
+std::vector<std::pair<short, short>> CpusetControl::getCpusEffective(std::shared_ptr<rmcommon::App> app)
 {
     std::string line = getLine(controllerName_, fileNamesMap_.at(CPUS_EFFECTIVE), app);
     return parseCpuSet(line);
 }
 
-void CpusetControl::setMems(const std::vector<std::pair<short, short> > &memNodes, std::shared_ptr<App> app)
+void CpusetControl::setMems(const std::vector<std::pair<short, short> > &memNodes, std::shared_ptr<rmcommon::App> app)
 {
     std::ostringstream os;
     for (size_t i = 0; i < memNodes.size(); ++i) {
@@ -95,13 +95,13 @@ void CpusetControl::setMems(const std::vector<std::pair<short, short> > &memNode
     setValue(controllerName_, fileNamesMap_.at(MEMS), os.str(), app);
 }
 
-std::vector<std::pair<short, short> > CpusetControl::getMems(std::shared_ptr<App> app)
+std::vector<std::pair<short, short> > CpusetControl::getMems(std::shared_ptr<rmcommon::App> app)
 {
     std::string line = getLine(controllerName_, fileNamesMap_.at(MEMS), app);
     return parseCpuSet(line);
 }
 
-std::vector<std::pair<short, short> > CpusetControl::getMemsEffective(std::shared_ptr<App> app)
+std::vector<std::pair<short, short> > CpusetControl::getMemsEffective(std::shared_ptr<rmcommon::App> app)
 {
     std::string line = getLine(controllerName_, fileNamesMap_.at(MEMS_EFFECTIVE), app);
     return parseCpuSet(line);

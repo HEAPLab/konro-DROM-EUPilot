@@ -25,7 +25,7 @@ namespace {
      */
     void create_dir(const char *path, mode_t create_mode)
     {
-        if (!pc::Dir::dir_exists(path)) {
+        if (!rmcommon::Dir::dir_exists(path)) {
             errno = 0;
             if (::mkdir(path, create_mode) != 0 && errno != EEXIST) {
                 ostringstream os;
@@ -38,7 +38,7 @@ namespace {
     }
 }
 
-namespace pc {
+namespace rmcommon {
 
 Dir::Dir(const char *dirname) :
 	dirname(dirname)
@@ -76,7 +76,7 @@ Dir Dir::localdir(const char *path)
 		cerr << "Could not open path " << path << endl;
 		exit(EXIT_FAILURE); 
 	}
-    pc::Dir directory(path);
+    Dir directory(path);
 	struct dirent *d;
 	struct stat sbuf;
 	while ((d = readdir(dir)) != nullptr) {
@@ -118,7 +118,7 @@ void Dir::mkdir_r(const char *path)
 	if (path == nullptr || path[0] == '\0')
         return;
 
-    vector<string> directories = split::tsplit(string(path), "/");
+    vector<string> directories = rmcommon::tsplit(string(path), "/");
 
 	if (directories.size() == 0)
         return;

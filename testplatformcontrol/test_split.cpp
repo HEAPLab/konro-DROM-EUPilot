@@ -11,7 +11,7 @@ using namespace std;
 
 static int testSplit1()
 {
-    vector<string> parts = split::tsplit(string("/1/2/3"), "/");
+    vector<string> parts = rmcommon::tsplit(string("/1/2/3"), "/");
     if (parts.size() != 4)
         return TEST_FAILED;
     if (parts[0] != "")
@@ -27,7 +27,7 @@ static int testSplit1()
 
 static int testSplit2()
 {
-    vector<string> parts = split::tsplit(string("1/2/3"), "/");
+    vector<string> parts = rmcommon::tsplit(string("1/2/3"), "/");
     if (parts.size() != 3)
         return TEST_FAILED;
     if (parts[0] != "1")
@@ -41,7 +41,7 @@ static int testSplit2()
 
 static int testSplit3()
 {
-    vector<string> parts = split::tsplit(string("0::/init.scope"), ":");
+    vector<string> parts = rmcommon::tsplit(string("0::/init.scope"), ":");
     if (parts.size() != 3)
         return TEST_FAILED;
     if (parts[0] != "0")

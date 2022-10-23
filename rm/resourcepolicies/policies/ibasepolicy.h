@@ -2,6 +2,7 @@
 #define IBASEPOLICY_H
 
 #include "../appinfo.h"
+#include "platformdescription.h"
 #include <memory>
 
 /*!
@@ -9,8 +10,10 @@
  * Each event type in the system is associated to a handler function.
  */
 class IBasePolicy {
+protected:
+    PlatformDescription platformDescription_;
 public:
-    IBasePolicy() = default;
+    explicit IBasePolicy() = default;
     virtual ~IBasePolicy() = default;
 
     virtual const char *name() = 0;

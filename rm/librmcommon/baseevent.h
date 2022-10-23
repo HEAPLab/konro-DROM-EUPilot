@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace rmcommon {
+
 /*!
  * \class a generic event related to a process managed by Konro
  */
@@ -17,5 +19,8 @@ public:
         return os;
     }
 };
+
+}   // namespace rmcommon
+
 
 #endif // BASEEVENT_H

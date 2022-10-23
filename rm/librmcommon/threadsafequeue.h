@@ -6,11 +6,16 @@
 #include <chrono>
 #include <condition_variable>
 
+namespace rmcommon {
+
+/*!
+ * \brief A simple threadsafe queue class
+ */
 template<typename T>
 class ThreadsafeQueue {
     mutable std::mutex mut_;
-    std::queue<T> data_;
     std::condition_variable cond_;
+    std::queue<T> data_;
 public:
     ThreadsafeQueue() = default;
 
@@ -54,5 +59,7 @@ public:
 
 
 };
+
+}   // namespace rmcommon
 
 #endif // THREADSAFEQUEUE_H

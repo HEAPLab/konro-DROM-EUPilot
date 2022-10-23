@@ -17,14 +17,14 @@ public:
      * \param percentage the maximum percentage of cpu utilization allowed
      * \param app the application to limit
      */
-    virtual void setMax(NumericValue percentage, std::shared_ptr<App> app) = 0;
+    virtual void setMax(NumericValue percentage, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the cpu bandwidth limit set for the specified application.
      * \param app the application of interest
      * \returns the maximum percentage of cpu utilization allowed for the app
      */
-    virtual NumericValue getMax(std::shared_ptr<App> app) = 0;
+    virtual NumericValue getMax(std::shared_ptr<rmcommon::App> app) = 0;
 
 };
 

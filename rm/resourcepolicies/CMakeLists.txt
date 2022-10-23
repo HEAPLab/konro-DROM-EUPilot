@@ -10,6 +10,5 @@ add_library(resourcepolicies
             ${policies_SOURCES}
 )
 
-target_link_libraries(resourcepolicies PRIVATE rmcommon platformcontrol)
+target_link_libraries(resourcepolicies PUBLIC rmcommon platformdescription platformcontrol)
 target_include_directories(resourcepolicies INTERFACE .)
-

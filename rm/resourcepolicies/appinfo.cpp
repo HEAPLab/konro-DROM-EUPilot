@@ -1,8 +1,8 @@
 #include "appinfo.h"
 
-AppInfo::AppInfo(std::shared_ptr<pc::App> app) :
+AppInfo::AppInfo(std::shared_ptr<rmcommon::App> app) :
     app_(app),
-    cpu_(-1)
+    coresNum_(-1)
 {
 
 }

@@ -35,7 +35,7 @@ private:
      * \param minor the device minor number
      * \param app the application of interest
      */
-    std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<App> app);
+    std::map<std::string, NumericValue> getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<rmcommon::App> app);
 
     IOControl() = default;
 
@@ -56,7 +56,7 @@ public:
      * \param app the application of interest
      * \returns the IO usage statistics
      */
-    std::map<std::string, NumericValue> getStat(int major, int minor, std::shared_ptr<App> app) {
+    std::map<std::string, NumericValue> getStat(int major, int minor, std::shared_ptr<rmcommon::App> app) {
         return getIOHelper(STAT, major, minor, app);
     }
 
@@ -76,7 +76,7 @@ public:
      * \param value the maximum value allowed for the IO resource
      * \param app the application to limit
      */
-    void setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<App> app) override;
+    void setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the specified application's IO limits.
@@ -89,7 +89,7 @@ public:
      * \param app the application of interest
      * \returns the cpu time statistics
      */
-    std::map<std::string, NumericValue> getMax(int major, int minor, std::shared_ptr<App> app) override {
+    std::map<std::string, NumericValue> getMax(int major, int minor, std::shared_ptr<rmcommon::App> app) override {
         return getIOHelper(MAX, major, minor, app);
     }
 };

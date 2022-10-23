@@ -22,7 +22,7 @@ CpuControl &CpuControl::instance()
     return cc;
 }
 
-void CpuControl::setMax(NumericValue percentage, std::shared_ptr<App> app)
+void CpuControl::setMax(NumericValue percentage, std::shared_ptr<rmcommon::App> app)
 {
     std::ostringstream os;
     // for cpu.max normalize value between 0 and period_
@@ -34,7 +34,7 @@ void CpuControl::setMax(NumericValue percentage, std::shared_ptr<App> app)
     setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
-NumericValue CpuControl::getMax(std::shared_ptr<App> app)
+NumericValue CpuControl::getMax(std::shared_ptr<rmcommon::App> app)
 {
     std::string svalue = getLine(controllerName_, fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
@@ -51,12 +51,12 @@ NumericValue CpuControl::getMax(std::shared_ptr<App> app)
     }
 }
 
-std::map<std::string, uint64_t> CpuControl::getStat(std::shared_ptr<App> app)
+std::map<std::string, uint64_t> CpuControl::getStat(std::shared_ptr<rmcommon::App> app)
 {
     return getContentAsMap(controllerName_, fileNamesMap_.at(STAT), app);
 }
 
-void CpuControl::setWeight(int weight, std::shared_ptr<App> app)
+void CpuControl::setWeight(int weight, std::shared_ptr<rmcommon::App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(WEIGHT), weight, app);
 }

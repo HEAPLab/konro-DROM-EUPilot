@@ -6,6 +6,7 @@
 #include "cgroup/cgroupcontrol.h"
 #include "workloadmanager.h"
 #include "resourcepolicies.h"
+#include "platformdescription.h"
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -13,15 +14,19 @@
 #include <unistd.h>
 
 static void testWorkloadManager(int pid);
+static void testPlatformDescription();
 
 int main(int argc, char *argv[])
 {
+#if 0
     if (pc::Dir::file_exists(CONFIG_PATH)) {
         auto &c = konro::Config::get(CONFIG_PATH);
 
         std::cout << c.read<std::string>("test", "name") << std::endl;
         std::cout << c.read<int>("test", "number") << std::endl;
     }
+#endif
+    testPlatformDescription();
 
     if (argc >= 2) {
         testWorkloadManager(atoi(argv[1]));
@@ -64,10 +69,23 @@ static void testWorkloadManager(int pid)
     trapCtrlC();
 
     pc::CGroupControl cgc;
-    ResourcePolicies rp(ResourcePolicies::Policy::RandPolicy);
+    PlatformDescription pd;
+    ResourcePolicies rp(pd, ResourcePolicies::Policy::RandPolicy);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
 
     rp.start();
     procListener.attach(&workloadManager);
     procListener();
+}
+
+static void testPlatformDescription()
+{
+    using namespace std;
+
+    PlatformDescription pd;
+
+    cout << "PLATFORM DESCRIPTION\n";
+    cout << "CORES     : " << pd.getNumCores() << endl;
+    cout << "TOTAL RAM : " << pd.getTotalRam()  << " KB" << endl;
+    cout << "TOTAL SWAP: " << pd.getTotalSwap() << " KB" << endl;
 }

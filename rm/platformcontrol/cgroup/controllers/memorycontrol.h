@@ -41,7 +41,7 @@ public:
      *
      * \returns the amount of memory used by the app and its descendants
      */
-    int getCurrent(std::shared_ptr<App> app) override;
+    int getCurrent(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Sets a minimum amount of memory that the application must always retain.
@@ -52,7 +52,7 @@ public:
      *               or it will be rounded
      * \param app the application to limit
      */
-    void setMin(int minMem, std::shared_ptr<App> app) override;
+    void setMin(int minMem, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the minimum amount of memory that the application must always retain.
@@ -60,7 +60,7 @@ public:
      * \param app the application of interest
      * \returns the min amount of memory that the app must retain
      */
-    int getMin(std::shared_ptr<App> app) override;
+    int getMin(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Sets a memory usage hard limit for the application.
@@ -72,7 +72,7 @@ public:
      *        or it will be rounded
      * \param app the application to limit
      */
-    void setMax(NumericValue maxMem, std::shared_ptr<App> app) override;
+    void setMax(NumericValue maxMem, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the memory usage hard limit for the application.
@@ -80,7 +80,7 @@ public:
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    NumericValue getMax(std::shared_ptr<App> app) override;
+    NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the number of times certain memory events have occurred
@@ -94,7 +94,7 @@ public:
      * \param app the application of interest
      * \returns the pairs of memory events
      */
-    std::map<std::string, uint64_t> getEvents(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getEvents(std::shared_ptr<rmcommon::App> app);
 
     /*!
      * Gets memory statistics for the specified applications.
@@ -107,7 +107,7 @@ public:
      * \param app the application of interest
      * \returns the memory statistics
      */
-    std::map<std::string, uint64_t> getStat(std::shared_ptr<App> app);
+    std::map<std::string, uint64_t> getStat(std::shared_ptr<rmcommon::App> app);
 
 };
 

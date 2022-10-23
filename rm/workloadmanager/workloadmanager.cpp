@@ -36,7 +36,7 @@ static string getProcessNameByPid(int pid)
  * \param rhs the second app to compare
  * \return true if pid of lsh is < than pid of rhs
  */
-static bool appComp(const shared_ptr<pc::App> &lhs, const shared_ptr<pc::App> &rhs)
+static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcommon::App> &rhs)
 {
     return lhs->getPid() < rhs->getPid();
 }
@@ -47,19 +47,19 @@ WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp,
     pid_(0),
     apps_(appComp)
 {
-    add(pc::App::makeApp(pid, pc::App::STANDALONE));
+    add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
 }
 
-void WorkloadManager::add(shared_ptr<pc::App> app)
+void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
     apps_.insert(app);
     platformControl_.addApplication(app);
-    resourcePolicies_.addEvent(make_shared<AddProcEvent>(app));
+    resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
 }
 
-shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
+shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
 {
-    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     auto it = apps_.find(key);
     return *it;
 }
@@ -67,10 +67,10 @@ shared_ptr<pc::App> WorkloadManager::getApp(pid_t pid)
 
 void WorkloadManager::remove(pid_t pid)
 {
-    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
-        resourcePolicies_.addEvent(make_shared<RemoveProcEvent>(*it));
+        resourcePolicies_.addEvent(make_shared<rmcommon::RemoveProcEvent>(*it));
         platformControl_.removeApplication(*it);
         apps_.erase(it);
     }
@@ -78,7 +78,7 @@ void WorkloadManager::remove(pid_t pid)
 
 bool WorkloadManager::isInKonro(pid_t pid)
 {
-    shared_ptr<pc::App> key = pc::App::makeApp(pid, pc::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     return apps_.find(key) != end(apps_);
 
 }
@@ -116,7 +116,7 @@ void WorkloadManager::processForkEvent(uint8_t *data)
     // https://natanyellin.com/posts/understanding-netlink-process-connector-output/
 
     if (isInKonro(ev->event_data.fork.parent_pid)) {
-        shared_ptr<pc::App> app = pc::App::makeApp(ev->event_data.fork.child_pid, pc::App::STANDALONE);
+        shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(ev->event_data.fork.child_pid, rmcommon::App::STANDALONE);
         app->setName(getProcessNameByPid(app->getPid()));
         add(app);
 
@@ -144,7 +144,7 @@ void WorkloadManager::processExecEvent(uint8_t *data)
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
     pid_t pid = ev->event_data.exec.process_pid;
     if (isInKonro(pid)) {
-        shared_ptr<pc::App> app = getApp(pid);
+        shared_ptr<rmcommon::App> app = getApp(pid);
         app->setName(getProcessNameByPid(pid));
 
         cout << "    process_pid:" << ev->event_data.exec.process_pid

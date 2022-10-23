@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace rmcommon {
+
 /*!
  * A very simple template function to create a path from
  * two or more subpaths.
@@ -32,5 +34,7 @@ std::string make_path(T first, T second, Args... args)
     const std::string &path1 = first;
     return path1 + '/' + make_path(second, args...);
 }
+
+}   // namespace rmcommon
 
 #endif // MAKEPATH_H
