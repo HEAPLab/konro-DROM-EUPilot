@@ -13,8 +13,8 @@ public:
     virtual const char *name() override {
         return "RandPolicy";
     }
-    virtual void addApp(std::shared_ptr<AppInfo> appInfo) override;
-    virtual void removeApp(std::shared_ptr<AppInfo> appInfo) override;
+    virtual void addApp(std::shared_ptr<AppMapping> appMapping) override;
+    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
 };
 
 #endif // RANDPOLICY_H

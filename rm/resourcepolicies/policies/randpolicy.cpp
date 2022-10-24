@@ -22,13 +22,13 @@ RandPolicy::RandPolicy()
 {
 }
 
-void RandPolicy::addApp(std::shared_ptr<AppInfo> appInfo)
+void RandPolicy::addApp(std::shared_ptr<AppMapping> appMapping)
 {
     try {
         short cpuNum = getRandNumber(4);
         pc::ICpusetControl::CpusetVector vec{{cpuNum, cpuNum}};
-        pc::CpusetControl::instance().setCpus(vec, appInfo->getApp());
-        appInfo->setCpu(cpuNum);
+        pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
+        appMapping->setCpu(cpuNum);
     } catch (exception &e) {
         // An exception can happen for a short lived process; the
         // process has died and the Workload Manager has already
@@ -39,7 +39,7 @@ void RandPolicy::addApp(std::shared_ptr<AppInfo> appInfo)
     }
 }
 
-void RandPolicy::removeApp(std::shared_ptr<AppInfo> appInfo)
+void RandPolicy::removeApp(std::shared_ptr<AppMapping> appMapping)
 {
     // no action required
 }

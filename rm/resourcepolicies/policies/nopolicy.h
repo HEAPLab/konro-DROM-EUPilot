@@ -15,10 +15,10 @@ public:
     virtual const char *name() override {
         return "NoPolicy";
     }
-    virtual void addApp(std::shared_ptr<AppInfo> appInfo) override {
+    virtual void addApp(std::shared_ptr<AppMapping> appMapping) override {
         // do nothing
     }
-    virtual void removeApp(std::shared_ptr<AppInfo> appInfo) override {
+    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override {
         // do nothing
     }
 };

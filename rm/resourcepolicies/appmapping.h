@@ -1,12 +1,12 @@
-#ifndef APPINFO_H
-#define APPINFO_H
+#ifndef APPMAPPING_H
+#define APPMAPPING_H
 
 #include <app.h>
 #include <memory>
 #include "../platformcontrol/utilities/numericvalue.h"
 
 
-class AppInfo {
+class AppMapping {
     std::shared_ptr<rmcommon::App> app_;
     short coresNum_;
     pc::NumericValue cpuMax_;
@@ -16,10 +16,10 @@ class AppInfo {
     int maxMemory_;
 
 public:
-    typedef std::shared_ptr<AppInfo> AppInfoPtr;
+    typedef std::shared_ptr<AppMapping> AppMappingPtr;
 
-    explicit AppInfo(std::shared_ptr<rmcommon::App> app);
-    ~AppInfo() = default;
+    explicit AppMapping(std::shared_ptr<rmcommon::App> app);
+    ~AppMapping() = default;
 
     /*!
      * \brief Gets the pid of the application
@@ -42,4 +42,4 @@ public:
     }
 };
 
-#endif // APPINFO_H
+#endif // APPMAPPING_H

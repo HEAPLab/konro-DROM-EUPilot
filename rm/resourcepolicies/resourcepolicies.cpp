@@ -8,21 +8,21 @@
 using namespace std;
 
 /*!
- * Compares two AppInfo ("less" function) handled
+ * Compares two AppMapping ("less" function) handled
  * by shared pointers
  *
  * \param lhs the first app to compare
  * \param rhs the second app to compare
  * \return true if pid of lsh is < than pid of rhs
  */
-static bool appInfoComp(const shared_ptr<AppInfo> &lhs, const shared_ptr<AppInfo> &rhs)
+static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<AppMapping> &rhs)
 {
     return lhs->getPid() < rhs->getPid();
 }
 
 ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy) :
     platformDescription_(pd),
-    apps_(appInfoComp)
+    apps_(appMappingComp)
 {
     policy_ = makePolicy(policy);
 }
@@ -81,17 +81,17 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 
 void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)
 {
-    shared_ptr<AppInfo> appInfo = make_shared<AppInfo>(ev->getApp());
-    apps_.insert(appInfo);
+    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
+    apps_.insert(appMapping);
     dumpApps();
-    policy_->addApp(appInfo);
+    policy_->addApp(appMapping);
 }
 
 void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 {
     // search target
-    shared_ptr<AppInfo> appInfo = make_shared<AppInfo>(ev->getApp());
-    auto it = apps_.find(appInfo);
+    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
+    auto it = apps_.find(appMapping);
     if (it != end(apps_)) {
         policy_->removeApp(*it);
         apps_.erase(it);

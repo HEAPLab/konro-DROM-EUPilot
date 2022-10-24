@@ -5,7 +5,7 @@
 #include "baseevent.h"
 #include "addprocevent.h"
 #include "removeprocevent.h"
-#include "appinfo.h"
+#include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
 #include <set>
@@ -38,10 +38,10 @@ private:
     PlatformDescription platformDescription_;
 
     /*! Comparison function for the set */
-    using AppComparator = bool (*)(const std::shared_ptr<AppInfo> &lhs,
-                                   const std::shared_ptr<AppInfo> &rhs);
+    using AppComparator = bool (*)(const std::shared_ptr<AppMapping> &lhs,
+                                   const std::shared_ptr<AppMapping> &rhs);
 
-    std::set<std::shared_ptr<AppInfo>, AppComparator> apps_;
+    std::set<std::shared_ptr<AppMapping>, AppComparator> apps_;
 
     void run();
 

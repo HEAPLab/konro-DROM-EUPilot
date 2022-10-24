@@ -1,7 +1,7 @@
 #ifndef IBASEPOLICY_H
 #define IBASEPOLICY_H
 
-#include "../appinfo.h"
+#include "../appmapping.h"
 #include "platformdescription.h"
 #include <memory>
 
@@ -21,12 +21,12 @@ public:
     /*!
      * Handles the addition of a new app to the system.
      */
-    virtual void addApp(std::shared_ptr<AppInfo> appInfo) = 0;
+    virtual void addApp(std::shared_ptr<AppMapping> appMapping) = 0;
 
     /*!
      * Handles the removal of an app from the system.
      */
-    virtual void removeApp(std::shared_ptr<AppInfo> appInfo) = 0;
+    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) = 0;
 };
 
 #endif // IBASEPOLICY_H
