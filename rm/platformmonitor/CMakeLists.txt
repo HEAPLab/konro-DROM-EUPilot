@@ -7,3 +7,4 @@ add_library(platformmonitor
 )
 
 target_include_directories(platformmonitor INTERFACE .)
+target_link_libraries(platformmonitor PUBLIC resourcepolicies)

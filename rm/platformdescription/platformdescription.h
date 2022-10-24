@@ -13,6 +13,7 @@ class PlatformDescription {
 
     void findNumCores();
     void findMemory();
+    void doHwloc();
 
 public:
     explicit PlatformDescription();
