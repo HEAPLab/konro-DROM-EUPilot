@@ -3,6 +3,7 @@
 
 #include <app.h>
 #include <memory>
+#include "cpusetcontrol.h"
 #include "numericvalue.h"
 
 /*!
@@ -12,13 +13,13 @@
 class AppMapping {
     std::shared_ptr<rmcommon::App> app_;
     /*! cpus that can execute the app */
-    short coreNum_;
+    rmcommon::CpusetVector coreNum_;
     /*! maximum cpu bandwidth limit */
     rmcommon::NumericValue cpuMax_;
     /*! memory nodes that can be used by the app */
-    short memNodes_;
+    rmcommon::CpusetVector memNodes_;
     /*! total amount of memory currently used by the app */
-    int currentMemoryAmount_;
+    int currentMemory_;
     /*! minimum amount of memory the app must always retain */
     int minMemory_;
     /*! memory usage hard limit for the app */
@@ -42,13 +43,54 @@ public:
         return app_;
     }
 
-    void setCpu(short n) {
-        coreNum_ = n;
+    void setCoreNum(rmcommon::CpusetVector coreNum) {
+        coreNum_ = coreNum;
     }
 
-    short getCpu() {
+    rmcommon::CpusetVector getCoreNum() {
         return coreNum_;
     }
+
+    void setCpuMax(rmcommon::NumericValue cpuMax) {
+        cpuMax_ = cpuMax;
+    }
+
+    rmcommon::NumericValue getCpuMax() {
+        return cpuMax_;
+    }
+
+    void setMemNodes(rmcommon::CpusetVector memNodes) {
+        memNodes_ = memNodes;
+    }
+
+    rmcommon::CpusetVector getMemNodes() {
+        return memNodes_;
+    }
+
+    void setCurrentMem(int currentMemory) {
+        currentMemory_ = currentMemory;
+    }
+
+    int getCurrentMem() {
+        return currentMemory_;
+    }
+
+    void getMinMemory(int minMemory) {
+        minMemory_ = minMemory;
+    }
+
+    int setMinMemory() {
+        return minMemory_;
+    }
+
+    void getMaxMemory(int maxMemory) {
+        maxMemory_ = maxMemory;
+    }
+
+    int setMaxMemory() {
+        return maxMemory_;
+    }
+
 };
 
 #endif // APPMAPPING_H
