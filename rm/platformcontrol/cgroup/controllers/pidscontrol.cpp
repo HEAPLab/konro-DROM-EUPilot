@@ -18,17 +18,17 @@ PidsControl &PidsControl::instance()
     return pc;
 }
 
-void PidsControl::setMax(NumericValue numPids, std::shared_ptr<rmcommon::App> app)
+void PidsControl::setMax(rmcommon::NumericValue numPids, std::shared_ptr<rmcommon::App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(MAX), numPids, app);
 }
 
-NumericValue PidsControl::getMax(std::shared_ptr<rmcommon::App> app)
+rmcommon::NumericValue PidsControl::getMax(std::shared_ptr<rmcommon::App> app)
 {
     return getLine(controllerName_, fileNamesMap_.at(MAX), app);
 }
 
-NumericValue PidsControl::getCurrent(std::shared_ptr<rmcommon::App> app)
+rmcommon::NumericValue PidsControl::getCurrent(std::shared_ptr<rmcommon::App> app)
 {
     return getValueAsInt(controllerName_, fileNamesMap_.at(CURRENT), app);
 }

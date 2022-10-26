@@ -1,7 +1,7 @@
 #ifndef IMEMORYCONTROL_H
 #define IMEMORYCONTROL_H
 
-#include "utilities/numericvalue.h"
+#include "numericvalue.h"
 #include "app.h"
 
 namespace pc {
@@ -41,7 +41,7 @@ public:
      * \param maxMem the max amount of memory that the app can use.
      * \param app the application to limit
      */
-    virtual void setMax(NumericValue maxMem, std::shared_ptr<rmcommon::App> app) = 0;
+    virtual void setMax(rmcommon::NumericValue maxMem, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
      * Gets the memory usage hard limit for the application.
@@ -49,7 +49,7 @@ public:
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    virtual NumericValue getMax(std::shared_ptr<rmcommon::App> app) = 0;
+    virtual rmcommon::NumericValue getMax(std::shared_ptr<rmcommon::App> app) = 0;
 
 };
 

@@ -1,7 +1,7 @@
 #ifndef CPUCONTROL_H
 #define CPUCONTROL_H
 
-#include "../utilities/numericvalue.h"
+#include "numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../icpucontrol.h"
 #include <string>
@@ -36,14 +36,14 @@ public:
      * \param percentage the maximum percentage of cpu utilization allowed
      * \param app the application to limit
      */
-    void setMax(NumericValue percentage, std::shared_ptr<rmcommon::App> app) override;
+    void setMax(rmcommon::NumericValue percentage, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the cpu bandwidth limit set for the specified application.
      * \param app the application of interest
      * \returns the maximum percentage of cpu utilization allowed for the app
      */
-    NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the cpu time statistics for the specified application.

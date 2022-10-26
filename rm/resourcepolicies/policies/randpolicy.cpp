@@ -28,7 +28,7 @@ void RandPolicy::addApp(std::shared_ptr<AppMapping> appMapping)
 {
     try {
         short cpuNum = getRandNumber(platformDescription_.getNumCores());
-        CpusetVector vec{{cpuNum, cpuNum}};
+        rmcommon::CpusetVector vec{{cpuNum, cpuNum}};
         pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
         appMapping->setCpu(cpuNum);
     } catch (exception &e) {

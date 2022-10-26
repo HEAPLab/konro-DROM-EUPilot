@@ -41,7 +41,7 @@ bool KeyValueParser::parseMajorMinor(int major, int minor)
     return true;
 }
 
-pair<string, NumericValue> KeyValueParser::parseKeyValue()
+pair<string, rmcommon::NumericValue> KeyValueParser::parseKeyValue()
 {
     // parse the tag
 
@@ -62,17 +62,17 @@ pair<string, NumericValue> KeyValueParser::parseKeyValue()
         throw runtime_error("Invalid line: alphanumeric character expected for value");
     }
 
-    NumericValue val(ptr_, endptr_);
+    rmcommon::NumericValue val(ptr_, endptr_);
     if (val.isInvalid())
         throw runtime_error("Invalid line: invalid numeric value");
     return make_pair<>(tag, val);
 }
 
-map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int major, int minor)
+map<string, rmcommon::NumericValue> KeyValueParser::parseLineNv(const char *line, int major, int minor)
 {
     ptr_ = line;
     if (!parseMajorMinor(major, minor) || *endptr_ == '\0')
-        return map<string, NumericValue>();         // not the device we are looking for or no tags
+        return map<string, rmcommon::NumericValue>();         // not the device we are looking for or no tags
 
     if (*endptr_ != ' ')
         throw runtime_error("Invalid line: space expected after minor");
@@ -80,9 +80,9 @@ map<string, NumericValue> KeyValueParser::parseLineNv(const char *line, int majo
     return parseLineNv(endptr_ + 1);
 }
 
-map<string, NumericValue> KeyValueParser::parseLineNv(const char *line)
+map<string, rmcommon::NumericValue> KeyValueParser::parseLineNv(const char *line)
 {
-    map<string, NumericValue> tags;
+    map<string, rmcommon::NumericValue> tags;
 
     ptr_ = line;
     while (*ptr_) {

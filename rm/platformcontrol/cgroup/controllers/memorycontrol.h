@@ -1,7 +1,7 @@
 #ifndef MEMORYCONTROL_H
 #define MEMORYCONTROL_H
 
-#include "../utilities/numericvalue.h"
+#include "numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../imemorycontrol.h"
 #include <string>
@@ -72,7 +72,7 @@ public:
      *        or it will be rounded
      * \param app the application to limit
      */
-    void setMax(NumericValue maxMem, std::shared_ptr<rmcommon::App> app) override;
+    void setMax(rmcommon::NumericValue maxMem, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the memory usage hard limit for the application.
@@ -80,7 +80,7 @@ public:
      * \param app the application of interest
      * \returns the max amount of memory that the app can use
      */
-    NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the number of times certain memory events have occurred

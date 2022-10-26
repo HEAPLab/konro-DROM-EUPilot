@@ -26,10 +26,10 @@ const map<IOControl::IoMax, const char *> IOControl::keyNames_ = {
     { WIOPS, "wiops" },
 };
 
-std::map<string, NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<rmcommon::App> app)
+std::map<string, rmcommon::NumericValue> IOControl::getIOHelper(ControllerFile cf, int major, int minor, std::shared_ptr<rmcommon::App> app)
 {
     vector<string> lines = getContent(controllerName_, fileNamesMap_.at(cf), app);
-    map<string, NumericValue> tags;
+    map<string, rmcommon::NumericValue> tags;
     for (auto &line: lines) {
         tags = KeyValueParser().parseLineNv(line, major, minor);
         if (!tags.empty())
@@ -44,7 +44,7 @@ IOControl &IOControl::instance()
     return ioc;
 }
 
-void IOControl::setMax(int major, int minor, IoMax ioMax, NumericValue value, std::shared_ptr<rmcommon::App> app)
+void IOControl::setMax(int major, int minor, IoMax ioMax, rmcommon::NumericValue value, std::shared_ptr<rmcommon::App> app)
 {
     ostringstream os;
     os << major << ':' << minor << ' ' << keyNames_.at(ioMax) << '=' << value;;

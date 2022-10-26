@@ -42,7 +42,7 @@ class KeyValueParser {
      * \returns the key-value pair
      * \throws PcException in case of format error
      */
-    std::pair<std::string, NumericValue> parseKeyValue();
+    std::pair<std::string, rmcommon::NumericValue> parseKeyValue();
 
 public:
 
@@ -57,8 +57,8 @@ public:
      * \return map of key and values
      * \exception PcException if the format of the line is invalid
      */
-    std::map<std::string, NumericValue> parseLineNv(const char *line);
-    std::map<std::string, NumericValue> parseLineNv(const std::string &line) {
+    std::map<std::string, rmcommon::NumericValue> parseLineNv(const char *line);
+    std::map<std::string, rmcommon::NumericValue> parseLineNv(const std::string &line) {
         return parseLineNv(line.c_str());
     }
 
@@ -77,8 +77,8 @@ public:
      *         numbers, the map is empty
      * \throws PcException if the format of the line is invalid
      */
-    std::map<std::string, NumericValue> parseLineNv(const char *line, int major, int minor);
-    std::map<std::string, NumericValue> parseLineNv(const std::string &line, int major, int minor) {
+    std::map<std::string, rmcommon::NumericValue> parseLineNv(const char *line, int major, int minor);
+    std::map<std::string, rmcommon::NumericValue> parseLineNv(const std::string &line, int major, int minor) {
         return parseLineNv(line.c_str(), major, minor);
     }
 
@@ -88,11 +88,11 @@ public:
      * \returns the key-value pair
      * \throws PcException in case of format error
      */
-    std::pair<std::string, NumericValue> parseKeyValue(const char *line) {
+    std::pair<std::string, rmcommon::NumericValue> parseKeyValue(const char *line) {
         ptr_ = line;
         return parseKeyValue();
     }
-    std::pair<std::string, NumericValue> parseKeyValue(const std::string &line) {
+    std::pair<std::string, rmcommon::NumericValue> parseKeyValue(const std::string &line) {
         return parseKeyValue(line.c_str());
     }
 };

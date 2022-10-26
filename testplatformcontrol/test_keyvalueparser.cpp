@@ -16,7 +16,7 @@ using namespace pc;
 static int testParseNvSyntax(int major, int minor, const char *line, bool expectedError = false)
 {
     try {
-        map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, major, minor);
+        map<string, rmcommon::NumericValue> tags = pc::KeyValueParser().parseLineNv(line, major, minor);
         if (expectedError) {
             return TEST_FAILED;
         }
@@ -41,7 +41,7 @@ static int testParseNvValues1()
 {
     const char line[] = "8:0 abcd=12345 efgh=max pippo=7 pluto=12345678";
 
-    map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
+    map<string, rmcommon::NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
     if (tags.empty())
         return TEST_FAILED;
     if (tags["abcd"] != 12345)
@@ -60,7 +60,7 @@ static int testParseNvValues2()
 {
     const char line[] = "8:0";
 
-    map<string, NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
+    map<string, rmcommon::NumericValue> tags = pc::KeyValueParser().parseLineNv(line, 8, 0);
     if (!tags.empty())
         return TEST_FAILED;
 
@@ -69,7 +69,7 @@ static int testParseNvValues2()
 
 static int testParseKeyValue()
 {
-    pair<string, NumericValue> result = pc::KeyValueParser().parseKeyValue("alfa=33");
+    pair<string, rmcommon::NumericValue> result = pc::KeyValueParser().parseKeyValue("alfa=33");
     if (result.first != "alfa" || result.second != 33)
         return TEST_FAILED;
 

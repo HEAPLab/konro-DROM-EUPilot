@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 
-namespace pc {
+namespace rmcommon {
 
 /*!
  * The NumericValue class encapsulates an integral number
@@ -82,6 +82,6 @@ public:
     }
 };
 
-}   // namespace pc
+}   // namespace rmcommon
 
 #endif // NUMERICVALUE_H

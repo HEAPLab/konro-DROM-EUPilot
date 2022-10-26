@@ -35,12 +35,12 @@ int MemoryControl::getMin(std::shared_ptr<rmcommon::App> app)
     return getValueAsInt(controllerName_, fileNamesMap_.at(MIN), app);
 }
 
-void MemoryControl::setMax(NumericValue maxMem, std::shared_ptr<rmcommon::App> app)
+void MemoryControl::setMax(rmcommon::NumericValue maxMem, std::shared_ptr<rmcommon::App> app)
 {
     setValue(controllerName_, fileNamesMap_.at(MAX), maxMem, app);
 }
 
-NumericValue MemoryControl::getMax(std::shared_ptr<rmcommon::App> app)
+rmcommon::NumericValue MemoryControl::getMax(std::shared_ptr<rmcommon::App> app)
 {
     return getLine(controllerName_, fileNamesMap_.at(MAX), app);
 }

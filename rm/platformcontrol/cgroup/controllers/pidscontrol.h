@@ -1,7 +1,7 @@
 #ifndef PIDSCONTROL_H
 #define PIDSCONTROL_H
 
-#include "../utilities/numericvalue.h"
+#include "numericvalue.h"
 #include "../cgroupcontrol.h"
 #include "../ipidscontrol.h"
 #include <string>
@@ -34,7 +34,7 @@ public:
      * \param numPids the maximum number of processes that can be forked
      * \param app the application to limit
      */
-    void setMax(NumericValue numPids, std::shared_ptr<rmcommon::App> app) override;
+    void setMax(rmcommon::NumericValue numPids, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the maximum number of processes that may be forked by the application.
@@ -42,7 +42,7 @@ public:
      * \param app the application of interest
      * \returns the maximum number of processes that can be froked by the application
      */
-    NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::NumericValue getMax(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Gets the number of processes in the cgroup where the application is located and
@@ -50,7 +50,7 @@ public:
      * \param app the application of interest
      * \returns the number of processes in the app's cgroup and descendants
      */
-    NumericValue getCurrent(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::NumericValue getCurrent(std::shared_ptr<rmcommon::App> app) override;
 };
 
 }   // namespace pc

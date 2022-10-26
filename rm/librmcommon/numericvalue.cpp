@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 
-namespace pc {
+namespace rmcommon {
 
 void NumericValue::init(const char *pStart, const char *pEnd)
 {
@@ -34,4 +34,4 @@ NumericValue::NumericValue(const std::string &val)
     init(pStart, pEnd);
 }
 
-}   // namespace pc
+}   // namespace rmcommon

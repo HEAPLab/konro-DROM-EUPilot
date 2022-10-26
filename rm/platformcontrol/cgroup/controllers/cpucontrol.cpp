@@ -22,7 +22,7 @@ CpuControl &CpuControl::instance()
     return cc;
 }
 
-void CpuControl::setMax(NumericValue percentage, std::shared_ptr<rmcommon::App> app)
+void CpuControl::setMax(rmcommon::NumericValue percentage, std::shared_ptr<rmcommon::App> app)
 {
     std::ostringstream os;
     // for cpu.max normalize value between 0 and period_
@@ -34,15 +34,15 @@ void CpuControl::setMax(NumericValue percentage, std::shared_ptr<rmcommon::App> 
     setValue(controllerName_, fileNamesMap_.at(MAX), os.str(), app);
 }
 
-NumericValue CpuControl::getMax(std::shared_ptr<rmcommon::App> app)
+rmcommon::NumericValue CpuControl::getMax(std::shared_ptr<rmcommon::App> app)
 {
     std::string svalue = getLine(controllerName_, fileNamesMap_.at(MAX), app);
     std::istringstream is(svalue);
-    NumericValue value;
+    rmcommon::NumericValue value;
     int period;
     is >> value >> period;
     if (is.fail()) {
-        return NumericValue();      // return invalid numeric value
+        return rmcommon::NumericValue();      // return invalid numeric value
     } else if (value.isInvalid() || value.isMax()) {
         return value;
     } else {

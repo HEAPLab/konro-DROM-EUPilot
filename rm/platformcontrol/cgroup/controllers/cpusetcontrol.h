@@ -38,7 +38,7 @@ public:
      * \param line the content of the cpuset interface file
      * \returns the equivalent vector of pairs
      */
-    CpusetVector parseCpuSet(const std::string &line);
+    rmcommon::CpusetVector parseCpuSet(const std::string &line);
 
     /*!
      * Requests the use of a set of cpus by the application.
@@ -56,7 +56,7 @@ public:
      * \param cpus the vector of requested cpus
      * \param app the application to limit
      */
-    void setCpus(const CpusetVector &cpus, std::shared_ptr<rmcommon::App> app) override;
+    void setCpus(const rmcommon::CpusetVector &cpus, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Returns the list of cpus that are requested by the specified application
@@ -68,7 +68,7 @@ public:
      * \param app the application of interest
      * \returns the cpus requested for use by the application
      */
-    CpusetVector getCpus(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::CpusetVector getCpus(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Returns the list of cpus that are granted to the specified application
@@ -76,7 +76,7 @@ public:
      * \param app the application of interest
      * \returns the cpus available for use by the application
      */
-    CpusetVector getCpusEffective(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::CpusetVector getCpusEffective(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Requests the use of a set of memory nodes by the application.
@@ -98,7 +98,7 @@ public:
      * \param memNodes the list of requested memory nodes
      * \param app the application to limit
      */
-    void setMems(const CpusetVector &memNodes, std::shared_ptr<rmcommon::App> app) override;
+    void setMems(const rmcommon::CpusetVector &memNodes, std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Returns the list of memory nodes that are requested by the specified application
@@ -110,7 +110,7 @@ public:
      * \param app the application of interest
      * \returns the memory nodes requested for use by the application
      */
-    CpusetVector getMems(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::CpusetVector getMems(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * Returns the list of memory nodes that are granted to the specified application
@@ -118,7 +118,7 @@ public:
      * \param app the application of interest
      * \returns the memory nodes available for use by the application
      */
-    CpusetVector getMemsEffective(std::shared_ptr<rmcommon::App> app) override;
+    rmcommon::CpusetVector getMemsEffective(std::shared_ptr<rmcommon::App> app) override;
 
 };
 

@@ -3,7 +3,7 @@
 
 #include <app.h>
 #include <memory>
-#include "../platformcontrol/utilities/numericvalue.h"
+#include "numericvalue.h"
 
 /*!
  * \class encapsulates an application and adds information about
@@ -14,7 +14,7 @@ class AppMapping {
     /*! cpus that can execute the app */
     short coreNum_;
     /*! maximum cpu bandwidth limit */
-    pc::NumericValue cpuMax_;
+    rmcommon::NumericValue cpuMax_;
     /*! memory nodes that can be used by the app */
     short memNodes_;
     /*! total amount of memory currently used by the app */
