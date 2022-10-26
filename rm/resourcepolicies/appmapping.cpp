@@ -2,7 +2,7 @@
 
 AppMapping::AppMapping(std::shared_ptr<rmcommon::App> app) :
     app_(app),
-    coresNum_(-1)
+    coreNum_(-1)
 {
 
 }

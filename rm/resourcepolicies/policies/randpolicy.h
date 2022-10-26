@@ -8,8 +8,9 @@
  * Assigns each new process to a random CPU core.
  */
 class RandPolicy : public IBasePolicy {
+    PlatformDescription platformDescription_;
 public:
-    explicit RandPolicy();
+    explicit RandPolicy(PlatformDescription pd);
     virtual const char *name() override {
         return "RandPolicy";
     }

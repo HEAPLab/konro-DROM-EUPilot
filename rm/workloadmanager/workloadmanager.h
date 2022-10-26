@@ -52,16 +52,6 @@ class WorkloadManager : public IProcObserver {
     void dumpApps();
 
     /*!
-     * Gets the app with the specified pid from the set of Konro's applications.
-     * \param pid the pid of the application of interest
-     * \return a shared ptr to the app with the specified pid
-     */
-    std::shared_ptr<rmcommon::App> getApp(pid_t pid);
-
-public:
-    WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid);
-
-    /*!
      * Adds the specified application under the management of Konro.
      * \param app the application to add
      */
@@ -86,7 +76,17 @@ public:
      */
     bool isInKonro(pid_t pid);
 
+    /*!
+     * Gets the app with the specified pid from the set of Konro's applications.
+     * \param pid the pid of the application of interest
+     * \return a shared ptr to the app with the specified pid
+     */
+    std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
+public:
+    WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid);
+
+    // IProcObserver interface implementation
     virtual void update(std::uint8_t *data) override;
 };
 

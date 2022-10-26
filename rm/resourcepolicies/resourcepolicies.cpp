@@ -31,7 +31,7 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
 {
     switch (policy) {
     case Policy::RandPolicy:
-        return make_unique<RandPolicy>();
+        return make_unique<RandPolicy>(platformDescription_);
     case Policy::NoPolicy:
     default:
         return make_unique<NoPolicy>();

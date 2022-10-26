@@ -3,6 +3,7 @@
 
 #include "utilities/numericvalue.h"
 #include "app.h"
+#include "cpusetvector.h"
 
 #include <vector>
 
@@ -13,9 +14,6 @@ namespace pc {
  */
 class ICpusetControl {
 public:
-
-    /* Vector of cpu numbers pairs */
-    typedef std::vector<std::pair<short,short>> CpusetVector;
 
     /*!
      * Requests the use of a set of cpus by the application.

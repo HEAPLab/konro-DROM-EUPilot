@@ -6,6 +6,7 @@
 #include "cpucontrol.h"
 #include "iocontrol.h"
 #include "cpusetcontrol.h"
+#include "cpusetvector.h"
 #include "memorycontrol.h"
 #include "cgrouputil.h"
 #include "numericvalue.h"
@@ -85,7 +86,7 @@ static void getIoStat(std::shared_ptr<rmcommon::App> app, int major, int minor)
 static void setCpuSet(std::shared_ptr<rmcommon::App> app)
 {
     pc::CpusetControl::instance().setCpus({ {0, 0}, {3, 3} }, app);
-    pc::CpusetControl::CpusetVector cpus = pc::CpusetControl::instance().getCpus(app);
+    CpusetVector cpus = pc::CpusetControl::instance().getCpus(app);
     if (std::find(begin(cpus), end(cpus), std::make_pair((short)0, (short)0)) == cpus.end() ||
             std::find(begin(cpus), end(cpus), std::make_pair((short)3, (short)3)) == cpus.end()) {
         cout << "ERROR setCpuSet\n";

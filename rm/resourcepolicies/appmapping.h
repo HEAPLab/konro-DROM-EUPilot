@@ -5,14 +5,23 @@
 #include <memory>
 #include "../platformcontrol/utilities/numericvalue.h"
 
-
+/*!
+ * \class encapsulates an application and adds information about
+ * the resources it can use
+ */
 class AppMapping {
     std::shared_ptr<rmcommon::App> app_;
-    short coresNum_;
+    /*! cpus that can execute the app */
+    short coreNum_;
+    /*! maximum cpu bandwidth limit */
     pc::NumericValue cpuMax_;
+    /*! memory nodes that can be used by the app */
     short memNodes_;
+    /*! total amount of memory currently used by the app */
     int currentMemoryAmount_;
+    /*! minimum amount of memory the app must always retain */
     int minMemory_;
+    /*! memory usage hard limit for the app */
     int maxMemory_;
 
 public:
@@ -34,11 +43,11 @@ public:
     }
 
     void setCpu(short n) {
-        coresNum_ = n;
+        coreNum_ = n;
     }
 
     short getCpu() {
-        return coresNum_;
+        return coreNum_;
     }
 };
 

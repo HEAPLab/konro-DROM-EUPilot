@@ -1,5 +1,6 @@
 #include "randpolicy.h"
 #include "cpusetcontrol.h"
+#include "cpusetvector.h"
 #include <iostream>
 #include <random>
 #include <utility>
@@ -18,15 +19,16 @@ int getRandNumber(int cpusNum)
     return uni(rng);
 }
 
-RandPolicy::RandPolicy()
+RandPolicy::RandPolicy(PlatformDescription pd) :
+    platformDescription_(pd)
 {
 }
 
 void RandPolicy::addApp(std::shared_ptr<AppMapping> appMapping)
 {
     try {
-        short cpuNum = getRandNumber(4);
-        pc::ICpusetControl::CpusetVector vec{{cpuNum, cpuNum}};
+        short cpuNum = getRandNumber(platformDescription_.getNumCores());
+        CpusetVector vec{{cpuNum, cpuNum}};
         pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
         appMapping->setCpu(cpuNum);
     } catch (exception &e) {
