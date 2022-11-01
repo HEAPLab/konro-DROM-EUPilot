@@ -201,8 +201,12 @@ void ProcListener::processEvent(uint8_t *data)
         cout << "ProcListener: PROC_EVENT_EXIT received\n";
         notify(data);
         break;
-    /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
-       PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COMM, PROC_EVENT_COREDUMP */
+    case proc_event::PROC_EVENT_COMM:
+        // detect changes to process name (/proc/PID/comm)
+        cout << "ProcListener: PROC_EVENT_COMM received (ignored)\n";
+        break;
+        /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
+           PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */
     default:
         cout << "ProcListener: Event " << ev->what << " received\n";
         break;

@@ -21,6 +21,9 @@ public:
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override {
         // do nothing
     }
+    virtual void timer() override {
+        // do nothing
+    }
 };
 
 #endif // NOPOLICY_H

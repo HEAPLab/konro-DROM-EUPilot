@@ -27,6 +27,11 @@ public:
      * Handles the removal of an app from the system.
      */
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) = 0;
+
+    /*!
+     * Handles a timer event
+     */
+    virtual void timer() = 0;
 };
 
 #endif // IBASEPOLICY_H

@@ -80,6 +80,7 @@ public:
     static bool dir_exists(const char *path);
     static bool file_exists(const char *path);
 	static Dir localdir(const char *path);
+    static std::string home();
 
     /*!
      * Creates the specified directory

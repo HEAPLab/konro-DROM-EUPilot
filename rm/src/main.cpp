@@ -8,32 +8,59 @@
 #include "resourcepolicies.h"
 #include "platformdescription.h"
 #include <iostream>
+#include <stdexcept>
 #include <cstdlib>
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
 
-static void testWorkloadManager(int pid);
+static void testWorkloadManager(int pid, std::string policy, int timerSeconds);
 static void testPlatformDescription();
+static std::string configFilePath();
 
 int main(int argc, char *argv[])
 {
-#if 0
-    if (pc::Dir::file_exists(CONFIG_PATH)) {
-        auto &c = konro::Config::get(CONFIG_PATH);
+    std::string policy;
+    // For the ResourcePolicies internal timer
+    int timerSeconds = 30;       // 0 means "no timer"
+#if 1
+    std::string konroConfigFile = configFilePath();
 
-        std::cout << c.read<std::string>("test", "name") << std::endl;
-        std::cout << c.read<int>("test", "number") << std::endl;
+    if (rmcommon::Dir::file_exists(konroConfigFile.c_str())) {
+        std::cout << "Konro configuration file is " << konroConfigFile << std::endl;
+        auto &config = konro::Config::get(konroConfigFile);
+        try {
+            std::cout << config.read<std::string>("test", "name") << std::endl;
+            std::cout << config.read<int>("test", "number") << std::endl;
+            policy = config.read<std::string>("policy", "policy");
+            std::cout << "Policy: " << policy << std::endl;
+            timerSeconds = config.read<int>("resourcepolicies", "timerseconds");
+            std::cout << "timerseconds: " << timerSeconds << std::endl;
+        } catch (std::logic_error &e) {
+            std::cout << "Could not parse INI file " << CONFIG_PATH << std::endl;
+        }
+    } else {
+        std::cout << "Konro configuration file " << konroConfigFile << " not found" << std::endl;
     }
 #endif
     testPlatformDescription();
 
     if (argc >= 2) {
-        testWorkloadManager(atoi(argv[1]));
+        int pidToMonitor = atoi(argv[1]);
+        testWorkloadManager(pidToMonitor, policy, timerSeconds);
     }
 
     std::cout << "main exiting\n";
 	return 0;
+}
+
+std::string configFilePath()
+{
+    std::string home = rmcommon::Dir::home();
+    if (home.empty())
+        return CONFIG_PATH;
+    else
+        return rmcommon::make_path(home, CONFIG_PATH);
 }
 
 wm::ProcListener procListener;
@@ -62,15 +89,17 @@ static void trapCtrlC()
 #endif
 }
 
-static void testWorkloadManager(int pid)
+static void testWorkloadManager(int pid, std::string policyName, int timerSeconds)
 {
     std::cout << "WorkloadManager test starting" << std::endl;
 
     trapCtrlC();
 
+    ResourcePolicies::Policy policy = ResourcePolicies::getPolicyByName(policyName);
+
     pc::CGroupControl cgc;
     PlatformDescription pd;
-    ResourcePolicies rp(pd, ResourcePolicies::Policy::RandPolicy);
+    ResourcePolicies rp(pd, policy);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
 
     rp.start();

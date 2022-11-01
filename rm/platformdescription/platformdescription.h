@@ -1,10 +1,14 @@
 #ifndef PLATFORMDESCRIPTION_H
 #define PLATFORMDESCRIPTION_H
 
+#include "cpucore.h"
+#include <memory>
 /*!
  * \brief stores information about the machine on which Konro is running
  */
 class PlatformDescription {
+    struct PlatformDescriptionImpl;
+    std::shared_ptr<PlatformDescriptionImpl> pimpl_;
     int numCores_;
     unsigned long totalRamKB_;
     unsigned long freeRamKB_;
@@ -13,14 +17,19 @@ class PlatformDescription {
 
     void findNumCores();
     void findMemory();
-    void doHwloc();
+
+    void printHwlocObj(int level, void *obj);
+    void testHwloc1();
+    void testHwloc2();
+    void testHwloc3();
+    void testHwloc4();
 
 public:
     explicit PlatformDescription();
 
-    int getNumCores() const {
-        return numCores_;
-    }
+    int getNumCpus() const;
+    int getNumCores() const;
+    std::vector<CpuCore> getCoreTopology() const;
 
     unsigned long getTotalRam() const {
         return totalRamKB_;

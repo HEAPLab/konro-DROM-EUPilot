@@ -20,9 +20,10 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
     return lhs->getPid() < rhs->getPid();
 }
 
-ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy) :
+ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy, int timerSeconds) :
     platformDescription_(pd),
-    apps_(appMappingComp)
+    apps_(appMappingComp),
+    timerSeconds_(timerSeconds)
 {
     policy_ = makePolicy(policy);
 }
@@ -41,16 +42,32 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
 
 /*!
  * Starts the run() function in a new thread
+ * and the timer() function in a new thread
  */
 void ResourcePolicies::start()
 {
     rpThread_ = thread(&ResourcePolicies::run, this);
+    // If a timer was requested, start the thread now
+    if (timerSeconds_ > 0)
+        timerThread_ = thread(&ResourcePolicies::timer, this);
+    else
+        cout << "ResourcePolicies: timer not started" << endl;
+}
+
+ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &policyName)
+{
+    if (policyName == "RandPolicy")
+        return ResourcePolicies::Policy::RandPolicy;
+    else if (policyName == "NoPolicy")
+        return ResourcePolicies::Policy::NoPolicy;
+    else
+        return ResourcePolicies::Policy::NoPolicy;
 }
 
 void ResourcePolicies::run()
 {
     cout << "ResourcePolicies thread starting\n";
-    while (true) {
+    while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;
         bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
         if (!rc) {
@@ -60,6 +77,16 @@ void ResourcePolicies::run()
         processEvent(event);
     }
     cout << "ResourcePolicies thread exiting\n";
+}
+
+void ResourcePolicies::timer()
+{
+    cout << "ResourcePolicies timer thread starting\n";
+    while (!stop_) {
+        this_thread::sleep_for(chrono::seconds(timerSeconds_));
+        addEvent(make_shared<rmcommon::TimerEvent>());
+    }
+    cout << "ResourcePolicies timer thread exiting\n";
 }
 
 void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
@@ -76,6 +103,8 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
         processAddProcEvent(e);
     } else if (rmcommon::RemoveProcEvent *e = dynamic_cast<rmcommon::RemoveProcEvent *>(event.get())) {
         processRemoveProcEvent(e);
+    } else if (rmcommon::TimerEvent *e = dynamic_cast<rmcommon::TimerEvent *>(event.get())) {
+        processTimerEvent(e);
     }
 }
 
@@ -97,6 +126,11 @@ void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
         apps_.erase(it);
     }
     dumpApps();
+}
+
+void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
+{
+    cout << "ResourcePolicies: timer event received\n";
 }
 
 void ResourcePolicies::dumpApps() const

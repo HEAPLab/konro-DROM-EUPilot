@@ -106,6 +106,12 @@ Dir Dir::localdir(const char *path)
     return directory;
 }
 
+string Dir::home()
+{
+    const char *home = getenv("HOME");
+    return home ? home : "";
+}
+
 void Dir::mkdir(const char *path)
 {
     mode_t create_mode = S_IRWXU|S_IRWXG|S_IRWXO;

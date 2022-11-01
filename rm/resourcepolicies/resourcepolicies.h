@@ -5,6 +5,7 @@
 #include "baseevent.h"
 #include "addprocevent.h"
 #include "removeprocevent.h"
+#include "timerevent.h"
 #include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
@@ -12,6 +13,7 @@
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <atomic>
 
 /*!
  * \brief The ResourcePolicies class
@@ -34,8 +36,11 @@ private:
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     std::thread rpThread_;
+    std::thread timerThread_;
     std::unique_ptr<IBasePolicy> policy_;
     PlatformDescription platformDescription_;
+    int timerSeconds_;
+    std::atomic_bool stop_;
 
     /*! Comparison function for the set */
     using AppComparator = bool (*)(const std::shared_ptr<AppMapping> &lhs,
@@ -44,6 +49,8 @@ private:
     std::set<std::shared_ptr<AppMapping>, AppComparator> apps_;
 
     void run();
+
+    void timer();
 
     /*!
      * Processes a generic event by calling the appropriate handler function.
@@ -63,6 +70,12 @@ private:
      */
     void processRemoveProcEvent(rmcommon::RemoveProcEvent *ev);
 
+    /*!
+     * Processes a TimerEvent
+     * \param ev the event to process
+     */
+    void processTimerEvent(rmcommon::TimerEvent *ev);
+
     /* for debugging */
     void dumpApps() const;
 
@@ -70,7 +83,13 @@ private:
     std::unique_ptr<IBasePolicy> makePolicy(Policy policy);
 public:
 
-    ResourcePolicies(PlatformDescription pd, Policy policy = Policy::NoPolicy);
+    /*!
+     * \brief ResourcePolicies
+     * \param pd the PlatformDescription
+     * \param policy the Policy to create
+     * \param timerSeconds if 0, then the internal timer thread is not started
+     */
+    ResourcePolicies(PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
 
     void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) {
         queue_.push(event);
@@ -81,6 +100,16 @@ public:
     }
 
     void start();
+
+    void stop() {
+        stop_ = true;
+        if (rpThread_.joinable())
+            rpThread_.join();
+        if (timerThread_.joinable())
+            timerThread_.join();
+    }
+
+    static Policy getPolicyByName(const std::string &policyName);
 };
 
 #endif // RESOURCEPOLICIES_H

@@ -14,8 +14,10 @@ public:
     virtual const char *name() override {
         return "RandPolicy";
     }
+    // IBasePolicy interface
     virtual void addApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
+    virtual void timer() override;
 };
 
 #endif // RANDPOLICY_H
