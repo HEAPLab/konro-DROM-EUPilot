@@ -131,6 +131,7 @@ void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
 {
     cout << "ResourcePolicies: timer event received\n";
+    policy_->timer();
 }
 
 void ResourcePolicies::dumpApps() const

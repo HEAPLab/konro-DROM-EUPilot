@@ -9,15 +9,15 @@
 using namespace std;
 
 struct PlatformDescription::PlatformDescriptionImpl {
+    // max number of cache levels supported by hwloc
     static constexpr int NUM_CACHES = 5;
     // hwloc data
     hwloc_topology_t topology;
-    // Depth in the hwloc topology tree
-    int depthPU;
 
     PlatformDescriptionImpl() {
         initTopology();
     }
+
     ~PlatformDescriptionImpl() {
         if (this->topology) {
             hwloc_topology_destroy(this->topology);
@@ -36,13 +36,11 @@ struct PlatformDescription::PlatformDescriptionImpl {
 
         // Perform the topology detection
         hwloc_topology_load(this->topology);
-
-        this->depthPU = hwloc_get_type_depth(this->topology, HWLOC_OBJ_PU);
     }
 
     /*!
-     * \brief findObjByOsIndex
-     * \param depth where to search
+     * \brief Finds an object in the hwloc tree using its OS index
+     * \param objType the hwloc type of the object
      * \param osIdx OS index of the object
      * \return object or nullptr
      */
@@ -59,32 +57,32 @@ struct PlatformDescription::PlatformDescriptionImpl {
     /*!
      * \brief Returns a list of CPU Cores
      */
-    vector<CpuCore> getCpuCores() {
-        vector<CpuCore> vec;
+    vector<CoreMapping> getCpuCores() {
+        vector<CoreMapping> vec;
         // scan all the cores (Processing Units for hwloc)
         hwloc_obj_t objCore = nullptr;
         while ((objCore = hwloc_get_next_obj_by_type(this->topology, HWLOC_OBJ_PU, objCore)) != nullptr) {
-            CpuCore cpuCore(objCore->logical_index, objCore->os_index);
+            CoreMapping cpuCore(objCore->os_index);
             hwloc_obj_t parent = objCore->parent;
             while (parent != nullptr) {
                 switch (parent->type) {
                 case HWLOC_OBJ_CORE:
-                    cpuCore.setCpu(parent->logical_index, parent->os_index);
+                    cpuCore.setCpu(parent->os_index);
                     break;
                 case HWLOC_OBJ_L1CACHE:
-                    cpuCore.setCache(1, parent->logical_index, parent->os_index);
+                    cpuCore.setCache(1, parent->os_index);
                     break;
                 case HWLOC_OBJ_L2CACHE:
-                    cpuCore.setCache(2, parent->logical_index, parent->os_index);
+                    cpuCore.setCache(2, parent->os_index);
                     break;
                 case HWLOC_OBJ_L3CACHE:
-                    cpuCore.setCache(3, parent->logical_index, parent->os_index);
+                    cpuCore.setCache(3, parent->os_index);
                     break;
                 case HWLOC_OBJ_L4CACHE:
-                    cpuCore.setCache(4, parent->logical_index, parent->os_index);
+                    cpuCore.setCache(4, parent->os_index);
                     break;
                 case HWLOC_OBJ_L5CACHE:
-                    cpuCore.setCache(5, parent->logical_index, parent->os_index);
+                    cpuCore.setCache(5, parent->os_index);
                     break;
                 default:
                     break;
@@ -128,7 +126,7 @@ int PlatformDescription::getNumCores() const
  * \param core
  * \return
  */
-std::vector<CpuCore> PlatformDescription::getCoreTopology() const
+std::vector<CoreMapping> PlatformDescription::getCoreTopology() const
 {
     // Example hwloc tree:
     //    level 0: object Machine, os index: 0
@@ -252,7 +250,7 @@ void PlatformDescription::testHwloc3()
  */
 void PlatformDescription::testHwloc4()
 {
-    vector<CpuCore> coreTopo = getCoreTopology();
+    vector<CoreMapping> coreTopo = getCoreTopology();
     cout << "----- CORE TOPOLOGY START -----" << endl;
     for (const auto &core: coreTopo) {
         cout << core << endl;

@@ -1,5 +1,5 @@
-#ifndef CPUCORE_H
-#define CPUCORE_H
+#ifndef COREMAPPING_H
+#define COREMAPPING_H
 
 #include <vector>
 #include <iostream>
@@ -11,7 +11,7 @@
  * A Core, called "Processing Unit" by hwloc, is contained in a CPU.
  * A CPU can have one or more Cores.
  */
-class CpuCore {
+class CoreMapping {
     /*! number of caches supported by hwloc */
     static constexpr int NUM_CACHES = 5;
 
@@ -19,23 +19,14 @@ class CpuCore {
     // - the "logical" index assigned by hwloc
     // - the index used by the Operating System
 
-    /*! hwloc index of the Core (Processing Unit) */
-    int hwlCoreIdx_;
-
     /*! operating system index of the Core */
     int osCoreIdx_;
 
     // The CPU is the object which contains the Core
     // One CPU -> one or more cores
 
-    /*! hwloc CPU index */
-    int hwlCpuIdx_;
-
     /*! operating system CPU index */
     int osCpuIdx_;
-
-    /*! hwloc Cache index */
-    int hwlCacheIdx[NUM_CACHES];    // element [0] is the index of the L1 cache
 
     /*! operating system Cache index */
     int osCacheIdx[NUM_CACHES];     // element [0] is the index of the L1 cache
@@ -43,16 +34,14 @@ class CpuCore {
     void printOnOstream(std::ostream &os) const;
 
 public:
-    CpuCore(int hwlIdx, int osIdx);
+    CoreMapping(int osIdx);
 
-    void setCpu(int hwlIdx, int osIdx) {
-        hwlCpuIdx_ = hwlIdx;
+    void setCpu(int osIdx) {
         osCpuIdx_ = osIdx;
     }
 
-    void setCache(int cacheLevel, int hwlIdx, int osIdx) {
+    void setCache(int cacheLevel, int osIdx) {
         if (cacheLevel >= 1 && cacheLevel <= NUM_CACHES) {
-            hwlCacheIdx[cacheLevel-1] = hwlIdx;
             osCacheIdx[cacheLevel-1] = osIdx;
         }
     }
@@ -65,6 +54,10 @@ public:
         return osCoreIdx_;
     }
 
+    /*!
+     * Returns the OS index of the specified cache level
+     * connected to the core.
+     */
     int getCacheOsIdx(int cacheLevel) const {
         if (cacheLevel >= 1 && cacheLevel <= NUM_CACHES) {
             return osCacheIdx[cacheLevel-1];
@@ -73,14 +66,17 @@ public:
         }
     }
 
+    /*!
+     * Returns the OS index of the CPU connected to the core.
+     */
     int getCpuOsIdx() const {
         return osCpuIdx_;
     }
 
-    friend std::ostream &operator <<(std::ostream &os, const CpuCore &core) {
+    friend std::ostream &operator <<(std::ostream &os, const CoreMapping &core) {
         core.printOnOstream(os);
         return os;
     }
 };
 
-#endif // CPUCORE_H
+#endif // COREMAPPING_H

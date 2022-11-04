@@ -48,5 +48,5 @@ void RandPolicy::removeApp(std::shared_ptr<AppMapping> appMapping)
 
 void RandPolicy::timer()
 {
-
+    // no action required
 }
