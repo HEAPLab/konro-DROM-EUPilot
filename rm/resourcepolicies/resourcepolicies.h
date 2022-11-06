@@ -6,6 +6,7 @@
 #include "addprocevent.h"
 #include "removeprocevent.h"
 #include "timerevent.h"
+#include "monitorevent.h"
 #include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
@@ -75,6 +76,12 @@ private:
      * \param ev the event to process
      */
     void processTimerEvent(rmcommon::TimerEvent *ev);
+
+    /*!
+     * Processes a MonitorEvent
+     * \param ev the event to process
+     */
+    void processMonitorEvent(rmcommon::MonitorEvent *ev);
 
     /* for debugging */
     void dumpApps() const;

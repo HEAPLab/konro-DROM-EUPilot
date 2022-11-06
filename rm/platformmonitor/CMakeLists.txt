@@ -1,8 +1,7 @@
 set(CMAKE_CXX_STANDARD 14)
-#find_package(PkgConfig REQUIRED)
-#pkg_check_modules(LMSENSORS REQUIRED lmsensors)
-set(LMSENSORS_INCLUDE_DIRS "/usr/include/sensors")
-set(LMSENSORS_LIBRARIES libsensors.so)
+
+find_package(Sensors REQUIRED)
+
 file(GLOB platformmonitor_SOURCES "*.cpp")
 file(GLOB platformmonitor_HEADERS "*.h")
 add_library(platformmonitor
@@ -11,5 +10,5 @@ add_library(platformmonitor
 )
 
 target_include_directories(platformmonitor INTERFACE .)
-target_include_directories(platformmonitor PRIVATE ${LMSENSORS_INCLUDE_DIRS})
-target_link_libraries(platformmonitor PUBLIC resourcepolicies  ${LMSENSORS_LIBRARIES})
+target_include_directories(platformmonitor PRIVATE ${SENSORS_INCLUDE_DIR})
+target_link_libraries(platformmonitor PUBLIC resourcepolicies  ${SENSORS_LIBRARY})

@@ -98,10 +98,7 @@ struct PlatformDescription::PlatformDescriptionImpl {
 PlatformDescription::PlatformDescription() :
     pimpl_(new PlatformDescriptionImpl)
 {
-    testHwloc1();
-    testHwloc2();
-    testHwloc3();
-    testHwloc4();
+    //dumpCoreTopology();
     findNumCores();
     findMemory();
 }
@@ -158,97 +155,9 @@ void PlatformDescription::findMemory()
 }
 
 /*!
- * Dumps the hwloc topolgy by depth
- */
-void PlatformDescription::testHwloc1()
-{
-    int topodepth = hwloc_topology_get_depth(pimpl_->topology);
-    cout << "Topology depth = " << topodepth << endl;
-    for (int depth = 0; depth < topodepth; ++depth) {
-        int nobjs = hwloc_get_nbobjs_by_depth(pimpl_->topology, depth);
-        cout << "*** Objects at level " << depth << ": " << nobjs << endl;
-        for (int i = 0; i < nobjs; ++i) {
-            hwloc_obj_t obj = hwloc_get_obj_by_depth(pimpl_->topology, depth, i);
-            char objType[64], attr[1024];
-            hwloc_obj_type_snprintf(objType, sizeof objType, obj, 0);
-            cout << "   *** " << i << ": " << objType;
-            hwloc_obj_attr_snprintf(attr, sizeof attr, obj, "/", 0);
-            if (*attr) {
-                cout << "  (" << attr << ")";
-            }
-            if (obj->os_index != (unsigned)-1) {
-                cout << ", os index: " << obj->os_index;
-            }
-            cout << endl;
-        }
-    }
-    int num_cores = hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_CORE);
-    int num_pu = hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PU);
-    cout << endl << "Cores: " << num_cores << ", processing units: " << num_pu << endl;
-}
-
-/*!
- * Dumps the hwloc tree
- */
-void PlatformDescription::testHwloc2()
-{
-    hwloc_obj_t obj = hwloc_get_root_obj(pimpl_->topology);
-    printHwlocObj(0, obj);
-}
-
-void PlatformDescription::printHwlocObj(int level, void *obj)
-{
-    if (!obj) {
-        return;
-    }
-    for (int i = 0; i < level; ++i) {
-        cout << "    ";       // indent
-    }
-    hwloc_obj_t o = reinterpret_cast<hwloc_obj_t>(obj);
-    char objType[64], attr[1024];
-    hwloc_obj_type_snprintf(objType, sizeof objType, o, 0);
-    cout << "level " << level << ": object " << objType;
-    if (o->os_index != (unsigned)-1) {
-        cout << ", os index: " << o->os_index;
-    }
-    hwloc_obj_attr_snprintf(attr, sizeof attr, o, "/", 0);
-    if (*attr) {
-        cout << "  (" << attr << ")";
-    }
-    cout << endl;
-    // recursively print the children
-    for (int i = 0; i < o->arity; ++i) {
-        printHwlocObj(level+1, o->children[i]);
-    }
-}
-
-/*!
- * \brief Tests hwloc distance matrix
- */
-void PlatformDescription::testHwloc3()
-{
-    struct hwloc_distances_s *distances;
-    unsigned int nr = 1;
-
-    int rc = hwloc_distances_get(pimpl_->topology, &nr, &distances, 0, 0);
-    cout << "hwloc_distances_get returned " << rc << endl;
-    if (rc == 0) {
-        // no error
-        cout << "Created " << nr << " matrices" << endl;
-    } else {
-        cout << "ERROR calling hwloc_distances_get" << endl;
-    }
-    if (distances) {
-        hwloc_distances_release(pimpl_->topology, distances);
-    } else {
-        cout << "No distance to release" << endl;
-    }
-}
-
-/*!
  * \brief Test Core topology
  */
-void PlatformDescription::testHwloc4()
+void PlatformDescription::dumpCoreTopology()
 {
     vector<CoreMapping> coreTopo = getCoreTopology();
     cout << "----- CORE TOPOLOGY START -----" << endl;

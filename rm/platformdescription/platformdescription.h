@@ -19,10 +19,7 @@ class PlatformDescription {
     void findMemory();
 
     void printHwlocObj(int level, void *obj);
-    void testHwloc1();
-    void testHwloc2();
-    void testHwloc3();
-    void testHwloc4();
+    void dumpCoreTopology();
 
 public:
     explicit PlatformDescription();

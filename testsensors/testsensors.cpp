@@ -19,12 +19,13 @@ int main()
                 continue;
 
             std::cout << f << ": feature name is " << feat->name << std::endl;
+            std::cout << f << ": feature label is " << sensors_get_label(cn, feat) << std::endl;
 
             sensors_subfeature const *subf;
             int s = 0;
 
             while ((subf = sensors_get_all_subfeatures(cn, feat, &s)) != 0) {
-                std::cout << f << ":" << s << ":" << subf->name
+                std::cout << f << ":" << s << ": subfeature name is " << subf->name
                 << "/" << subf->number << " = ";
                 double val;
                 if (subf->flags & SENSORS_MODE_R) {

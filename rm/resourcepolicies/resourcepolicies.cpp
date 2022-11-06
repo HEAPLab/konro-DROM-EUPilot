@@ -94,8 +94,7 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 #if 1
     ostringstream os;
     os << "ResourcePolicies::run: received message => ";
-    event->printOnOstream(os);
-    os << endl;
+    os << *event << endl;
     cout << os.str();
 #endif
 
@@ -105,6 +104,8 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
         processRemoveProcEvent(e);
     } else if (rmcommon::TimerEvent *e = dynamic_cast<rmcommon::TimerEvent *>(event.get())) {
         processTimerEvent(e);
+    } else if (rmcommon::MonitorEvent *e = dynamic_cast<rmcommon::MonitorEvent *>(event.get())) {
+        processMonitorEvent(e);
     }
 }
 
@@ -132,6 +133,12 @@ void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
 {
     cout << "ResourcePolicies: timer event received\n";
     policy_->timer();
+}
+
+void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
+{
+    cout << "ResourcePolicies: monitor event received\n";
+    cout << *ev << endl;
 }
 
 void ResourcePolicies::dumpApps() const

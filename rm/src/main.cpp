@@ -7,6 +7,7 @@
 #include "workloadmanager.h"
 #include "resourcepolicies.h"
 #include "platformdescription.h"
+#include "platformmonitor.h"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -101,8 +102,10 @@ static void testWorkloadManager(int pid, std::string policyName, int timerSecond
     PlatformDescription pd;
     ResourcePolicies rp(pd, policy);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
+    PlatformMonitor pm(rp);
 
     rp.start();
+    pm.start();
     procListener.attach(&workloadManager);
     procListener();
 }
