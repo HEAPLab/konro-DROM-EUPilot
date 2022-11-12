@@ -44,7 +44,7 @@ public:
     }
 
     /*!
-     * Returns the Operating System index of this core
+     * Returns the Operating System index of this PU,
      * or -1 if not available
      */
     int getOsIdx() const {
@@ -64,9 +64,9 @@ public:
     }
 
     /*!
-     * Returns the OS index of the CPU connected to the core.
+     * Returns the OS index of the core connected to this PU.
      */
-    int getCpuOsIdx() const {
+    int getCoreOsIdx() const {
         return osCoreIdx_;
     }
 

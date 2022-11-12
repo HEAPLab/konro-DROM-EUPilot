@@ -103,15 +103,18 @@ PlatformDescription::PlatformDescription() :
     findMemory();
 }
 
+int PlatformDescription::getNumCpus() const
+{
+    return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PACKAGE);
+}
+
 int PlatformDescription::getNumCores() const
 {
-    // CPU is called Core by hwloc
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_CORE);
 }
 
 int PlatformDescription::getNumProcessingUnits() const
 {
-    // Cores are called Processing Units by hwloc
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PU);
 }
 
@@ -150,8 +153,8 @@ void PlatformDescription::findNumProcessors()
 
 void PlatformDescription::findMemory()
 {
-    rmcommon::getMemoryInfo(totalRamKB_, freeRamKB_);
-    rmcommon::getSwapInfo(totalSwapKB_, freeSwapKB_);
+    rmcommon::getMemoryInfo(totalRamKB_);
+    rmcommon::getSwapInfo(totalSwapKB_);
 }
 
 /*!

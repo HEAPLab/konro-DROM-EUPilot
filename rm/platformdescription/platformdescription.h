@@ -10,10 +10,10 @@ class PlatformDescription {
     struct PlatformDescriptionImpl;
     std::shared_ptr<PlatformDescriptionImpl> pimpl_;
     int numProcessors_;
+    /* Total amount of RAM in kilobytes */
     unsigned long totalRamKB_;
-    unsigned long freeRamKB_;
+    /* Total amount of SWAP in kilobytes */
     unsigned long totalSwapKB_;
-    unsigned long freeSwapKB_;
 
     void findNumProcessors();
     void findMemory();
@@ -24,19 +24,33 @@ public:
     explicit PlatformDescription();
 
     /*!
+     * Gets the number physical processors on the machine.
+     * A CPU is physical package that gets inserted into a
+     * socket on the motherboard. A processor package usually
+     * contains multiple cores.
+     * \return the number of CPUs
+     */
+    int getNumCpus() const;
+
+    /*!
      * \brief Gets the number of cores on the machine
      * \return the number of cores
      */
     int getNumCores() const;
 
     /*!
-     * \brief Gets the number of processing units on the machine
+     * Gets the number of processing units (PUs) on the machine.
+     * A PU is the smallest processing element under which a process can be
+     * scheduled. The total number of PUs of the machine is
+     * always equal to its total amount of hardware threads.
+     * Clarly, in non-SMT processors the number of hardware threads is
+     * equal to the number of cores.
      * \return the number of processing units
      */
     int getNumProcessingUnits() const;
 
     /*!
-     * \brief Returns the machine topology as a vector of CpuCores
+     * \brief Returns the machine topology as a vector of ProcessingUnitMapping
      */
     std::vector<ProcessingUnitMapping> getCoreTopology() const;
 
