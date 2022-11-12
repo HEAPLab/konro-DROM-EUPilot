@@ -4,10 +4,10 @@
 namespace rmcommon {
 
 /*!
- * Returns the number of available CPU cores
- * \return number of available CPU cores
+ * Returns the number of available CPU processors
+ * \return number of available CPU processors
  */
-int getCpuCores() noexcept;
+int getProcessors() noexcept;
 
 }   // namespace rmcommon
 

@@ -117,7 +117,7 @@ static void testPlatformDescription()
     PlatformDescription pd;
 
     cout << "PLATFORM DESCRIPTION\n";
-    cout << "CORES     : " << pd.getNumCores() << endl;
+    cout << "PROC.UNITS: " << pd.getNumProcessingUnits() << endl;
     cout << "TOTAL RAM : " << pd.getTotalRam()  << " KB" << endl;
     cout << "TOTAL SWAP: " << pd.getTotalSwap() << " KB" << endl;
     pd.dumpCoreTopology();

@@ -7,21 +7,20 @@
 namespace rmcommon {
 
 class PlatformTemperature {
-    rmcommon::ComponentTemperature package_;
     std::vector<rmcommon::ComponentTemperature> cpus_;
+    std::vector<rmcommon::ComponentTemperature> cores_;
 public:
-    void addPackageTemperature(const rmcommon::ComponentTemperature &ct) {
-        package_ = ct;
-    }
-
-    rmcommon::ComponentTemperature getPackageTemp() {
-        return package_;
-    }
-
     void addCpuTemperature(const rmcommon::ComponentTemperature &ct) {
         cpus_.push_back(ct);
     }
 
+//    rmcommon::ComponentTemperature getCpuTemp() {
+//        return cpu_;
+//    }
+
+    void addCoreTemperature(const rmcommon::ComponentTemperature &ct) {
+        cores_.push_back(ct);
+    }
 };
 
 }   // namespace rmcommon

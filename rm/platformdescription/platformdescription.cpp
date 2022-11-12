@@ -55,41 +55,41 @@ struct PlatformDescription::PlatformDescriptionImpl {
     }
 
     /*!
-     * \brief Returns a list of CPU Cores
+     * Returns a list of Processing Units and related features
      */
-    vector<CoreMapping> getCpuCores() {
-        vector<CoreMapping> vec;
-        // scan all the cores (Processing Units for hwloc)
-        hwloc_obj_t objCore = nullptr;
-        while ((objCore = hwloc_get_next_obj_by_type(this->topology, HWLOC_OBJ_PU, objCore)) != nullptr) {
-            CoreMapping cpuCore(objCore->os_index);
-            hwloc_obj_t parent = objCore->parent;
+    vector<ProcessingUnitMapping> getProcessingUnits() {
+        vector<ProcessingUnitMapping> vec;
+        // scan all the Processing Units
+        hwloc_obj_t objPU = nullptr;
+        while ((objPU = hwloc_get_next_obj_by_type(this->topology, HWLOC_OBJ_PU, objPU)) != nullptr) {
+            ProcessingUnitMapping puMapping(objPU->os_index);
+            hwloc_obj_t parent = objPU->parent;
             while (parent != nullptr) {
                 switch (parent->type) {
                 case HWLOC_OBJ_CORE:
-                    cpuCore.setCpu(parent->os_index);
+                    puMapping.setCore(parent->os_index);
                     break;
                 case HWLOC_OBJ_L1CACHE:
-                    cpuCore.setCache(1, parent->os_index);
+                    puMapping.setCache(1, parent->os_index);
                     break;
                 case HWLOC_OBJ_L2CACHE:
-                    cpuCore.setCache(2, parent->os_index);
+                    puMapping.setCache(2, parent->os_index);
                     break;
                 case HWLOC_OBJ_L3CACHE:
-                    cpuCore.setCache(3, parent->os_index);
+                    puMapping.setCache(3, parent->os_index);
                     break;
                 case HWLOC_OBJ_L4CACHE:
-                    cpuCore.setCache(4, parent->os_index);
+                    puMapping.setCache(4, parent->os_index);
                     break;
                 case HWLOC_OBJ_L5CACHE:
-                    cpuCore.setCache(5, parent->os_index);
+                    puMapping.setCache(5, parent->os_index);
                     break;
                 default:
                     break;
                 }
                 parent = parent->parent;
             }
-            vec.push_back(cpuCore);
+            vec.push_back(puMapping);
         }
         return vec;
     }
@@ -99,17 +99,17 @@ PlatformDescription::PlatformDescription() :
     pimpl_(new PlatformDescriptionImpl)
 {
     //dumpCoreTopology();
-    findNumCores();
+    findNumProcessors();
     findMemory();
 }
 
-int PlatformDescription::getNumCpus() const
+int PlatformDescription::getNumCores() const
 {
     // CPU is called Core by hwloc
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_CORE);
 }
 
-int PlatformDescription::getNumCores() const
+int PlatformDescription::getNumProcessingUnits() const
 {
     // Cores are called Processing Units by hwloc
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PU);
@@ -123,7 +123,7 @@ int PlatformDescription::getNumCores() const
  * \param core
  * \return
  */
-std::vector<CoreMapping> PlatformDescription::getCoreTopology() const
+std::vector<ProcessingUnitMapping> PlatformDescription::getCoreTopology() const
 {
     // Example hwloc tree:
     //    level 0: object Machine, os index: 0
@@ -140,12 +140,12 @@ std::vector<CoreMapping> PlatformDescription::getCoreTopology() const
     //                            level 6: object PU, os index: 1
     //                            level 6: object PU, os index: 3
 
-    return pimpl_->getCpuCores();
+    return pimpl_->getProcessingUnits();
 }
 
-void PlatformDescription::findNumCores()
+void PlatformDescription::findNumProcessors()
 {
-    numCores_ = rmcommon::getCpuCores();
+    numProcessors_ = rmcommon::getProcessors();
 }
 
 void PlatformDescription::findMemory()
@@ -159,7 +159,7 @@ void PlatformDescription::findMemory()
  */
 void PlatformDescription::dumpCoreTopology()
 {
-    vector<CoreMapping> coreTopo = getCoreTopology();
+    vector<ProcessingUnitMapping> coreTopo = getCoreTopology();
     cout << "----- CORE TOPOLOGY START -----" << endl;
     for (const auto &core: coreTopo) {
         cout << core << endl;

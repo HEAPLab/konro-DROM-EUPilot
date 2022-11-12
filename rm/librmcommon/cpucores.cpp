@@ -3,7 +3,7 @@
 
 namespace rmcommon {
 
-int getCpuCores() noexcept
+int getProcessors() noexcept
 {
     return get_nprocs();
 }

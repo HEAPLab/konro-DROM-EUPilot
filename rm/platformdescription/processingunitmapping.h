@@ -1,32 +1,29 @@
-#ifndef COREMAPPING_H
-#define COREMAPPING_H
+#ifndef PROCESSINGUNITMAPPING_H
+#define PROCESSINGUNITMAPPING_H
 
 #include <vector>
 #include <iostream>
 #include <utility>
 
 /*!
- * \brief The CpuCore class encapsulates information on a Core
- *
- * A Core, called "Processing Unit" by hwloc, is contained in a CPU.
- * A CPU can have one or more Cores.
+ * \brief The ProcessingUnitMapping class encapsulates information on a Processing Unit
  */
-class CoreMapping {
+class ProcessingUnitMapping {
     /*! number of caches supported by hwloc */
     static constexpr int NUM_CACHES = 5;
 
     // There are two types of indexes for each object:
-    // - the "logical" index assigned by hwloc
+    // - the "logical" index assigned by hwloc (not stored here)
     // - the index used by the Operating System
 
-    /*! operating system index of the Core */
+    /*! operating system index of the Processing Unit */
+    int osPuIdx_;
+
+    // The Core is the object which contains the PU
+    // One Core -> one or more Processing Units
+
+    /*! operating system core index */
     int osCoreIdx_;
-
-    // The CPU is the object which contains the Core
-    // One CPU -> one or more cores
-
-    /*! operating system CPU index */
-    int osCpuIdx_;
 
     /*! operating system Cache index */
     int osCacheIdx[NUM_CACHES];     // element [0] is the index of the L1 cache
@@ -34,10 +31,10 @@ class CoreMapping {
     void printOnOstream(std::ostream &os) const;
 
 public:
-    CoreMapping(int osIdx);
+    ProcessingUnitMapping(int osPuIdx);
 
-    void setCpu(int osIdx) {
-        osCpuIdx_ = osIdx;
+    void setCore(int osIdx) {
+        osCoreIdx_ = osIdx;
     }
 
     void setCache(int cacheLevel, int osIdx) {
@@ -51,7 +48,7 @@ public:
      * or -1 if not available
      */
     int getOsIdx() const {
-        return osCoreIdx_;
+        return osPuIdx_;
     }
 
     /*!
@@ -70,13 +67,13 @@ public:
      * Returns the OS index of the CPU connected to the core.
      */
     int getCpuOsIdx() const {
-        return osCpuIdx_;
+        return osCoreIdx_;
     }
 
-    friend std::ostream &operator <<(std::ostream &os, const CoreMapping &core) {
+    friend std::ostream &operator <<(std::ostream &os, const ProcessingUnitMapping &core) {
         core.printOnOstream(os);
         return os;
     }
 };
 
-#endif // COREMAPPING_H
+#endif // PROCESSINGUNITMAPPING_H

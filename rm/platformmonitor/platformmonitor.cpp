@@ -148,10 +148,10 @@ struct PlatformMonitor::PlatformMonitorImpl {
                 rmcommon::ComponentTemperature componentTemp = getTemperatureInfo(cn, feat);
                 char *label = componentTemp.label_;
                 if (strstr(label, "Package") != nullptr) {
-                    platTemp.addPackageTemperature(componentTemp);
+                    platTemp.addCpuTemperature(componentTemp);
                 }
                 else if (strstr(label, "Core") != nullptr) {
-                    platTemp.addCpuTemperature(componentTemp);
+                    platTemp.addCoreTemperature(componentTemp);
                }
             }
         }

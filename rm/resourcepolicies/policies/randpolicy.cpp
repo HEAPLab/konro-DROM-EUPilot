@@ -27,7 +27,7 @@ RandPolicy::RandPolicy(PlatformDescription pd) :
 void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
 {
     try {
-        short cpuNum = getRandNumber(platformDescription_.getNumCores());
+        short cpuNum = getRandNumber(platformDescription_.getNumProcessingUnits());
         rmcommon::CpusetVector vec{{cpuNum, cpuNum}};
         pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
         appMapping->setCoreNum(vec);
