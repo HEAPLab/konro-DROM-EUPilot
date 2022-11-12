@@ -4,8 +4,11 @@
 #include <iostream>
 #include <cstring>
 #include <sensors.h>
-#include "coretemperature.h"
+#include "componenttemperature.h"
 #include "monitorevent.h"
+#include "platformtemperature.h"
+#include "platformpower.h"
+
 
 using namespace std;
 
@@ -13,6 +16,8 @@ struct PlatformMonitor::PlatformMonitorImpl {
 
     ResourcePolicies &rp;
     bool initialized = false;
+    rmcommon::PlatformTemperature platTemp;
+    rmcommon::PlatformPower platPower;
     // Detected chip temperature sensors
 
     // Chip names
@@ -45,7 +50,76 @@ struct PlatformMonitor::PlatformMonitorImpl {
         this->initialized = false;
     }
 
-    void handleCoretemp(sensors_chip_name const *cn) {
+    void handleBattery(sensors_chip_name const *cn) {
+        sensors_feature const *feat;
+        int f = 0;
+        while ((feat = sensors_get_features(cn, &f)) != 0) {
+            if (feat->type == SENSORS_FEATURE_IN) {
+                sensors_subfeature const *subf =
+                        sensors_get_subfeature(cn, feat, SENSORS_SUBFEATURE_IN_INPUT);
+                double val;
+                int rc = sensors_get_value(cn, subf->number, &val);
+                if (rc == 0)
+                    platPower.setBatteryVoltage(static_cast<int>(val));
+            } else if (feat->type == SENSORS_FEATURE_CURR) {
+                sensors_subfeature const *subf =
+                        sensors_get_subfeature(cn, feat, SENSORS_SUBFEATURE_CURR_INPUT);
+                double val;
+                int rc = sensors_get_value(cn, subf->number, &val);
+                if (rc == 0)
+                    platPower.setBatteryCurrent(static_cast<int>(val));
+            }
+        }
+    }
+
+
+    rmcommon::ComponentTemperature getTemperatureInfo(sensors_chip_name const *cn, sensors_feature const *feat) {
+        rmcommon::ComponentTemperature componentTemp;
+        componentTemp.label_ = sensors_get_label(cn, feat);
+        componentTemp.num_ = feat->number;
+
+        // Scan all subfeatures. Subfeatures are temperatures.
+        sensors_subfeature const *subf;
+        int s = 0;
+        while ((subf = sensors_get_all_subfeatures(cn, feat, &s)) != 0) {
+            int rc;
+            double val;
+            rc = sensors_get_value(cn, subf->number, &val);
+            if (rc == 0) {
+                switch(subf->type) {
+                case SENSORS_SUBFEATURE_TEMP_INPUT:
+                    componentTemp.temp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_MAX:
+                    componentTemp.maxTemp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_MIN:
+                    componentTemp.minTemp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_HIGHEST:
+                    componentTemp.highestTemp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_LOWEST:
+                    componentTemp.lowestTemp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_CRIT:
+                    componentTemp.critTemp_ = static_cast<int>(val);
+                    break;
+                case SENSORS_SUBFEATURE_TEMP_EMERGENCY:
+                    componentTemp.emergencyTemp_ = static_cast<int>(val);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        return componentTemp;
+    }
+
+    /*!
+     * Extracts information from the specified CPU temperature sensor.
+     */
+    void handleCpuTemp(sensors_chip_name const *cn) {
         // Chip: coretemp - /sys/class/hwmon/hwmon3
         // 1: feature name is temp1
         // 1: feature label is Package id 0
@@ -66,75 +140,21 @@ struct PlatformMonitor::PlatformMonitorImpl {
         // 3:11: subfeature name is temp3_crit/10 = 105
         // 3:12: subfeature name is temp3_crit_alarm/11 = 0
 
-        shared_ptr<rmcommon::MonitorEvent> monitorEvent = make_shared<rmcommon::MonitorEvent>();
-
-        cout << "PlatformMonitor: found Intel CPU temperature sensor" << endl;
-
-        this->cnCoretemp = cn;
-
-        // Scan all features. Features are: package(s) and core(s)
+        // Scan all features. Known features are: package(s) and core(s)
         sensors_feature const *feat;
         int f = 0;
         while ((feat = sensors_get_features(cn, &f)) != 0) {
-
-            if (feat->type != SENSORS_FEATURE_TEMP)
-                continue;
-
-            const char *label = sensors_get_label(cn, feat);
-            cout << "handleCoretemp: handling label " << label << endl;
-            if (strstr(label, "Package") != nullptr) {
-                cout << "handleCoretemp: found package\n";
-            } else if (strstr(label, "Core") != nullptr) {
-                cout << "handleCoretemp: found core\n";
-            } else {
-                continue;
-            }
-
-            rmcommon::CoreTemperature coreTemp;
-            coreTemp.label_ = label;
-            coreTemp.num_ = feat->number;
-
-            // Scan all subfeatures. Subfeatures are temperatures.
-            sensors_subfeature const *subf;
-            int s = 0;
-            while ((subf = sensors_get_all_subfeatures(cn, feat, &s)) != 0) {
-                int rc;
-                double val;
-                if (strstr(subf->name, "_input") != nullptr) {
-                    rc = sensors_get_value(cn, subf->number, &val);
-                    if (rc == 0) {
-                        coreTemp.temp_ = static_cast<int>(val);
-                    }
-                } else if (strstr(subf->name, "_max") != nullptr) {
-                    rc = sensors_get_value(cn, subf->number, &val);
-                    if (rc == 0) {
-                        coreTemp.maxTemp_ = static_cast<int>(val);
-                    }
-                } else if (strstr(subf->name, "_crit") != nullptr) {
-                    rc = sensors_get_value(cn, subf->number, &val);
-                    if (rc == 0) {
-                        coreTemp.critTemp_ = static_cast<int>(val);
-                    }
+            if (feat->type == SENSORS_FEATURE_TEMP) {
+                rmcommon::ComponentTemperature componentTemp = getTemperatureInfo(cn, feat);
+                char *label = componentTemp.label_;
+                if (strstr(label, "Package") != nullptr) {
+                    platTemp.addPackageTemperature(componentTemp);
                 }
+                else if (strstr(label, "Core") != nullptr) {
+                    platTemp.addCpuTemperature(componentTemp);
+               }
             }
-            monitorEvent->addCoreTemperature(coreTemp);
         }
-        rp.addEvent(monitorEvent);
-    }
-
-    void handleK10temp(sensors_chip_name const *cn) {
-        cout << "PlatformMonitor: found AMD K10 CPU temperature sensor" << endl;
-        // TODO
-    }
-
-    void handleK8temp(sensors_chip_name const *cn) {
-        cout << "PlatformMonitor: found AMD K8 CPU temperature sensor" << endl;
-        // TODO
-    }
-
-    void handleViatemp(sensors_chip_name const *cn) {
-        cout << "PlatformMonitor: found VIA CPU temperature sensor" << endl;
-        // TODO
     }
 
     void init() {
@@ -144,30 +164,29 @@ struct PlatformMonitor::PlatformMonitorImpl {
             return;
     }
 
+    /*!
+     * Detects each sensor available on the machine and calls the
+     * appropriate handler function to store information about its
+     * current status.
+     */
     void handleSensors() {
         sensors_chip_name const *cn;
         int c = 0;
         while ((cn = sensors_get_detected_chips(0, &c)) != 0) {
+            char *prefix = cn->prefix;
 
-            if (strcmp(cn->prefix, "coretemp") == 0) {
+            /* Cpu temperature sensor found */
+            if ((strcmp(prefix, "coretemp")            // found Intel CPU temperature sensor
+                    && strcmp(prefix, "k10temp")       // found AMD K10 CPU temperature sensor
+                    && strcmp(prefix, "k8temp")        // found AMD K8 CPU temperature sensor
+                    && strcmp(prefix, "via-cputemp"))  // found via CPU temperature sensor
+                    == 0) {
+                handleCpuTemp(cn);
 
-                // found Intel CPU temperature sensor
-                this->handleCoretemp(cn);
-
-            } else if (strcmp(cn->prefix, "k10temp") == 0) {
-
-                // found AMD K10 CPU temperature sensor
-                this->handleK10temp(cn);
-
-            } else if (strcmp(cn->prefix, "k8temp") == 0) {
-
-                // found AMD K8 CPU temperature sensor
-                this->handleK8temp(cn);
-
-            } else if (strcmp(cn->prefix, "via-cputemp") == 0) {
-
-                // found via CPU temperature sensor
-                this->handleK8temp(cn);
+            }
+            /* Battery sensor found  */
+            else if (strstr(prefix, "BAT") != nullptr) {
+                handleBattery(cn);
             }
         }
     }
@@ -214,13 +233,9 @@ void PlatformMonitor::stop()
 void PlatformMonitor::run()
 {
     while (!stop_) {
-        this_thread::sleep_for(chrono::milliseconds(1000));
+        this_thread::sleep_for(chrono::milliseconds(5000));
         pimpl_->handleSensors();
-
-        // TODO - generate an event
-
-        // TODO - add event to ResourcePolicies queue
-
-        //resourcePolicies_.addEvent(...);
+        resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>
+                                   (pimpl_->platTemp, pimpl_->platPower));
     }
 }

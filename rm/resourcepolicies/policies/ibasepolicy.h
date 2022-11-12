@@ -3,6 +3,7 @@
 
 #include "../appmapping.h"
 #include "platformdescription.h"
+#include "monitorevent.h"
 #include <memory>
 
 /*!
@@ -29,9 +30,15 @@ public:
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) = 0;
 
     /*!
-     * Handles a timer event
+     * Handles a timer event.
      */
     virtual void timer() = 0;
+
+
+    /*!
+     * Handles a platform monitor event.
+     */
+    virtual void monitor(rmcommon::MonitorEvent *ev) = 0;
 };
 
 #endif // IBASEPOLICY_H

@@ -6,6 +6,12 @@
 #include <atomic>
 #include <memory>
 
+/*!
+ * \class periodically samples information about the platform status.
+ * This information is then encapsulated in a MonitorEvent and pushed to
+ * the thread safe queue.
+ * PlatformMonitor runs in a dedicated thread.
+ */
 class PlatformMonitor {
     struct PlatformMonitorImpl;
     std::unique_ptr<PlatformMonitorImpl> pimpl_;

@@ -98,6 +98,10 @@ public:
      */
     ResourcePolicies(PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
 
+    /*!
+     * \brief Adds an event to the tread safe queue
+     * \param event the event to add
+     */
     void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) {
         queue_.push(event);
     }

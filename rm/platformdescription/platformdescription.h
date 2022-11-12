@@ -19,7 +19,6 @@ class PlatformDescription {
     void findMemory();
 
     void printHwlocObj(int level, void *obj);
-    void dumpCoreTopology();
 
 public:
     explicit PlatformDescription();
@@ -56,6 +55,8 @@ public:
     unsigned long getTotalSwap() const {
         return totalSwapKB_;
     }
+
+    void dumpCoreTopology();
 };
 
 #endif // PLATFORMDESCRIPTION_H

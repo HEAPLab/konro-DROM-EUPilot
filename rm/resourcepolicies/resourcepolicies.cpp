@@ -139,6 +139,7 @@ void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
     cout << "ResourcePolicies: monitor event received\n";
     cout << *ev << endl;
+    policy_->monitor(ev);
 }
 
 void ResourcePolicies::dumpApps() const

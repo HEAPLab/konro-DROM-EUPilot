@@ -24,6 +24,11 @@ public:
     virtual void timer() override {
         // do nothing
     }
+
+    virtual void monitor(rmcommon::MonitorEvent *ev) override {
+        // do nothing
+    }
+
 };
 
 #endif // NOPOLICY_H

@@ -24,7 +24,7 @@ RandPolicy::RandPolicy(PlatformDescription pd) :
 {
 }
 
-void RandPolicy::addApp(std::shared_ptr<AppMapping> appMapping)
+void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
 {
     try {
         short cpuNum = getRandNumber(platformDescription_.getNumCores());
@@ -41,12 +41,17 @@ void RandPolicy::addApp(std::shared_ptr<AppMapping> appMapping)
     }
 }
 
-void RandPolicy::removeApp(std::shared_ptr<AppMapping> appMapping)
+void RandPolicy::removeApp(shared_ptr<AppMapping> appMapping)
 {
     // no action required
 }
 
 void RandPolicy::timer()
+{
+    // no action required
+}
+
+void RandPolicy::monitor(rmcommon::MonitorEvent *ev)
 {
     // no action required
 }

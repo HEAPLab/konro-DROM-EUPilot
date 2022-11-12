@@ -4,17 +4,15 @@ using namespace std;
 
 namespace rmcommon {
 
-MonitorEvent::MonitorEvent()
+MonitorEvent::MonitorEvent(PlatformTemperature temp, PlatformPower power) :
+    platTemp_(temp),
+    platPower_(power)
 {
 }
 
 void MonitorEvent::printOnOstream(std::ostream &os) const
 {
-    os << "MonitorEvent" << std::endl;
-    int i = 0;
-    for (const rmcommon::CoreTemperature &t: cpuTemp_) {
-        os << "[" << i++ << "] " << t << endl;
-    }
+    os << "Platform temperature: OK" << endl;
 }
 
 }   // namespace rmcommon

@@ -100,7 +100,7 @@ static void testWorkloadManager(int pid, std::string policyName, int timerSecond
 
     pc::CGroupControl cgc;
     PlatformDescription pd;
-    ResourcePolicies rp(pd, policy);
+    ResourcePolicies rp(pd, policy, timerSeconds);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
     PlatformMonitor pm(rp);
 
@@ -120,4 +120,5 @@ static void testPlatformDescription()
     cout << "CORES     : " << pd.getNumCores() << endl;
     cout << "TOTAL RAM : " << pd.getTotalRam()  << " KB" << endl;
     cout << "TOTAL SWAP: " << pd.getTotalSwap() << " KB" << endl;
+    pd.dumpCoreTopology();
 }

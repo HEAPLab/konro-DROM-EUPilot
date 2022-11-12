@@ -18,6 +18,7 @@ public:
     virtual void addApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void timer() override;
+    virtual void monitor(rmcommon::MonitorEvent *ev) override;
 };
 
 #endif // RANDPOLICY_H
