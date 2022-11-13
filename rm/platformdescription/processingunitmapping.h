@@ -25,6 +25,12 @@ class ProcessingUnitMapping {
     /*! operating system core index */
     int osCoreIdx_;
 
+    // The CPU contains the Core
+
+    /*! operating system index of the CPU (i.e. package)
+     *  to which this PU belongs */
+    int osCpuIdx_;
+
     /*! operating system Cache index */
     int osCacheIdx[NUM_CACHES];     // element [0] is the index of the L1 cache
 
@@ -35,6 +41,10 @@ public:
 
     void setCore(int osIdx) {
         osCoreIdx_ = osIdx;
+    }
+
+    void setCpu(int osIdx) {
+        osCpuIdx_ = osIdx;
     }
 
     void setCache(int cacheLevel, int osIdx) {
@@ -70,8 +80,15 @@ public:
         return osCoreIdx_;
     }
 
-    friend std::ostream &operator <<(std::ostream &os, const ProcessingUnitMapping &core) {
-        core.printOnOstream(os);
+    /*!
+     * Returns the OS index of the CPU connected to this PU.
+     */
+    int getCoreCpuIdx() const {
+        return osCpuIdx_;
+    }
+
+    friend std::ostream &operator <<(std::ostream &os, const ProcessingUnitMapping &pu) {
+        pu.printOnOstream(os);
         return os;
     }
 };

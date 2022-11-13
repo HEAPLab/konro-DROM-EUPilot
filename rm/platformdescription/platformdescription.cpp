@@ -1,5 +1,4 @@
 #include "platformdescription.h"
-#include "cpucores.h"
 #include "memoryinfo.h"
 #include <iostream>
 #include <algorithm>
@@ -66,6 +65,9 @@ struct PlatformDescription::PlatformDescriptionImpl {
             hwloc_obj_t parent = objPU->parent;
             while (parent != nullptr) {
                 switch (parent->type) {
+                case HWLOC_OBJ_PACKAGE:
+                    puMapping.setCpu(parent->os_index);
+                    break;
                 case HWLOC_OBJ_CORE:
                     puMapping.setCore(parent->os_index);
                     break;
@@ -96,11 +98,11 @@ struct PlatformDescription::PlatformDescriptionImpl {
 };
 
 PlatformDescription::PlatformDescription() :
-    pimpl_(new PlatformDescriptionImpl)
+    pimpl_(new PlatformDescriptionImpl),
+    cat_(log4cpp::Category::getRoot())
 {
     //dumpCoreTopology();
-    findNumProcessors();
-    findMemory();
+    initMemoryInfo();
 }
 
 int PlatformDescription::getNumCpus() const
@@ -118,15 +120,7 @@ int PlatformDescription::getNumProcessingUnits() const
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PU);
 }
 
-/*!
- * Returns a list of CPUs (colled "cores" by hwloc) that share the
- * same L1 cache. In order to share the same cache, the core must
- * belong to the same CPU.
- *
- * \param core
- * \return
- */
-std::vector<ProcessingUnitMapping> PlatformDescription::getCoreTopology() const
+std::vector<ProcessingUnitMapping> PlatformDescription::getTopology() const
 {
     // Example hwloc tree:
     //    level 0: object Machine, os index: 0
@@ -146,27 +140,23 @@ std::vector<ProcessingUnitMapping> PlatformDescription::getCoreTopology() const
     return pimpl_->getProcessingUnits();
 }
 
-void PlatformDescription::findNumProcessors()
-{
-    numProcessors_ = rmcommon::getProcessors();
-}
-
-void PlatformDescription::findMemory()
+void PlatformDescription::initMemoryInfo()
 {
     rmcommon::getMemoryInfo(totalRamKB_);
     rmcommon::getSwapInfo(totalSwapKB_);
 }
 
-/*!
- * \brief Test Core topology
- */
-void PlatformDescription::dumpCoreTopology()
+void PlatformDescription::logTopology()
 {
-    vector<ProcessingUnitMapping> coreTopo = getCoreTopology();
-    cout << "----- CORE TOPOLOGY START -----" << endl;
-    for (const auto &core: coreTopo) {
-        cout << core << endl;
+    cat_.info("PDESC ----- TOPOLOGY START -----");
+    cat_.info("PDESC total RAM %lu KB", (unsigned long)totalRamKB_);
+    cat_.info("PDESC total SWAP %lu KB", (unsigned long)totalSwapKB_);
+    vector<ProcessingUnitMapping> coreTopo = getTopology();
+    ostringstream os;
+    for (const auto &pu: coreTopo) {
+        os << "PDESC " << pu;
+        cat_.info(os.str());
+        os.str("");
     }
-    cout << "----- CORE TOPOLOGY END -----" << endl;
-
+    cat_.info("PDESC ----- TOPOLOGY END -----");
 }

@@ -10,6 +10,7 @@
 #include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
+#include <log4cpp/Category.hh>
 #include <set>
 #include <chrono>
 #include <memory>
@@ -34,6 +35,7 @@ public:
     };
 
 private:
+    log4cpp::Category &cat_;
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     std::thread rpThread_;
@@ -51,6 +53,7 @@ private:
 
     void run();
 
+    /*! Encapsulates the timer thread logic */
     void timer();
 
     /*!
@@ -120,6 +123,9 @@ public:
             timerThread_.join();
     }
 
+    /*!
+     * \brief Gets the name of the used reseource policy
+     */
     static Policy getPolicyByName(const std::string &policyName);
 };
 

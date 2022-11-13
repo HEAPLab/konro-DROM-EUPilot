@@ -11,7 +11,7 @@ namespace rmcommon {
 class BaseEvent {
 public:
     virtual void printOnOstream(std::ostream &os) const {
-        std::cout << "BaseEvent\n";
+        os << "BaseEvent {}";
     }
 
     friend std::ostream &operator <<(std::ostream &os, const BaseEvent &event) {

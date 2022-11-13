@@ -12,7 +12,7 @@ MonitorEvent::MonitorEvent(PlatformTemperature temp, PlatformPower power) :
 
 void MonitorEvent::printOnOstream(std::ostream &os) const
 {
-    os << "Platform temperature: OK" << endl;
+    os << "MonitorEvent {}";
 }
 
 }   // namespace rmcommon

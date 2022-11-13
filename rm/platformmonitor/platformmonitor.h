@@ -2,6 +2,8 @@
 #define PLATFORMMONITOR_H
 
 #include "resourcepolicies.h"
+
+#include <log4cpp/Category.hh>
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -14,6 +16,7 @@
  */
 class PlatformMonitor {
     struct PlatformMonitorImpl;
+    log4cpp::Category &cat_;
     std::unique_ptr<PlatformMonitorImpl> pimpl_;
     ResourcePolicies &resourcePolicies_;
     std::thread pmThread_;

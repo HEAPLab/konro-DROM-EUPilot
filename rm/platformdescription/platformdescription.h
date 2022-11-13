@@ -2,23 +2,26 @@
 #define PLATFORMDESCRIPTION_H
 
 #include "processingunitmapping.h"
+#include <log4cpp/Category.hh>
 #include <memory>
 /*!
  * \brief stores information about the machine on which Konro is running
  */
 class PlatformDescription {
+
+    /* Pointer to implementation pattern */
     struct PlatformDescriptionImpl;
     std::shared_ptr<PlatformDescriptionImpl> pimpl_;
-    int numProcessors_;
+
+    log4cpp::Category &cat_;
+
     /* Total amount of RAM in kilobytes */
     unsigned long totalRamKB_;
     /* Total amount of SWAP in kilobytes */
     unsigned long totalSwapKB_;
 
-    void findNumProcessors();
-    void findMemory();
-
-    void printHwlocObj(int level, void *obj);
+    /*! Finds memory information about the machine */
+    void initMemoryInfo();
 
 public:
     explicit PlatformDescription();
@@ -52,7 +55,7 @@ public:
     /*!
      * \brief Returns the machine topology as a vector of ProcessingUnitMapping
      */
-    std::vector<ProcessingUnitMapping> getCoreTopology() const;
+    std::vector<ProcessingUnitMapping> getTopology() const;
 
     /*!
      * \brief Gets the total amount of RAM on the machine in Kb
@@ -70,7 +73,10 @@ public:
         return totalSwapKB_;
     }
 
-    void dumpCoreTopology();
+    /*!
+     * Prints a textual representation of the machine topology.
+     */
+    void logTopology();
 };
 
 #endif // PLATFORMDESCRIPTION_H

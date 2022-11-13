@@ -12,8 +12,8 @@
  */
 class AppMapping {
     std::shared_ptr<rmcommon::App> app_;
-    /*! cpus that can execute the app */
-    rmcommon::CpusetVector coreNum_;
+    /*! Processing Units that can execute the app */
+    rmcommon::CpusetVector puNum_;
     /*! maximum cpu bandwidth limit */
     rmcommon::NumericValue cpuMax_;
     /*! memory nodes that can be used by the app */
@@ -43,12 +43,12 @@ public:
         return app_;
     }
 
-    void setCoreNum(rmcommon::CpusetVector coreNum) {
-        coreNum_ = coreNum;
+    void setPuVector(rmcommon::CpusetVector puVec) {
+        puNum_ = puVec;
     }
 
-    rmcommon::CpusetVector getCoreNum() {
-        return coreNum_;
+    rmcommon::CpusetVector getPuVector() {
+        return puNum_;
     }
 
     void setCpuMax(rmcommon::NumericValue cpuMax) {

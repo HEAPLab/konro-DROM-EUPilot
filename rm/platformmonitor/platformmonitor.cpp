@@ -8,6 +8,7 @@
 #include "monitorevent.h"
 #include "platformtemperature.h"
 #include "platformpower.h"
+#include "threadname.h"
 
 
 using namespace std;
@@ -199,8 +200,10 @@ struct PlatformMonitor::PlatformMonitorImpl {
 
 PlatformMonitor::PlatformMonitor(ResourcePolicies &rp) :
     pimpl_(new PlatformMonitorImpl(rp)),
+    cat_(log4cpp::Category::getRoot()),
     resourcePolicies_(rp)
 {
+    rmcommon::setThreadName("PMON");
     pimpl_->init();
 }
 
@@ -232,10 +235,12 @@ void PlatformMonitor::stop()
 
 void PlatformMonitor::run()
 {
+    cat_.info("PMON: running");
     while (!stop_) {
         this_thread::sleep_for(chrono::milliseconds(5000));
         pimpl_->handleSensors();
         resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>
                                    (pimpl_->platTemp, pimpl_->platPower));
     }
+    cat_.info("PMON: exiting");
 }

@@ -20,7 +20,7 @@ public:
     AddProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
 
     void printOnOstream(std::ostream &os) const override {
-        os << "AddProcEvent for PID " << app_->getPid() << std::endl;
+        os << "AddProcEvent { \"pid\":" << app_->getPid() << "}";
     }
 
     std::shared_ptr<rmcommon::App> getApp() const {

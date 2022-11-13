@@ -1,5 +1,8 @@
 set (CMAKE_CXX_STANDARD 14)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LOG4CPP REQUIRED log4cpp)
+
 add_subdirectory (platformdescription)
 add_subdirectory (librmcommon)
 add_subdirectory (platformcontrol)
@@ -20,6 +23,7 @@ target_link_libraries(konro PUBLIC
     platformcontrol
     workloadmanager
     resourcepolicies
-    platformmonitor)
+    platformmonitor
+    ${LOG4CPP_LIBRARIES})
 
 configure_file(konro.ini.in konro.ini)

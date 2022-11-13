@@ -1,6 +1,7 @@
 #include "resourcepolicies.h"
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
+#include "threadname.h"
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -21,10 +22,12 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
 }
 
 ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy, int timerSeconds) :
+    cat_(log4cpp::Category::getRoot()),
     platformDescription_(pd),
     apps_(appMappingComp),
     timerSeconds_(timerSeconds)
 {
+    rmcommon::setThreadName("RPOL");
     policy_ = makePolicy(policy);
 }
 
@@ -48,10 +51,12 @@ void ResourcePolicies::start()
 {
     rpThread_ = thread(&ResourcePolicies::run, this);
     // If a timer was requested, start the thread now
-    if (timerSeconds_ > 0)
+    if (timerSeconds_ > 0) {
         timerThread_ = thread(&ResourcePolicies::timer, this);
-    else
-        cout << "ResourcePolicies: timer not started" << endl;
+    }
+    else {
+        cat_.info("RPOL timer not started");
+    }
 }
 
 ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &policyName)
@@ -66,36 +71,35 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
 
 void ResourcePolicies::run()
 {
-    cout << "ResourcePolicies thread starting\n";
+    cat_.info("RPOL thread starting");
     while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;
         bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
         if (!rc) {
-            cout << "ResourcePolicies: no message received\n";
+            cat_.debug("ResourcePolicies: no message received");
             continue;
         }
         processEvent(event);
     }
-    cout << "ResourcePolicies thread exiting\n";
+    cat_.info("RPOL thread exiting");
 }
 
 void ResourcePolicies::timer()
 {
-    cout << "ResourcePolicies timer thread starting\n";
+    cat_.info("RPOL timer thread starting");
     while (!stop_) {
         this_thread::sleep_for(chrono::seconds(timerSeconds_));
         addEvent(make_shared<rmcommon::TimerEvent>());
     }
-    cout << "ResourcePolicies timer thread exiting\n";
+    cat_.info("RPOL timer thread exiting");
 }
 
 void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
 #if 1
     ostringstream os;
-    os << "ResourcePolicies::run: received message => ";
-    os << *event << endl;
-    cout << os.str();
+    os << "RPOL received message => " << *event;
+    cat_.debug(os.str());
 #endif
 
     if (rmcommon::AddProcEvent *e = dynamic_cast<rmcommon::AddProcEvent *>(event.get())) {
@@ -131,27 +135,29 @@ void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 
 void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
 {
-    cout << "ResourcePolicies: timer event received\n";
+    cat_.debug("RPOL timer event received");
     policy_->timer();
 }
 
 void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
-    cout << "ResourcePolicies: monitor event received\n";
+    cat_.debug("RPOL monitor event received");
     cout << *ev << endl;
     policy_->monitor(ev);
 }
 
 void ResourcePolicies::dumpApps() const
 {
-    cout << "ResourcePolicies: handling PIDS {";
+    std::ostringstream os;
+    os << "RPOL handling PIDS {";
     bool first = true;
     for (auto &app: apps_) {
         if (first)
             first = false;
         else
-            cout << ",";
-        cout << app->getPid();
+            os << ",";
+        os << app->getPid();
     }
-    cout << "}" << endl;
+    os << "}";
+    cat_.info(os.str());
 }

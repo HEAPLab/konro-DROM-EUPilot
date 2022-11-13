@@ -30,7 +30,7 @@ void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
         short cpuNum = getRandNumber(platformDescription_.getNumProcessingUnits());
         rmcommon::CpusetVector vec{{cpuNum, cpuNum}};
         pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
-        appMapping->setCoreNum(vec);
+        appMapping->setPuVector(vec);
     } catch (exception &e) {
         // An exception can happen for a short lived process; the
         // process has died and the Workload Manager has already

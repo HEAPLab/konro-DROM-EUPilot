@@ -2,6 +2,7 @@
 #define PROCLISTENER_H
 
 #include "iprocobserver.h"
+#include <log4cpp/Category.hh>
 #include <cstdint>
 #include <cctype>
 #include <atomic>
@@ -30,6 +31,8 @@ class ProcListener final {
     std::atomic_bool stop_;
 
     IProcObserver *observer_;
+
+    log4cpp::Category &cat_;
 
     /*!
      * \brief Creates a socket for the Netlink protocol
@@ -73,7 +76,7 @@ class ProcListener final {
     void notify(std::uint8_t *data);
 
 public:
-    ProcListener() : observer_(nullptr) {
+    ProcListener() : observer_(nullptr), cat_(log4cpp::Category::getRoot()) {
     }
 
     void operator()() {

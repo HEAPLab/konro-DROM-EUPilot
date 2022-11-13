@@ -5,6 +5,7 @@
 #include "iprocobserver.h"
 #include "iplatformcontrol.h"
 #include "resourcepolicies.h"
+
 #include <set>
 #include <memory>
 

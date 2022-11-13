@@ -19,13 +19,12 @@ public:
     RemoveProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
 
     void printOnOstream(std::ostream &os) const override {
-        os << "RemoveProcEvent for PID " << app_->getPid() << std::endl;
+        os << "RemoveProcEvent { \"pid\":" << app_->getPid() << "}";
     }
 
     std::shared_ptr<rmcommon::App> getApp() const {
         return app_;
     }
-
 };
 
 }   // namespace rmcommon

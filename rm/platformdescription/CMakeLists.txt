@@ -1,4 +1,5 @@
 set(CMAKE_CXX_STANDARD 14)
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(HWLOC REQUIRED hwloc)
 
