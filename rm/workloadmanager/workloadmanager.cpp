@@ -44,6 +44,7 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
 WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid) :
     platformControl_(pc),
     resourcePolicies_(rp),
+    cat_(log4cpp::Category::getRoot()),
     pid_(0),
     apps_(appComp)
 {
@@ -89,19 +90,21 @@ void WorkloadManager::update(uint8_t *data)
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
-        cout << "WorkloadManager: PROC_EVENT_FORK received\n";
+        cat_.info("WRKMAN PROC_EVENT_FORK received");
         processForkEvent(data);
         break;
     case proc_event::PROC_EVENT_EXEC:
-        cout << "WorkloadManager: PROC_EVENT_EXEC received\n";
+        cat_.info("WRKMAN PROC_EVENT_EXEC received");
         processExecEvent(data);
         break;
     case proc_event::PROC_EVENT_EXIT:
-        cout << "WorkloadManager: PROC_EVENT_EXIT received\n";
+        cat_.info("WRKMAN PROC_EVENT_EXIT received");
         processExitEvent(data);
         break;
     default:
-        cout << "WorkloadManager: Event " << ev->what << " received\n";
+        ostringstream os;
+        os << "WRKMAN event " << ev->what << " received";
+        cat_.info(os.str());
         break;
     }
 }
@@ -121,6 +124,7 @@ void WorkloadManager::processForkEvent(uint8_t *data)
         add(app);
 
         ostringstream os;
+#if 0
         os << "    parent_pid:"
            << ev->event_data.fork.parent_pid
            << " (" << getProcessNameByPid(ev->event_data.fork.parent_pid) << ")"
@@ -135,6 +139,19 @@ void WorkloadManager::processForkEvent(uint8_t *data)
            << ev->event_data.fork.child_tgid
            << " was forked" << endl;
         cout << os.str();
+#endif
+        os << "WMAN fork {"
+           << "\"parent_pid\":"
+           << ev->event_data.fork.parent_pid
+           << ",\"parent_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.parent_pid) << '\''
+           << ",\"child_pid\":"
+           << ev->event_data.fork.child_pid
+           << ",\"child_tgid\":"
+           << ev->event_data.fork.child_tgid
+           << ",\"child_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.child_pid) << '\''
+           << "}";
+        cat_.info(os.str());
+
     }
     dumpApps();
 }
@@ -146,11 +163,21 @@ void WorkloadManager::processExecEvent(uint8_t *data)
     if (isInKonro(pid)) {
         shared_ptr<rmcommon::App> app = getApp(pid);
         app->setName(getProcessNameByPid(pid));
-
+#if 0
         cout << "    process_pid:" << ev->event_data.exec.process_pid
              << " (" << getProcessNameByPid(ev->event_data.exec.process_pid) << ")"
              << " exec" << endl;
         cout << "    process_tgid:" << ev->event_data.exec.process_tgid << endl;
+#endif
+        ostringstream os;
+        os << "WMAN exec {"
+           << "\"process_pid\":"
+           << ev->event_data.exec.process_pid
+           << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exec.process_pid) << '\''
+           << ",\"process_tgid\":"
+           << ev->event_data.exec.process_pid
+           << "}";
+        cat_.info(os.str());
     }
 }
 
@@ -161,7 +188,7 @@ void WorkloadManager::processExitEvent(uint8_t *data)
     pid_t pid = ev->event_data.exit.process_pid;
     if (isInKonro(pid)) {
         remove(pid);
-
+#if 0
         cout << "    process_pid:" << ev->event_data.exit.process_pid
              << " (" << getProcessNameByPid(ev->event_data.exit.process_pid) << ")"
              << " exited" << endl;
@@ -169,22 +196,34 @@ void WorkloadManager::processExitEvent(uint8_t *data)
              << " (" << getProcessNameByPid(ev->event_data.exit.parent_pid) << ")"
              << " exited" << endl;
         cout << "    process_tgid:" << ev->event_data.exit.process_tgid << " exited" << endl;
+#endif
+        ostringstream os;
+        os << "WMAN exec {"
+           << "\"process_pid\":"
+           << ev->event_data.exit.process_pid
+           << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exit.process_pid) << '\''
+           << ",\"process_tgid\":"
+           << ev->event_data.exit.process_tgid
+           << "}";
+        cat_.info(os.str());
     }
     dumpApps();
 }
 
 void WorkloadManager::dumpApps()
 {
-    cout << "WorkloadManager: monitoring PIDS {";
+    ostringstream os;
+    os << "WRKMAN: monitoring PIDS [";
     bool first = true;
     for (auto &app: apps_) {
         if (first)
             first = false;
         else
-            cout << ",";
-        cout << app->getPid();
+            os << ",";
+        os << app->getPid();
     }
-    cout << "}" << endl;
+    os << "]";
+    cat_.info(os.str());
 }
 
 }   // namespace wm

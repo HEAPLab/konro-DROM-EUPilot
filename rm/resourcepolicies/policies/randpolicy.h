@@ -2,6 +2,8 @@
 #define RANDPOLICY_H
 
 #include "ibasepolicy.h"
+#include <log4cpp/Category.hh>
+
 /*!
  * \class random resource management policy
  *
@@ -9,6 +11,7 @@
  */
 class RandPolicy : public IBasePolicy {
     PlatformDescription platformDescription_;
+    log4cpp::Category &cat_;
 public:
     explicit RandPolicy(PlatformDescription pd);
     virtual const char *name() override {

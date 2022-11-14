@@ -63,8 +63,6 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
 {
     if (policyName == "RandPolicy")
         return ResourcePolicies::Policy::RandPolicy;
-    else if (policyName == "NoPolicy")
-        return ResourcePolicies::Policy::NoPolicy;
     else
         return ResourcePolicies::Policy::NoPolicy;
 }
@@ -76,7 +74,6 @@ void ResourcePolicies::run()
         shared_ptr<rmcommon::BaseEvent> event;
         bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
         if (!rc) {
-            cat_.debug("ResourcePolicies: no message received");
             continue;
         }
         processEvent(event);
@@ -142,7 +139,6 @@ void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
 void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
     cat_.debug("RPOL monitor event received");
-    cout << *ev << endl;
     policy_->monitor(ev);
 }
 

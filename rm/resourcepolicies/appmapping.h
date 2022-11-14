@@ -28,7 +28,7 @@ class AppMapping {
 public:
     typedef std::shared_ptr<AppMapping> AppMappingPtr;
 
-    explicit AppMapping(std::shared_ptr<rmcommon::App> app);
+    AppMapping(std::shared_ptr<rmcommon::App> app) : app_(app) {}
     ~AppMapping() = default;
 
     /*!

@@ -94,9 +94,6 @@ private:
 public:
 
     /*!
-     * \brief ResourcePolicies
-     * \param pd the PlatformDescription
-     * \param policy the Policy to create
      * \param timerSeconds if 0, then the internal timer thread is not started
      */
     ResourcePolicies(PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
@@ -124,7 +121,8 @@ public:
     }
 
     /*!
-     * \brief Gets the name of the used reseource policy
+     * Return the policy with the specified name.
+     * If no policy exists with that name, NoPolicy is returned.
      */
     static Policy getPolicyByName(const std::string &policyName);
 };

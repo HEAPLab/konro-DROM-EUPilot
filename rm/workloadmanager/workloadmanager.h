@@ -5,7 +5,7 @@
 #include "iprocobserver.h"
 #include "iplatformcontrol.h"
 #include "resourcepolicies.h"
-
+#include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
 
@@ -17,6 +17,9 @@ class WorkloadManager : public IProcObserver {
     pc::IPlatformControl &platformControl_;
 
     ResourcePolicies &resourcePolicies_;
+
+    log4cpp::Category &cat_;
+
     /*! pid to monitor */
     int pid_;
 

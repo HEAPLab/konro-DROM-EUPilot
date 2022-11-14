@@ -1,7 +1,9 @@
 #ifndef PLATFORMPOWER_H
 #define PLATFORMPOWER_H
 namespace rmcommon {
-
+/*!
+ * \class encapsulates power information about the machine
+ */
 class PlatformPower {
     int batteryCurrent_;
     int batteryVoltage_;

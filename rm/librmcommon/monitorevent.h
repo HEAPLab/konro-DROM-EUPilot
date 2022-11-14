@@ -15,7 +15,10 @@ class MonitorEvent : public BaseEvent {
     PlatformTemperature platTemp_;
     PlatformPower platPower_;
 public:
-    MonitorEvent(PlatformTemperature temp, PlatformPower power);
+    MonitorEvent(PlatformTemperature temp, PlatformPower power) :
+        platTemp_(temp),
+        platPower_(power)
+    {}
     virtual ~MonitorEvent() = default;
 
     PlatformTemperature getPlatformTemperature() {
@@ -26,7 +29,7 @@ public:
         return platPower_;
     }
 
-    void printOnOstream(std::ostream &os) const override;
+    //void printOnOstream(std::ostream &os) const override;
 };
 
 }   // namespace rmcommon

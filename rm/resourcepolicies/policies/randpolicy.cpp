@@ -2,6 +2,7 @@
 #include "cpusetcontrol.h"
 #include "cpusetvector.h"
 #include <iostream>
+#include <sstream>
 #include <random>
 #include <utility>
 
@@ -20,15 +21,16 @@ int getRandNumber(int cpusNum)
 }
 
 RandPolicy::RandPolicy(PlatformDescription pd) :
-    platformDescription_(pd)
+    platformDescription_(pd),
+    cat_(log4cpp::Category::getRoot())
 {
 }
 
 void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
 {
     try {
-        short cpuNum = getRandNumber(platformDescription_.getNumProcessingUnits());
-        rmcommon::CpusetVector vec{{cpuNum, cpuNum}};
+        short puNum = getRandNumber(platformDescription_.getNumProcessingUnits());
+        rmcommon::CpusetVector vec{{puNum, puNum}};
         pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
         appMapping->setPuVector(vec);
     } catch (exception &e) {
@@ -37,7 +39,9 @@ void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
         // removed the cgroup directory for the process, but the
         // Resource Policicy Manager has not yet received the
         // corresponding RemoveProcEvent from the WorkloadManager
-        cout << "RandPolicy::addApp: caught exception " << e.what() << endl;
+        ostringstream os;
+        os << "RANDPOLICY addApp: EXCEPTION " << e.what();
+        cat_.error(os.str());
     }
 }
 
