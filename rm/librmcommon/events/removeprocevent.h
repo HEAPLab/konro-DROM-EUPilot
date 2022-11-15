@@ -2,7 +2,7 @@
 #define REMOVEPROCEVENT_H
 
 #include "baseevent.h"
-#include "app.h"
+#include "../app.h"
 #include <iostream>
 
 namespace rmcommon {
@@ -18,12 +18,14 @@ public:
 
     RemoveProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
 
-    void printOnOstream(std::ostream &os) const override {
-        os << "RemoveProcEvent { \"pid\":" << app_->getPid() << "}";
-    }
-
     std::shared_ptr<rmcommon::App> getApp() const {
         return app_;
+    }
+
+    void printOnOstream(std::ostream &os) const override {
+        os << "{\"pid\":"
+           << app_->getPid()
+           << "}";
     }
 };
 

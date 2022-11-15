@@ -2,9 +2,10 @@
 #define MONITOREVENT_H
 
 #include "baseevent.h"
-#include "platformpower.h"
-#include "platformtemperature.h"
+#include "../platformpower.h"
+#include "../platformtemperature.h"
 #include <vector>
+#include <iostream>
 
 namespace rmcommon {
 
@@ -29,7 +30,12 @@ public:
         return platPower_;
     }
 
-    //void printOnOstream(std::ostream &os) const override;
+    virtual void printOnOstream(std::ostream &os) const {
+        os << "{";
+        os << "\"platTemp\":" << platTemp_;
+        os << ",\"platPower\":" << platPower_;
+        os << "}";
+    }
 };
 
 }   // namespace rmcommon

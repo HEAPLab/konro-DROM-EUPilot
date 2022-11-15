@@ -22,15 +22,18 @@ struct ComponentTemperature {
     int emergencyTemp_;
 
     explicit ComponentTemperature() {
-        num_ = temp_ = maxTemp_ = critTemp_ = -1;
+        label_ = nullptr;
+        num_ = temp_ = maxTemp_ = minTemp_ = highestTemp_ = lowestTemp_ = critTemp_ = emergencyTemp_ =-1;
     }
 
     friend std::ostream &operator << (std::ostream &os, const ComponentTemperature &ct) {
-        os << "ComponentTemperature: "
-           << ct.label_
-           << ", temp=" << ct.temp_
-           << ", max temp=" << ct.maxTemp_
-           << ", crit temp=" << ct.critTemp_;
+        os << "{"
+           << "\"num\":" << ct.num_
+           << ",\"label\":" << '"' << ct.label_ << '"'
+           << ",\"temp\":" << ct.temp_
+           << ",\"maxTemp\":" << ct.maxTemp_
+           << ",\"critTemp\":" << ct.critTemp_
+           <<"}";
         return os;
     }
 };

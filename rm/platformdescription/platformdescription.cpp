@@ -153,10 +153,17 @@ void PlatformDescription::logTopology()
     cat_.info("PDESC total SWAP %lu KB", (unsigned long)totalSwapKB_);
     vector<ProcessingUnitMapping> coreTopo = getTopology();
     ostringstream os;
+    os << "PDESC: ";
+    os << "[";
+    bool first = true;
     for (const auto &pu: coreTopo) {
-        os << "PDESC " << pu;
-        cat_.info(os.str());
-        os.str("");
+        if (first)
+            first = false;
+        else
+            os << ',';
+        os << pu;
     }
+    os << "]";
+    cat_.info(os.str());
     cat_.info("PDESC ----- TOPOLOGY END -----");
 }

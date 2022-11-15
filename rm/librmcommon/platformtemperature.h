@@ -3,6 +3,7 @@
 
 #include "componenttemperature.h"
 #include <vector>
+#include <iostream>
 
 namespace rmcommon {
 /*!
@@ -49,6 +50,35 @@ public:
       std::vector<rmcommon::ComponentTemperature> getCoresTemperature() {
          return cores_;
      }
+
+    friend std::ostream &operator << (std::ostream &os, const PlatformTemperature &pt) {
+        bool first;
+        os << "{"
+           << "\"cpus\":";
+        os << "[";
+        first = true;
+        for (const auto &cpu: pt.cpus_) {
+            if (first)
+                first = false;
+            else
+                os << ',';
+            os << cpu;
+        }
+        os << "]";
+        os << ",\"cores\":";
+        os << "[";
+        first = true;
+        for (const auto &core: pt.cores_) {
+            if (first)
+                first = false;
+            else
+                os << ',';
+            os << core;
+        }
+        os << "]";
+        os << "}";
+        return os;
+    }
 };
 
 }   // namespace rmcommon

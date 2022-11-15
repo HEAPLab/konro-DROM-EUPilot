@@ -2,7 +2,7 @@
 #define ADDPROCEVENT_H
 
 #include "baseevent.h"
-#include "app.h"
+#include "../app.h"
 #include <memory>
 #include <iostream>
 
@@ -19,14 +19,13 @@ public:
 
     AddProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
 
-    void printOnOstream(std::ostream &os) const override {
-        os << "AddProcEvent { \"pid\":" << app_->getPid() << "}";
-    }
-
     std::shared_ptr<rmcommon::App> getApp() const {
         return app_;
     }
 
+    void printOnOstream(std::ostream &os) const override {
+        os << "{\"pid\":" << app_->getPid() << "}";
+    }
 };
 
 }   // namespace rmcommon

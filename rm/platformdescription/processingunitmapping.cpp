@@ -14,10 +14,10 @@ ProcessingUnitMapping::ProcessingUnitMapping(int osPuIdx) :
 
 void ProcessingUnitMapping::printOnOstream(std::ostream &os) const
 {
-    os << "ProcessingUnit {"
+    os << "{"
        << "\"idx\":" << osPuIdx_
-       << ",\"core\":" << osCoreIdx_
        << ",\"cpu\":" << osCpuIdx_
+       << ",\"core\":" << osCoreIdx_
        << ",\"L1cache\":" << osCacheIdx[0]
        << ",\"L2cache\":" << osCacheIdx[1]
        << ",\"L3cache\":" << osCacheIdx[2]
