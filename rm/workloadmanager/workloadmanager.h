@@ -15,11 +15,8 @@ namespace wm {
  */
 class WorkloadManager : public IProcObserver {
     pc::IPlatformControl &platformControl_;
-
     ResourcePolicies &resourcePolicies_;
-
     log4cpp::Category &cat_;
-
     /*! pid to monitor */
     int pid_;
 

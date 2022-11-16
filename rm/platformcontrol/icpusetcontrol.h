@@ -16,25 +16,25 @@ class ICpusetControl {
 public:
 
     /*!
-     * Requests the use of a set of cpus by the application.
-     * \param cpus the vector of requested cpus
+     * Requests the use of a set of processing units by the application.
+     * \param cpus the vector of requested processing units
      * \param app the application to limit
      */
     virtual void setCpus(const rmcommon::CpusetVector &cpus, std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
-     * Returns the list of cpus that are requested by the specified application
-     * as a vector of pairs.
+     * Returns the list of processing units that are requested by the specified
+     * application as a vector of pairs.
      * \param app the application of interest
-     * \returns the cpus requested for use by the application
+     * \returns the processing units requested for use by the application
      */
     virtual rmcommon::CpusetVector getCpus(std::shared_ptr<rmcommon::App> app) = 0;
 
     /*!
-     * Returns the list of cpus that are granted to the specified application
-     * as a vector of pairs.
+     * Returns the list of processing units that are granted to the specified
+     * application as a vector of pairs.
      * \param app the application of interest
-     * \returns the cpus available for use by the application
+     * \returns the processing units available for use by the application
      */
     virtual rmcommon::CpusetVector getCpusEffective(std::shared_ptr<rmcommon::App> app) = 0;
 

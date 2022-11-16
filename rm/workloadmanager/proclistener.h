@@ -20,18 +20,13 @@ class ProcListener final {
     };
 
     int errno_;
-
     /*! Netlink socket */
     int nl_socket_;
-
     /*! unique id used for Netlink communication */
     unsigned int nl_pid_;
-
     /*! stop flag for the thread */
     std::atomic_bool stop_;
-
     IProcObserver *observer_;
-
     log4cpp::Category &cat_;
 
     /*!
@@ -63,13 +58,13 @@ class ProcListener final {
     /*!
      * Receives a Netlink message from the kernel (Proc Connector)
      *
-     * \param socket
-     * \param buffer
-     * \param buffer_size
-     * \return The outcome of the operation
+     * \return the outcome of the operation
      */
     bool receiveConnectorNetlinkMessage(int socket, void *buffer, std::size_t bufferSize);
 
+    /*!
+     * \brief Notifies the WorkloadManager of a new event
+     */
     void processEvent(std::uint8_t *data);
     void run();
 

@@ -124,22 +124,7 @@ void WorkloadManager::processForkEvent(uint8_t *data)
         add(app);
 
         ostringstream os;
-#if 0
-        os << "    parent_pid:"
-           << ev->event_data.fork.parent_pid
-           << " (" << getProcessNameByPid(ev->event_data.fork.parent_pid) << ")"
-           << " forked" << endl;
-        os << "   parent_tgid:"
-           << ev->event_data.fork.parent_tgid << endl;
-        os << "     child_pid:"
-           << ev->event_data.fork.child_pid
-           << " (" << getProcessNameByPid(ev->event_data.fork.child_pid) << ")"
-           << " was forked" << endl;
-        os << "    child_tgid:"
-           << ev->event_data.fork.child_tgid
-           << " was forked" << endl;
-        cout << os.str();
-#endif
+
         os << "WMAN fork {"
            << "\"parent_pid\":"
            << ev->event_data.fork.parent_pid
@@ -163,12 +148,7 @@ void WorkloadManager::processExecEvent(uint8_t *data)
     if (isInKonro(pid)) {
         shared_ptr<rmcommon::App> app = getApp(pid);
         app->setName(getProcessNameByPid(pid));
-#if 0
-        cout << "    process_pid:" << ev->event_data.exec.process_pid
-             << " (" << getProcessNameByPid(ev->event_data.exec.process_pid) << ")"
-             << " exec" << endl;
-        cout << "    process_tgid:" << ev->event_data.exec.process_tgid << endl;
-#endif
+
         ostringstream os;
         os << "WMAN exec {"
            << "\"process_pid\":"
@@ -188,15 +168,7 @@ void WorkloadManager::processExitEvent(uint8_t *data)
     pid_t pid = ev->event_data.exit.process_pid;
     if (isInKonro(pid)) {
         remove(pid);
-#if 0
-        cout << "    process_pid:" << ev->event_data.exit.process_pid
-             << " (" << getProcessNameByPid(ev->event_data.exit.process_pid) << ")"
-             << " exited" << endl;
-        cout << "    parent_pid:" << ev->event_data.exit.parent_pid
-             << " (" << getProcessNameByPid(ev->event_data.exit.parent_pid) << ")"
-             << " exited" << endl;
-        cout << "    process_tgid:" << ev->event_data.exit.process_tgid << " exited" << endl;
-#endif
+
         ostringstream os;
         os << "WMAN exec {"
            << "\"process_pid\":"

@@ -20,6 +20,14 @@ public:
         batteryVoltage_ = val;
     }
 
+    int getBatteryCurrent() {
+        return batteryCurrent_;
+    }
+
+    int getBatteryVoltage() {
+        return batteryVoltage_;
+    }
+
     friend std::ostream &operator << (std::ostream &os, const PlatformPower &pp) {
         os << "{";
         os << "\"batteryCurrent\":" << pp.batteryCurrent_;
