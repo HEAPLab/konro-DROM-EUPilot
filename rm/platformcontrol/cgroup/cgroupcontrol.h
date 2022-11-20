@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <unistd.h>
+#include <log4cpp/Category.hh>
 
 namespace pc {
 
@@ -17,6 +18,8 @@ namespace pc {
  * \class a class for interacting with the cgroup hieararchy
  */
 class CGroupControl : public IPlatformControl {
+
+    log4cpp::Category &cat_;
 
     /*!
      * Checks if the specified controller interface file exists in a folder.
@@ -29,6 +32,7 @@ class CGroupControl : public IPlatformControl {
     void checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const;
 
 public:
+    CGroupControl();
     virtual ~CGroupControl();
 
     /*!

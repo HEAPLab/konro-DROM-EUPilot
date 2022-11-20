@@ -148,12 +148,12 @@ void PlatformDescription::initMemoryInfo()
 
 void PlatformDescription::logTopology()
 {
-    cat_.info("PDESC ----- TOPOLOGY START -----");
-    cat_.info("PDESC total RAM %lu KB", (unsigned long)totalRamKB_);
-    cat_.info("PDESC total SWAP %lu KB", (unsigned long)totalSwapKB_);
+    cat_.info("PLATFORMDESCRIPTION ----- TOPOLOGY START -----");
+    cat_.info("PLATFORMDESCRIPTION total RAM %lu KB", (unsigned long)totalRamKB_);
+    cat_.info("PLATFORMDESCRIPTION total SWAP %lu KB", (unsigned long)totalSwapKB_);
     vector<ProcessingUnitMapping> coreTopo = getTopology();
     ostringstream os;
-    os << "PDESC: ";
+    os << "PLATFORMDESCRIPTION: ";
     os << "[";
     bool first = true;
     for (const auto &pu: coreTopo) {
@@ -165,5 +165,5 @@ void PlatformDescription::logTopology()
     }
     os << "]";
     cat_.info(os.str());
-    cat_.info("PDESC ----- TOPOLOGY END -----");
+    cat_.info("PLATFORMDESCRIPTION ----- TOPOLOGY END -----");
 }

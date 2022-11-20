@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
+#include <log4cpp/Category.hh>
 
 using namespace std;
 
@@ -69,6 +70,8 @@ void activateController(const char *controllerName, const string &cgroupPath)
     // [2] : "fs"
     // [3] : "cgroup"
     // [4] : "konro.slice"
+    log4cpp::Category &cat = log4cpp::Category::getRoot();
+
     vector<string> subPath = rmcommon::tsplit(cgroupPath, "/");
     string currentFolder = rmcommon::make_path("/" + subPath[1], subPath[2]);
     for (int i = 3; i < subPath.size()-1; ++i) {
@@ -78,6 +81,7 @@ void activateController(const char *controllerName, const string &cgroupPath)
         if (!fileStream.is_open()) {
             throwCouldNotOpenFile(__func__, currentFile);
         }
+        cat.debug("activateController: adding %s to %s", controllerName, currentFile.c_str());
         fileStream << (string("+") + controllerName);
         fileStream.close();
     }

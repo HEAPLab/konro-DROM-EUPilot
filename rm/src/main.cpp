@@ -25,7 +25,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-static void testWorkloadManager(int pid, std::string policy, int timerSeconds);
+static void testWorkloadManager(int pid, std::string policy, int timerSeconds, int monitorPeriod);
 static void testPlatformDescription();
 static std::string configFilePath();
 
@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
     std::string policy;
     // For the ResourcePolicies internal timer
     int timerSeconds = 30;       // 0 means "no timer"
+    int monitorPeriod = 20;
 
     std::string konroConfigFile = configFilePath();
 
@@ -61,6 +62,8 @@ int main(int argc, char *argv[])
             root.info("MAIN policy = %s", policy.c_str());
             timerSeconds = config.read<int>("resourcepolicies", "timerseconds");
             root.info("MAIN timer seconds = %d", timerSeconds);
+            monitorPeriod = config.read<int>("platformmonitor", "monitorperiod");
+            root.info("MAIN monitor period = %d", monitorPeriod);
         } catch (std::logic_error &e) {
             root.error("MAIN could not parse Konro configuration %s", konroConfigFile.c_str());
         }
@@ -74,7 +77,7 @@ int main(int argc, char *argv[])
 
     if (argc >= 2) {
         int pidToMonitor = atoi(argv[1]);
-        testWorkloadManager(pidToMonitor, policy, timerSeconds);
+        testWorkloadManager(pidToMonitor, policy, timerSeconds, monitorPeriod);
     }
 
     root.info("MAIN exiting");
@@ -117,7 +120,7 @@ static void trapCtrlC()
 #endif
 }
 
-static void testWorkloadManager(int pid, std::string policyName, int timerSeconds)
+static void testWorkloadManager(int pid, std::string policyName, int timerSeconds, int monitorPeriod)
 {    
     log4cpp::Category::getRoot().info("MAIN WorkloadManager test starting");
 
@@ -129,7 +132,7 @@ static void testWorkloadManager(int pid, std::string policyName, int timerSecond
     PlatformDescription pd;
     ResourcePolicies rp(pd, policy, timerSeconds);
     wm::WorkloadManager workloadManager(cgc, rp, pid);
-    PlatformMonitor pm(rp);
+    PlatformMonitor pm(rp, monitorPeriod);
 
     log4cpp::Category::getRoot().info("MAIN starting ResourcePolicies thread");
     rp.start();

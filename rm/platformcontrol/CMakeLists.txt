@@ -25,7 +25,7 @@ target_include_directories(platformcontrol INTERFACE .)
 target_include_directories(platformcontrol INTERFACE cgroup/controllers)
 target_include_directories(platformcontrol INTERFACE utilities)
 
-target_link_libraries(platformcontrol PRIVATE rmcommon)
+target_link_libraries(platformcontrol PRIVATE rmcommon ${LOG4CPP_LIBRARIES})
 
 file(GLOB tpc_SOURCES "tpc/*.cpp")
 file(GLOB tpc_HEADERS "tpc/*.h")

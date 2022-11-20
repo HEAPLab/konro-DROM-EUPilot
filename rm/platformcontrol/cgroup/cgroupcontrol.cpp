@@ -10,6 +10,11 @@ using namespace std;
 
 namespace pc {
 
+CGroupControl::CGroupControl() :
+    cat_(log4cpp::Category::getRoot())
+{
+}
+
 CGroupControl::~CGroupControl()
 {
 }
@@ -76,12 +81,16 @@ void CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
     rmcommon::Dir::mkdir_r(cgroupAppBaseDir.c_str());
+    cat_.info("CGROUPCONTROL addApplication: move PID %ld to cgroup directory %s",
+              (long)app->getPid(), cgroupAppBaseDir.c_str());
     util::moveToCgroup(cgroupAppBaseDir, app->getPid());
 }
 
 void CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
+    cat_.info("CGROUPCONTROL removeApplication PID %ld: remove cgroup directory %s",
+              (long)app->getPid(), cgroupAppBaseDir.c_str());
     rmcommon::Dir::rmdir(cgroupAppBaseDir.c_str());
 }
 

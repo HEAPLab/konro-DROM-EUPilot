@@ -5,6 +5,7 @@
 #include <sstream>
 #include <random>
 #include <utility>
+#include <log4cpp/Category.hh>
 
 using namespace std;
 /*!
@@ -21,27 +22,25 @@ int getRandNumber(int cpusNum)
 }
 
 RandPolicy::RandPolicy(PlatformDescription pd) :
-    platformDescription_(pd),
-    cat_(log4cpp::Category::getRoot())
+    platformDescription_(pd)
 {
 }
 
 void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
 {
+    pid_t pid = appMapping->getPid();
     try {
+        log4cpp::Category::getRoot().debug("RANDPOLICY addApp PID %ld", (long)pid);
         short puNum = getRandNumber(platformDescription_.getNumProcessingUnits());
-        rmcommon::CpusetVector vec{{puNum, puNum}};
-        pc::CpusetControl::instance().setCpus(vec, appMapping->getApp());
-        appMapping->setPuVector(vec);
+        appMapping->setPuVector({{puNum, puNum}});
     } catch (exception &e) {
         // An exception can happen for a short lived process; the
         // process has died and the Workload Manager has already
         // removed the cgroup directory for the process, but the
         // Resource Policicy Manager has not yet received the
         // corresponding RemoveProcEvent from the WorkloadManager
-        ostringstream os;
-        os << "RANDPOLICY addApp: EXCEPTION " << e.what();
-        cat_.error(os.str());
+        log4cpp::Category::getRoot().error("RANDPOLICY addApp PID %ld: EXCEPTION %s",
+                                           (long)pid, e.what());
     }
 }
 

@@ -47,7 +47,6 @@ bool ProcListener::bindNetlinkSocket(int sock, unsigned int pid)
 
 bool ProcListener::sendNetlinkMessage(int sock, void *buf, std::size_t bufsize, unsigned int pid, unsigned int groups)
 {
-
     sockaddr_nl dstAddr;
     memset(&dstAddr, 0, sizeof(dstAddr));
     dstAddr.nl_family = AF_NETLINK;
@@ -72,7 +71,7 @@ bool ProcListener::sendNetlinkMessage(int sock, void *buf, std::size_t bufsize, 
     int rc = true;
     ssize_t nsent = sendmsg(sock, &msg, 0);
     ostringstream os;
-    os << "PROCL sendNetlinkMessage: nsent is " << nsent << ", nlmsgSize is " << bufsize;
+    os << "PROCLISTENER sendNetlinkMessage: nsent is " << nsent << ", nlmsgSize is " << bufsize;
     cat_.debug(os.str());
 
     if (nsent < 0 || (size_t)nsent != bufsize) {
@@ -148,12 +147,12 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
     if (nBytes <= 0) {
         errno_ = errno;
         ostringstream os;
-        os << "PROCL receiveConnectorNetlinkMessage: nBytes is " << nBytes << ", errno is " << errno;
+        os << "PROCLISTENER receiveConnectorNetlinkMessage: nBytes is " << nBytes << ", errno is " << errno;
         cat_.debug(os.str());
         return false;
     }
 
-    cat_.debug("PROCL message received by thread from pid %u", (unsigned int)srcAddr.nl_pid);
+    //cat_.debug("PROCLISTENER message received by thread from pid %u", (unsigned int)srcAddr.nl_pid);
 
     // While the nl_hdr points to a valid message, keep processing
     while (NLMSG_OK(nl_hdr, nBytes)) {
@@ -167,7 +166,7 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
             return false;
         } else if (msg_type == NLMSG_STOP_MESSAGE_TYPE) {
             // this is our own message
-            cat_.info("PROCL thread terminating");
+            cat_.info("PROCLISTENER stop message received");
             stop_ = true;
             return true;
         }
@@ -193,44 +192,29 @@ void ProcListener::processEvent(uint8_t *data)
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
-        cat_.debug("PROCL PROC_EVENT_FORK received");
-        notify(data);
-        break;
     case proc_event::PROC_EVENT_EXEC:
-        cat_.debug("PROCL PROC_EVENT_EXEC received");
-        notify(data);
-        break;
     case proc_event::PROC_EVENT_EXIT:
-        cat_.debug("PROCL PROC_EVENT_EXIT received");
         notify(data);
-        break;
-    case proc_event::PROC_EVENT_COMM:
-        // detect changes to process name (/proc/PID/comm)
-        cat_.debug("PROCL PROC_EVENT_COMM received (ignored)");
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
            PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */
     default:
-        {
-            ostringstream os;
-            os << "PROCL event " << ev->what << " received (ignored)";
-            cat_.debug(os.str());
-        }
+        // ignore event
         break;
     }
 }
 
 void ProcListener::run()
 {
-    cat_.info("PROCL running");
+    cat_.info("PROCLISTENER running");
     nl_socket_ = createNetlinkSocket();
     if (nl_socket_ == -1) {
-        cat_.error("PROCL could not create Netlink socket %s", strerror(errno));
+        cat_.error("PROCLISTENER could not create Netlink socket %s", strerror(errno));
         return;
     }
     nl_pid_ = gettid();
     if (!bindNetlinkSocket(nl_socket_, nl_pid_)) {
-        cat_.error("PROCL could not bind Netlink socket %s", strerror(errno));
+        cat_.error("PROCLISTENER could not bind Netlink socket %s", strerror(errno));
         close(nl_socket_);
         nl_socket_ = -1;
         nl_pid_ = -1;
@@ -238,7 +222,7 @@ void ProcListener::run()
     }
 
     if (!sendConnectorNetlinkMessageToKernel(nl_socket_, LISTEN)) {
-        cat_.error("PROCL could not register %s", strerror(errno));
+        cat_.error("PROCLISTENER could not register %s", strerror(errno));
         close(nl_socket_);
         nl_socket_ = -1;
         nl_pid_ = -1;
@@ -251,7 +235,7 @@ void ProcListener::run()
     stop_ = false;
     while (!stop_) {
         if (!receiveConnectorNetlinkMessage(nl_socket_, buffer, sizeof(buffer))) {
-            cat_.error("PROCL error in receiveMessage: exiting");
+            cat_.error("PROCLISTENER error in receiveMessage: exiting");
             break;
         }
     }
@@ -260,7 +244,7 @@ void ProcListener::run()
 
     sendConnectorNetlinkMessageToKernel(nl_socket_, IGNORE);
 
-    cat_.info("ProcConn exiting");
+    cat_.info("PROCLISTENER exiting");
 }
 
 void ProcListener::notify(uint8_t *data)
@@ -273,11 +257,11 @@ bool ProcListener::stop()
 {
     // Sender
 
-    cat_.debug("PROCL sending STOP message from thread %ld", (long)gettid());
+    cat_.debug("PROCLISTENER sending STOP message from thread %ld", (long)gettid());
 
     int sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
     if (sock == -1) {
-        perror("stop socket");
+        perror("PROCLISTENER socket");
         errno_ = errno;
         return false;
     }
@@ -300,10 +284,10 @@ bool ProcListener::stop()
 #endif
 
     if (!sendConnectorNetlinkMessageToThread(sock, MessageData::STOP)) {
-        cat_.error("PROCL could not send STOP message to thread");
+        cat_.error("PROCLISTENER could not send STOP message to thread");
         return false;
     } else {
-        cat_.debug("PROCL STOP message successfully sent to thread");;
+        cat_.debug("PROCLISTENER STOP message successfully sent to thread");;
         return true;
     }
 }

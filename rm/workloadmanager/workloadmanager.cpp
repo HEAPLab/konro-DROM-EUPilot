@@ -81,7 +81,6 @@ bool WorkloadManager::isInKonro(pid_t pid)
 {
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     return apps_.find(key) != end(apps_);
-
 }
 
 void WorkloadManager::update(uint8_t *data)
@@ -90,20 +89,17 @@ void WorkloadManager::update(uint8_t *data)
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
-        cat_.info("WRKMAN PROC_EVENT_FORK received");
         processForkEvent(data);
         break;
     case proc_event::PROC_EVENT_EXEC:
-        cat_.info("WRKMAN PROC_EVENT_EXEC received");
         processExecEvent(data);
         break;
     case proc_event::PROC_EVENT_EXIT:
-        cat_.info("WRKMAN PROC_EVENT_EXIT received");
         processExitEvent(data);
         break;
     default:
         ostringstream os;
-        os << "WRKMAN event " << ev->what << " received";
+        os << "WORKLOADMANAGER event " << ev->what << " received";
         cat_.info(os.str());
         break;
     }
@@ -124,8 +120,7 @@ void WorkloadManager::processForkEvent(uint8_t *data)
         add(app);
 
         ostringstream os;
-
-        os << "WMAN fork {"
+        os << "WORKLOADMANAGER fork {"
            << "\"parent_pid\":"
            << ev->event_data.fork.parent_pid
            << ",\"parent_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.parent_pid) << '\''
@@ -136,9 +131,8 @@ void WorkloadManager::processForkEvent(uint8_t *data)
            << ",\"child_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.child_pid) << '\''
            << "}";
         cat_.info(os.str());
-
+        dumpMonitoredApps();
     }
-    dumpApps();
 }
 
 void WorkloadManager::processExecEvent(uint8_t *data)
@@ -150,7 +144,7 @@ void WorkloadManager::processExecEvent(uint8_t *data)
         app->setName(getProcessNameByPid(pid));
 
         ostringstream os;
-        os << "WMAN exec {"
+        os << "WORKLOADMANAGER exec {"
            << "\"process_pid\":"
            << ev->event_data.exec.process_pid
            << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exec.process_pid) << '\''
@@ -158,6 +152,7 @@ void WorkloadManager::processExecEvent(uint8_t *data)
            << ev->event_data.exec.process_pid
            << "}";
         cat_.info(os.str());
+        dumpMonitoredApps();
     }
 }
 
@@ -170,7 +165,7 @@ void WorkloadManager::processExitEvent(uint8_t *data)
         remove(pid);
 
         ostringstream os;
-        os << "WMAN exec {"
+        os << "WORKLOADMANAGER exec {"
            << "\"process_pid\":"
            << ev->event_data.exit.process_pid
            << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exit.process_pid) << '\''
@@ -178,14 +173,14 @@ void WorkloadManager::processExitEvent(uint8_t *data)
            << ev->event_data.exit.process_tgid
            << "}";
         cat_.info(os.str());
+        dumpMonitoredApps();
     }
-    dumpApps();
 }
 
-void WorkloadManager::dumpApps()
+void WorkloadManager::dumpMonitoredApps()
 {
     ostringstream os;
-    os << "WRKMAN: monitoring PIDS [";
+    os << "WORKLOADMANAGER monitoring PIDS [";
     bool first = true;
     for (auto &app: apps_) {
         if (first)

@@ -50,7 +50,7 @@ class WorkloadManager : public IProcObserver {
      */
     void processExitEvent(std::uint8_t *data);
 
-    void dumpApps();
+    void dumpMonitoredApps();
 
     /*!
      * Adds the specified application under the management of Konro.

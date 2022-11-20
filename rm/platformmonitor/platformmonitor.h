@@ -17,13 +17,14 @@
 class PlatformMonitor {
     struct PlatformMonitorImpl;
     log4cpp::Category &cat_;
+    int monitorPeriod_;
     std::unique_ptr<PlatformMonitorImpl> pimpl_;
     ResourcePolicies &resourcePolicies_;
     std::thread pmThread_;
     std::atomic_bool stop_;
     void run();
 public:
-    PlatformMonitor(ResourcePolicies &rp);
+    PlatformMonitor(ResourcePolicies &rp, int monitorPeriod);
     ~PlatformMonitor();
     void start();
     void stop();

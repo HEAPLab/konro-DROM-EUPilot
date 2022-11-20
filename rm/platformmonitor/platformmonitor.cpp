@@ -33,7 +33,8 @@ struct PlatformMonitor::PlatformMonitorImpl {
     sensors_subfeature const *cnK8tempSubf;
     sensors_subfeature const *cnViatempSubf;
 
-    PlatformMonitorImpl(ResourcePolicies &rp): rp(rp) {
+    PlatformMonitorImpl(ResourcePolicies &rp): rp(rp)
+    {
 
     }
 
@@ -198,12 +199,13 @@ struct PlatformMonitor::PlatformMonitorImpl {
     }
 };
 
-PlatformMonitor::PlatformMonitor(ResourcePolicies &rp) :
+PlatformMonitor::PlatformMonitor(ResourcePolicies &rp, int monitorPeriod) :
     pimpl_(new PlatformMonitorImpl(rp)),
     cat_(log4cpp::Category::getRoot()),
-    resourcePolicies_(rp)
+    resourcePolicies_(rp),
+    monitorPeriod_(monitorPeriod)
 {
-    rmcommon::setThreadName("PMON");
+    rmcommon::setThreadName("PLATFORMMONITOR");
     pimpl_->init();
 }
 
@@ -235,12 +237,12 @@ void PlatformMonitor::stop()
 
 void PlatformMonitor::run()
 {
-    cat_.info("PMON: running");
+    cat_.info("PLATFORMMONITOR: running");
     while (!stop_) {
-        this_thread::sleep_for(chrono::milliseconds(5000));
+        this_thread::sleep_for(chrono::seconds(monitorPeriod_));
         pimpl_->handleSensors();
         resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>
                                    (pimpl_->platTemp, pimpl_->platPower));
     }
-    cat_.info("PMON: exiting");
+    cat_.info("PLATFORMMONITOR: exiting");
 }

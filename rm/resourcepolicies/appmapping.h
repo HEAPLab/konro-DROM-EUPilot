@@ -3,8 +3,11 @@
 
 #include <app.h>
 #include <memory>
+#include "cpucontrol.h"
 #include "cpusetcontrol.h"
 #include "numericvalue.h"
+#include "memorycontrol.h"
+
 
 /*!
  * \class encapsulates an application and adds information about
@@ -13,13 +16,11 @@
 class AppMapping {
     std::shared_ptr<rmcommon::App> app_;
     /*! Processing Units that can execute the app */
-    rmcommon::CpusetVector puNum_;
+    rmcommon::CpusetVector puVec_;
     /*! maximum cpu bandwidth limit */
     rmcommon::NumericValue cpuMax_;
     /*! memory nodes that can be used by the app */
     rmcommon::CpusetVector memNodes_;
-    /*! total amount of memory currently used by the app */
-    int currentMemory_;
     /*! minimum amount of memory the app must always retain */
     int minMemory_;
     /*! memory usage hard limit for the app */
@@ -28,7 +29,12 @@ class AppMapping {
 public:
     typedef std::shared_ptr<AppMapping> AppMappingPtr;
 
-    AppMapping(std::shared_ptr<rmcommon::App> app) : app_(app) {}
+    AppMapping(std::shared_ptr<rmcommon::App> app) :
+        app_(app),
+        minMemory_(-1),
+        maxMemory_(-1)
+    {
+    }
     ~AppMapping() = default;
 
     /*!
@@ -43,54 +49,68 @@ public:
         return app_;
     }
 
-    void setPuVector(rmcommon::CpusetVector puVec) {
-        puNum_ = puVec;
-    }
-
     rmcommon::CpusetVector getPuVector() {
-        return puNum_;
+        if (puVec_.empty()) {
+            puVec_ = pc::CpusetControl::instance().getCpusEffective(app_);
+        }
+        return puVec_;
     }
 
-    void setCpuMax(rmcommon::NumericValue cpuMax) {
-        cpuMax_ = cpuMax;
+    void setPuVector(rmcommon::CpusetVector puVec) {
+        pc::CpusetControl::instance().setCpus(puVec, app_);
+        puVec_ = puVec;
     }
 
     rmcommon::NumericValue getCpuMax() {
+        if (cpuMax_.isInvalid()) {
+            cpuMax_ = pc::CpuControl::instance().getMax(app_);
+        }
         return cpuMax_;
     }
 
-    void setMemNodes(rmcommon::CpusetVector memNodes) {
-        memNodes_ = memNodes;
+    void setCpuMax(rmcommon::NumericValue cpuMax) {
+        pc::CpuControl::instance().setMax(cpuMax, app_);
+        cpuMax_ = cpuMax;
     }
 
     rmcommon::CpusetVector getMemNodes() {
+        if (memNodes_.empty()) {
+            memNodes_ = pc::CpusetControl::instance().getMemsEffective(app_);
+        }
         return memNodes_;
     }
 
-    void setCurrentMem(int currentMemory) {
-        currentMemory_ = currentMemory;
+    void setMemNodes(rmcommon::CpusetVector memNodes) {
+        pc::CpusetControl::instance().setMems(memNodes, app_);
+        memNodes_ = memNodes;
     }
 
-    int getCurrentMem() {
-        return currentMemory_;
+    /*! total amount of memory currently used by the app */
+    int getCurrentMemory() {
+        return pc::MemoryControl::instance().getCurrent(app_);
     }
 
-    void getMinMemory(int minMemory) {
-        minMemory_ = minMemory;
-    }
-
-    int setMinMemory() {
+    int getMinMemory() {
+        if (minMemory_ == -1) {
+            minMemory_ = pc::MemoryControl::instance().getMin(app_);
+        }
         return minMemory_;
     }
 
-    void getMaxMemory(int maxMemory) {
-        maxMemory_ = maxMemory;
+    void setMinMemory(int minMemory) {
+        minMemory_ = minMemory;
     }
 
-    int setMaxMemory() {
+    int getMaxMemory() {
+        if (maxMemory_ == -1) {
+            maxMemory_ = pc::MemoryControl::instance().getMax(app_);
+        }
         return maxMemory_;
     }
 
+    void setMaxMemory(int maxMemory) {
+        maxMemory_ = maxMemory;
+    }
 };
 
 #endif // APPMAPPING_H

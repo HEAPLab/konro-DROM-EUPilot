@@ -27,7 +27,7 @@ ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy, int ti
     apps_(appMappingComp),
     timerSeconds_(timerSeconds)
 {
-    rmcommon::setThreadName("RPOL");
+    rmcommon::setThreadName("RESOURCEPOLICIES");
     policy_ = makePolicy(policy);
 }
 
@@ -55,7 +55,7 @@ void ResourcePolicies::start()
         timerThread_ = thread(&ResourcePolicies::timer, this);
     }
     else {
-        cat_.info("RPOL timer not started");
+        cat_.info("RESOURCEPOLICIES timer not started");
     }
 }
 
@@ -69,7 +69,7 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
 
 void ResourcePolicies::run()
 {
-    cat_.info("RPOL thread starting");
+    cat_.info("RESOURCEPOLICIES thread starting");
     while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;
         bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
@@ -78,24 +78,24 @@ void ResourcePolicies::run()
         }
         processEvent(event);
     }
-    cat_.info("RPOL thread exiting");
+    cat_.info("RESOURCEPOLICIES thread exiting");
 }
 
 void ResourcePolicies::timer()
 {
-    cat_.info("RPOL timer thread starting");
+    cat_.info("RESOURCEPOLICIES timer thread starting");
     while (!stop_) {
         this_thread::sleep_for(chrono::seconds(timerSeconds_));
         addEvent(make_shared<rmcommon::TimerEvent>());
     }
-    cat_.info("RPOL timer thread exiting");
+    cat_.info("RESOURCEPOLICIES timer thread exiting");
 }
 
 void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
 #if 1
     ostringstream os;
-    os << "RPOL received message => " << *event;
+    os << "RESOURCEPOLICIES received message => " << *event;
     cat_.debug(os.str());
 #endif
 
@@ -132,20 +132,20 @@ void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 
 void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
 {
-    cat_.debug("RPOL timer event received");
+    cat_.debug("RESOURCEPOLICIES timer event received");
     policy_->timer();
 }
 
 void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
-    cat_.debug("RPOL monitor event received");
+    cat_.debug("RESOURCEPOLICIES monitor event received");
     policy_->monitor(ev);
 }
 
 void ResourcePolicies::dumpApps() const
 {
     std::ostringstream os;
-    os << "RPOL handling PIDS {";
+    os << "RESOURCEPOLICIES handling PIDS {";
     bool first = true;
     for (auto &app: apps_) {
         if (first)
