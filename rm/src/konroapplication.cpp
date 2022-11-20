@@ -112,6 +112,8 @@ void KonroApplication::run(long pidToMonitor)
     wm::WorkloadManager workloadManager(cgc, rp, pid);
     PlatformMonitor pm(rp, cfgMonitorPeriod_);
 
+    pd.logTopology();
+
     pm.setCpuModuleNames(cfgCpuModuleNames_);
     pm.setBatteryModuleNames(cfgBatteryModuleNames_);
 
