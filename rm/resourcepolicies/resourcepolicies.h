@@ -36,7 +36,7 @@ public:
 
 private:
     log4cpp::Category &cat_;
-    const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
+    const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(3000);
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     std::thread rpThread_;
     std::thread timerThread_;

@@ -8,7 +8,9 @@ namespace rmcommon {
  * \class encapsulates power information about the machine
  */
 class PlatformPower {
+    /* Current value in mA */
     int batteryCurrent_;
+    /* Voltage value in V */
     int batteryVoltage_;
 public:
 

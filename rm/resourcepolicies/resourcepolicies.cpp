@@ -145,7 +145,7 @@ void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 void ResourcePolicies::dumpApps() const
 {
     std::ostringstream os;
-    os << "RESOURCEPOLICIES handling PIDS {";
+    os << "RESOURCEPOLICIES handling PIDS [";
     bool first = true;
     for (auto &app: apps_) {
         if (first)
@@ -154,6 +154,6 @@ void ResourcePolicies::dumpApps() const
             os << ",";
         os << app->getPid();
     }
-    os << "}";
+    os << "]";
     cat_.info(os.str());
 }

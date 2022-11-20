@@ -3,10 +3,11 @@
 
 #include "resourcepolicies.h"
 
-#include <log4cpp/Category.hh>
 #include <thread>
 #include <atomic>
 #include <memory>
+#include <string>
+#include <log4cpp/Category.hh>
 
 /*!
  * \class periodically samples information about the platform status.
@@ -28,6 +29,18 @@ public:
     ~PlatformMonitor();
     void start();
     void stop();
+
+    /*!
+     * \brief setCpuModuleNames
+     * \param names Comma separated list of module names
+     */
+    void setCpuModuleNames(const std::string &names);
+
+    /*!
+     * \brief setBatteryModuleNames
+     * \param names Comma separated list of module names
+     */
+    void setBatteryModuleNames(const std::string &names);
 };
 
 #endif  // #ifndef PLATFORMMONITOR_H

@@ -11,7 +11,13 @@
 
 /*!
  * \class encapsulates an application and adds information about
- * the resources it can use
+ * the resources it can use.
+ * This class acts as a cache with respect to cgroup files. Whenever
+ * a new value is written to a cgroup file, this class stores the value
+ * in a variable. Subsequent reads to this value can access the variable
+ * instead of reading the file.
+ * The setter methods of this class can be used to simultaneosuly write
+ * the desired value to a cgroup file and store it in a variable.
  */
 class AppMapping {
     std::shared_ptr<rmcommon::App> app_;

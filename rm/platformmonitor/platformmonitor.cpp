@@ -3,13 +3,14 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #include <sensors.h>
 #include "componenttemperature.h"
 #include "monitorevent.h"
 #include "platformtemperature.h"
 #include "platformpower.h"
 #include "threadname.h"
-
+#include "tsplit.h"
 
 using namespace std;
 
@@ -17,42 +18,52 @@ struct PlatformMonitor::PlatformMonitorImpl {
 
     ResourcePolicies &rp;
     bool initialized = false;
-    rmcommon::PlatformTemperature platTemp;
-    rmcommon::PlatformPower platPower;
-    // Detected chip temperature sensors
+    vector<string> cpuChips;
+    vector<string> batteryChips;
 
-    // Chip names
-    sensors_chip_name const *cnCoretemp;
-    sensors_chip_name const *cnK10temp;
-    sensors_chip_name const *cnK8temp;
-    sensors_chip_name const *cnViacputemp;
-
-    // Chip subfeatures
-    sensors_subfeature const *cnCoretempSubf;
-    sensors_subfeature const *cnK10tempSubf;
-    sensors_subfeature const *cnK8tempSubf;
-    sensors_subfeature const *cnViatempSubf;
-
-    PlatformMonitorImpl(ResourcePolicies &rp): rp(rp)
-    {
-
+    PlatformMonitorImpl(ResourcePolicies &rp): rp(rp) {
+        init();
     }
 
-    void clear() {
-        // Clear chip names
-        this->cnCoretemp = nullptr;
-        this->cnK10temp = nullptr;
-        this->cnK8temp = nullptr;
-        this->cnViacputemp = nullptr;
-        // Clear chip subfeatures
-        this->cnCoretempSubf = nullptr;
-        this->cnK10tempSubf = nullptr;
-        this->cnK8tempSubf = nullptr;
-        this->cnViatempSubf = nullptr;
-        this->initialized = false;
+    ~PlatformMonitorImpl() {
+        fini();
     }
 
-    void handleBattery(sensors_chip_name const *cn) {
+    void init() {
+        this->initialized = sensors_init(NULL) == 0;
+    }
+
+    void fini() {
+        if (this->initialized)
+            sensors_cleanup();
+    }
+    void setCpuModuleNames(const std::string &names) {
+        cpuChips = rmcommon::tsplit(names, ",");
+    }
+
+    void setBatteryModuleNames(const std::string &names) {
+        batteryChips = rmcommon::tsplit(names, ",");
+        log4cpp::Category::getRoot().info("setBatteryModuleNames: %s", names.c_str());
+        log4cpp::Category::getRoot().info("setBatteryModuleNames: %s", batteryChips[0].c_str());
+    }
+
+    bool isCpuChip(string chip) {
+        return find(begin(cpuChips), end(cpuChips), chip) != end(cpuChips);
+    }
+
+    bool isBatteryChip(string chip) {
+        // Example:
+        // chip is "BAT0"
+        // batteryChips is [ "BAT" ]
+
+        // remove trailing digits from string "chip"
+        // This works because std::string::npos is (unsigned ..)-1
+        // and npos+1 becomes 0 in case there are no trailing digits
+        chip.erase(chip.find_last_not_of("0123456789")+1);
+        return find(begin(batteryChips), end(batteryChips), chip) != end(batteryChips);
+    }
+
+    void handleBattery(sensors_chip_name const *cn, rmcommon::PlatformPower &platPower) {
         sensors_feature const *feat;
         int f = 0;
         while ((feat = sensors_get_features(cn, &f)) != 0) {
@@ -69,11 +80,10 @@ struct PlatformMonitor::PlatformMonitorImpl {
                 double val;
                 int rc = sensors_get_value(cn, subf->number, &val);
                 if (rc == 0)
-                    platPower.setBatteryCurrent(static_cast<int>(val));
+                    platPower.setBatteryCurrent(static_cast<int>(val * 1000));
             }
         }
     }
-
 
     rmcommon::ComponentTemperature getTemperatureInfo(sensors_chip_name const *cn, sensors_feature const *feat) {
         rmcommon::ComponentTemperature componentTemp;
@@ -121,7 +131,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
     /*!
      * Extracts information from the specified CPU temperature sensor.
      */
-    void handleCpuTemp(sensors_chip_name const *cn) {
+    void handleCpuTemp(sensors_chip_name const *cn, rmcommon::PlatformTemperature &platTemp) {
         // Chip: coretemp - /sys/class/hwmon/hwmon3
         // 1: feature name is temp1
         // 1: feature label is Package id 0
@@ -159,43 +169,24 @@ struct PlatformMonitor::PlatformMonitorImpl {
         }
     }
 
-    void init() {
-        this->clear();
-        this->initialized = sensors_init(NULL) == 0;
-        if (!this->initialized)
-            return;
-    }
-
     /*!
      * Detects each sensor available on the machine and calls the
      * appropriate handler function to store information about its
      * current status.
      */
-    void handleSensors() {
+    void handleSensors(rmcommon::PlatformTemperature &platTemp, rmcommon::PlatformPower &platPower) {
         sensors_chip_name const *cn;
         int c = 0;
         while ((cn = sensors_get_detected_chips(0, &c)) != 0) {
-            char *prefix = cn->prefix;
-
-            /* Cpu temperature sensor found */
-            if ((strcmp(prefix, "coretemp")            // found Intel CPU temperature sensor
-                    && strcmp(prefix, "k10temp")       // found AMD K10 CPU temperature sensor
-                    && strcmp(prefix, "k8temp")        // found AMD K8 CPU temperature sensor
-                    && strcmp(prefix, "via-cputemp"))  // found via CPU temperature sensor
-                    == 0) {
-                handleCpuTemp(cn);
-
+            if (isCpuChip(cn->prefix)) {
+                // CPU temperature sensor found
+                handleCpuTemp(cn, platTemp);
             }
-            /* Battery sensor found  */
-            else if (strstr(prefix, "BAT") != nullptr) {
-                handleBattery(cn);
+            else if (isBatteryChip(cn->prefix)) {
+                // Battery sensor found
+                handleBattery(cn, platPower);
             }
         }
-    }
-
-    void fini() {
-        sensors_cleanup();
-        this->clear();
     }
 };
 
@@ -206,7 +197,6 @@ PlatformMonitor::PlatformMonitor(ResourcePolicies &rp, int monitorPeriod) :
     monitorPeriod_(monitorPeriod)
 {
     rmcommon::setThreadName("PLATFORMMONITOR");
-    pimpl_->init();
 }
 
 PlatformMonitor::~PlatformMonitor()
@@ -235,14 +225,25 @@ void PlatformMonitor::stop()
     }
 }
 
+void PlatformMonitor::setCpuModuleNames(const std::string &names)
+{
+    pimpl_->setCpuModuleNames(names);
+}
+
+void PlatformMonitor::setBatteryModuleNames(const std::string &names)
+{
+    pimpl_->setBatteryModuleNames(names);
+}
+
 void PlatformMonitor::run()
 {
-    cat_.info("PLATFORMMONITOR: running");
+    cat_.info("PLATFORMMONITOR running");
     while (!stop_) {
         this_thread::sleep_for(chrono::seconds(monitorPeriod_));
-        pimpl_->handleSensors();
-        resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>
-                                   (pimpl_->platTemp, pimpl_->platPower));
+        rmcommon::PlatformTemperature platTemp;
+        rmcommon::PlatformPower platPower;
+        pimpl_->handleSensors(platTemp, platPower);
+        resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>(platTemp,platPower));
     }
-    cat_.info("PLATFORMMONITOR: exiting");
+    cat_.info("PLATFORMMONITOR exiting");
 }
