@@ -149,8 +149,6 @@ void KonroApplication::stop()
 
 void KonroApplication::testPlatformDescription()
 {
-    using namespace std;
-
     PlatformDescription pd;
     pd.logTopology();
 }

@@ -27,7 +27,6 @@ ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy, int ti
     apps_(appMappingComp),
     timerSeconds_(timerSeconds)
 {
-    rmcommon::setThreadName("RESOURCEPOLICIES");
     policy_ = makePolicy(policy);
 }
 
@@ -69,6 +68,7 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
 
 void ResourcePolicies::run()
 {
+    rmcommon::setThreadName("RESOURCEPOLICIES");
     cat_.info("RESOURCEPOLICIES thread starting");
     while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;

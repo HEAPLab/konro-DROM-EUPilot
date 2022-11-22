@@ -2,20 +2,21 @@
 #define KONROHTTP_H
 
 #include <thread>
+#include <memory>
 #include <log4cpp/Category.hh>
-#include "../../lib/httplib/httplib.h"
 
 class KonroHttp {
+    struct KonroHttpImpl;
+    std::unique_ptr<KonroHttpImpl> pimpl_;
     log4cpp::Category &cat_;
     std::thread httpThread_;
-    httplib::Server srv_;
 
     /*! The thread function */
     void run();
-    void handleRequest(const httplib::Request &, httplib::Response &res);
 
 public:
     KonroHttp();
+    ~KonroHttp();
 
     /*! Runs in the same thread */
     void operator()() {
@@ -23,13 +24,14 @@ public:
     }
 
     /*!
-     * \brief Starts in a separate thread
+     * \brief Starts the HTTP server in a separate thread
      */
     void start();
 
-    void stop() {
-        srv_.stop();
-    }
+    /*!
+     * \brief Stops the HTTP server
+     */
+    void stop();
 
 };
 
