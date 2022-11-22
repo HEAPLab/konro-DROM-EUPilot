@@ -11,7 +11,7 @@ add_subdirectory (resourcepolicies)
 add_subdirectory (platformmonitor)
 
 file(GLOB konro_SOURCES "src/*.cpp")
-file(GLOB konro_HEADERS "include/*.h")
+file(GLOB konro_HEADERS "src/*.h")
 
 include_directories(${PROJECT_SOURCE_DIR}/rm/include)
 

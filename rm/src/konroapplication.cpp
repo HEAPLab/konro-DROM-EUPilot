@@ -7,6 +7,7 @@
 #include "workloadmanager.h"
 #include "platformmonitor.h"
 #include "proclistener.h"
+#include "konrohttp.h"
 #include <unistd.h>
 
 
@@ -49,6 +50,7 @@ void KonroApplication::setupLogging()
 
     cat_.info("KONRO starting");
 }
+
 
 void KonroApplication::loadConfiguration()
 {
@@ -122,6 +124,7 @@ void KonroApplication::run(long pidToMonitor)
     // 1. ProcListener and WorkloadManager run in the current (main) thread
     // 2. ResourcePolicies runs in a separate thread
     // 3. PlatformMonitor runs in a separate thread
+    // 4. KonroHttp runs in a separate thread
 
     cat_.info("MAIN starting ResourcePolicies thread");
     rp.start();
@@ -131,12 +134,16 @@ void KonroApplication::run(long pidToMonitor)
 
     cat_.info("MAIN starting ProcListener in the main thread");
 
+    cat_.info("MAIN starting HTTP thread");
+    http_.start();
+
     procListener_.attach(&workloadManager);
     procListener_();
 }
 
 void KonroApplication::stop()
 {
+    http_.stop();
     procListener_.stop();
 }
 
