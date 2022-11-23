@@ -29,6 +29,9 @@ public:
         // do nothing
     }
 
+    virtual void feedback(rmcommon::ProcFeedbackEvent *ev) override {
+        // do nothing
+    }
 };
 
 #endif // NOPOLICY_H

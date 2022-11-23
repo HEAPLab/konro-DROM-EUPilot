@@ -107,6 +107,8 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
         processTimerEvent(e);
     } else if (rmcommon::MonitorEvent *e = dynamic_cast<rmcommon::MonitorEvent *>(event.get())) {
         processMonitorEvent(e);
+    } else if (rmcommon::ProcFeedbackEvent *e = dynamic_cast<rmcommon::ProcFeedbackEvent *>(event.get())) {
+        processProcFeedbackEvent(e);
     }
 }
 
@@ -140,6 +142,12 @@ void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
     cat_.debug("RESOURCEPOLICIES monitor event received");
     policy_->monitor(ev);
+}
+
+void ResourcePolicies::processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev)
+{
+    cat_.debug("RESOURCEPOLICIES feedback event received");
+    policy_->feedback(ev);
 }
 
 void ResourcePolicies::dumpApps() const

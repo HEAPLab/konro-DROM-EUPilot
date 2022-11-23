@@ -58,3 +58,8 @@ void RandPolicy::monitor(rmcommon::MonitorEvent *ev)
 {
     // no action required
 }
+
+void RandPolicy::feedback(rmcommon::ProcFeedbackEvent *ev)
+{
+    // no action required
+}

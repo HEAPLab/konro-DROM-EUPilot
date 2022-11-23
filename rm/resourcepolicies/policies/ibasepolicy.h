@@ -4,6 +4,7 @@
 #include "../appmapping.h"
 #include "platformdescription.h"
 #include "monitorevent.h"
+#include "procfeedbackevent.h"
 #include <memory>
 
 /*!
@@ -34,11 +35,15 @@ public:
      */
     virtual void timer() = 0;
 
-
     /*!
      * Handles a platform monitor event.
      */
     virtual void monitor(rmcommon::MonitorEvent *ev) = 0;
+
+    /*!
+     * Handles a platform monitor event.
+     */
+    virtual void feedback(rmcommon::ProcFeedbackEvent *ev) = 0;
 };
 
 #endif // IBASEPOLICY_H

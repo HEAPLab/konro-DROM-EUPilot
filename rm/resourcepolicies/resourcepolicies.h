@@ -7,6 +7,7 @@
 #include "removeprocevent.h"
 #include "timerevent.h"
 #include "monitorevent.h"
+#include "procfeedbackevent.h"
 #include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
@@ -85,6 +86,12 @@ private:
      * \param ev the event to process
      */
     void processMonitorEvent(rmcommon::MonitorEvent *ev);
+
+    /*!
+     * Processes a ProcFeedbackEvent
+     * \param ev the event to process
+     */
+    void processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev);
 
     /* for debugging */
     void dumpApps() const;
