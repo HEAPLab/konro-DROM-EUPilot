@@ -48,6 +48,7 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
  */
 void ResourcePolicies::start()
 {
+    stop_= false;
     rpThread_ = thread(&ResourcePolicies::run, this);
     // If a timer was requested, start the thread now
     if (timerSeconds_ > 0) {
@@ -76,6 +77,7 @@ void ResourcePolicies::run()
         if (!rc) {
             continue;
         }
+        cat_.debug("RESOURCEPOLICIES event received. Calling ProcessEvent");
         processEvent(event);
     }
     cat_.info("RESOURCEPOLICIES thread exiting");

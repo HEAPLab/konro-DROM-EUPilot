@@ -1,17 +1,17 @@
 #ifndef KONROFEEDBACK_H
 #define KONROFEEDBACK_H
 
-#include <memory>
 #include <string>
 
 class KonroFeedback {
-    // hide implementation
-    struct KonroFeedbackImpl;
-    std::unique_ptr<KonroFeedbackImpl> pimpl_;
     bool feedback_;
+
+    std::string sendFeedbackMessage(const std::string &text);
+
 public:
-    KonroFeedback(bool feedback);
-    ~KonroFeedback();
+    KonroFeedback(bool feedback) : feedback_(feedback)
+      { }
+    ~KonroFeedback() = default;
 
     void setFeedback(bool feedback) noexcept {
         feedback_ = feedback;

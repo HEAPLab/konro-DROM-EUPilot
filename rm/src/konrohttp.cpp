@@ -2,12 +2,18 @@
 #include "threadname.h"
 #include "../../lib/httplib/httplib.h"
 #include "../../lib/json/json.hpp"
+#include "procfeedbackevent.h"
 #include <chrono>
 
 using namespace std;
 
 struct KonroHttp::KonroHttpImpl {
     httplib::Server srv;
+    rmcommon::IEventReceiver *resourcePolicies_;
+
+    void setEventReceiver(rmcommon::IEventReceiver *er) {
+        resourcePolicies_ = er;
+    }
 
     void parseJson(const std::string &data) {
         using namespace nlohmann;
@@ -20,6 +26,25 @@ struct KonroHttp::KonroHttpImpl {
                 os << "(id is " << id << ")";
             }
             log4cpp::Category::getRoot().info(os.str());
+        }
+    }
+
+    void parseJson2(const std::string &data) {
+        using namespace nlohmann;
+        basic_json<> j = json::parse(data);
+        if (!j.contains("pid")) {
+            log4cpp::Category::getRoot().error("KONROHTTP missing \"pid\" in feedback message");
+            return;
+        }
+        if (!j.contains("feedback")) {
+            log4cpp::Category::getRoot().error("KONROHTTP missing \"feedback\" in feedback message");
+            return;
+        }
+        long pid = j["pid"];
+        bool feedback = j["feedback"];
+        if (resourcePolicies_) {
+            log4cpp::Category::getRoot().info("KONROHTTP sending feedback event to ResourcePolicies");
+            resourcePolicies_->addEvent(make_shared<rmcommon::ProcFeedbackEvent>(pid, feedback));
         }
     }
 
@@ -39,7 +64,7 @@ struct KonroHttp::KonroHttpImpl {
                 body.append(data, data_length);
                 return true;
             });
-        res.set_content("You have send a KONRO POST '" + body + "'\r\n", "text/plain");
+        res.set_content("You have send a POST '" + body + "'\r\n", "text/plain");
         parseJson(body);
     }
 
@@ -51,15 +76,17 @@ struct KonroHttp::KonroHttpImpl {
                 return true;
             });
         res.set_content("You have sent a FEEDBACK POST '" + body + "'\r\n", "text/plain");
-        parseJson(body);
+        parseJson2(body);
     }
 };
 
-KonroHttp::KonroHttp() :
+KonroHttp::KonroHttp(rmcommon::IEventReceiver *rp) :
     pimpl_(new KonroHttpImpl),
     cat_(log4cpp::Category::getRoot())
 {
+  rmcommon::setThreadName("KONROHTTP");
 }
+
 
 KonroHttp::~KonroHttp()
 {
@@ -72,6 +99,11 @@ void KonroHttp::start()
 
 void KonroHttp::stop() {
     pimpl_->srv.stop();
+}
+
+void KonroHttp::setEventReceiver(rmcommon::IEventReceiver *er)
+{
+    pimpl_->setEventReceiver(er);
 }
 
 void KonroHttp::run()

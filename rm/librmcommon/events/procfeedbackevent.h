@@ -3,6 +3,8 @@
 
 #include "baseevent.h"
 #include <iomanip>
+#include <sys/types.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -15,17 +17,25 @@ namespace rmcommon {
  */
 class ProcFeedbackEvent : public BaseEvent {
 
+    /*! The application sending the feedback */
+    pid_t pid_;
+
     /* 0 = the current QoS level is sufficient
      * 1 = the current QoS level is insufficient
      */
     bool feedback_;
 
 public:
-    ProcFeedbackEvent(bool feedback) :
+    ProcFeedbackEvent(pid_t pid, bool feedback) :
+        pid_(pid),
         feedback_(feedback)
     {}
 
-    bool getFeedback() {
+    pid_t getPid() const noexcept {
+        return pid_;
+    }
+
+    bool getFeedback() const noexcept {
         return feedback_;
     }
 
@@ -33,8 +43,8 @@ public:
         ios_base::fmtflags f = os.flags();
         os.flags(f | ios_base::boolalpha);
         os << "{"
-           << "\"feedback\":"
-           << feedback_
+           << "\"pid\":" << pid_
+           << ",\"feedback\":" << feedback_
            << "}";
         os.flags(f);
     }

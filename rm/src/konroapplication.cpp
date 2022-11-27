@@ -135,6 +135,7 @@ void KonroApplication::run(long pidToMonitor)
     cat_.info("MAIN starting ProcListener in the main thread");
 
     cat_.info("MAIN starting HTTP thread");
+    http_.setEventReceiver(&rp);
     http_.start();
 
     procListener_.attach(&workloadManager);

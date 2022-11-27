@@ -1,6 +1,7 @@
 #ifndef KONROHTTP_H
 #define KONROHTTP_H
 
+#include "ieventreceiver.h"
 #include <thread>
 #include <memory>
 #include <log4cpp/Category.hh>
@@ -20,7 +21,7 @@ class KonroHttp {
     void run();
 
 public:
-    KonroHttp();
+    KonroHttp(rmcommon::IEventReceiver *rp = nullptr);
     ~KonroHttp();
 
     /*! Runs in the same thread */
@@ -38,6 +39,7 @@ public:
      */
     void stop();
 
+    void setEventReceiver(rmcommon::IEventReceiver *er);
 };
 
 #endif // KONROHTTP_H

@@ -111,6 +111,7 @@ public:
      * \param event the event to add
      */
     virtual void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) override {
+        //cat_.debug("RESOURCEPOLICIES addEvent called");
         queue_.push(event);
     }
 
