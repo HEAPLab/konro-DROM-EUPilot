@@ -2,9 +2,9 @@
 #define WORKLOADMANAGER_H
 
 #include "app.h"
+#include "ieventreceiver.h"
 #include "iprocobserver.h"
 #include "iplatformcontrol.h"
-#include "resourcepolicies.h"
 #include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
@@ -15,7 +15,7 @@ namespace wm {
  */
 class WorkloadManager : public IProcObserver {
     pc::IPlatformControl &platformControl_;
-    ResourcePolicies &resourcePolicies_;
+    rmcommon::IEventReceiver &resourcePolicies_;
     log4cpp::Category &cat_;
     /*! pid to monitor */
     int pid_;
@@ -85,7 +85,7 @@ class WorkloadManager : public IProcObserver {
     std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
 public:
-    WorkloadManager(pc::IPlatformControl &pc, ResourcePolicies &rp, int pid);
+    WorkloadManager(pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid);
 
     // IProcObserver interface implementation
     virtual void update(std::uint8_t *data) override;

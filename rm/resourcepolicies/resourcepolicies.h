@@ -1,6 +1,7 @@
 #ifndef RESOURCEPOLICIES_H
 #define RESOURCEPOLICIES_H
 
+#include "ieventreceiver.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
 #include "addprocevent.h"
@@ -28,7 +29,7 @@
  *
  * ResourcePolicies runs in a dedicated thread.
  */
-class ResourcePolicies {
+class ResourcePolicies : public rmcommon::IEventReceiver {
 public:
     enum class Policy {
         NoPolicy,
@@ -109,7 +110,7 @@ public:
      * \brief Adds an event to the tread safe queue
      * \param event the event to add
      */
-    void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) {
+    virtual void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) override {
         queue_.push(event);
     }
 
