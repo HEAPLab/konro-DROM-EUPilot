@@ -5,6 +5,11 @@
 #include <memory>
 #include <log4cpp/Category.hh>
 
+/*!
+ * \brief a simple server running in a dedicated thread.
+ * Can be used by external processes to send requests or information
+ * to Konro.
+ */
 class KonroHttp {
     struct KonroHttpImpl;
     std::unique_ptr<KonroHttpImpl> pimpl_;
