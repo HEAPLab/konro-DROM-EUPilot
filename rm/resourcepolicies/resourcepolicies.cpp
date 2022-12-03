@@ -42,10 +42,6 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
     }
 }
 
-/*!
- * Starts the run() function in a new thread
- * and the timer() function in a new thread
- */
 void ResourcePolicies::start()
 {
     stop_= false;
@@ -57,6 +53,16 @@ void ResourcePolicies::start()
     else {
         cat_.info("RESOURCEPOLICIES timer not started");
     }
+}
+
+void ResourcePolicies::stop()
+{
+    stop_ = true;
+    if (rpThread_.joinable())
+        rpThread_.join();
+    if (timerThread_.joinable())
+        timerThread_.join();
+    cat_.info("RESOURCEPOLICIES stopped");
 }
 
 ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &policyName)

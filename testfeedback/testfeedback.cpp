@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     KonroFeedback feedback(val);
     for (int i = 0; i < 10; ++i) {
         cout << "Sending message" << endl;
-        string reply = feedback.send();
+        string reply = feedback.sendFeedbackMessage();
         cout << "Received reply: " << reply << endl;
         cout << "Sleeping" << endl;
         this_thread::sleep_for(chrono::seconds(6));

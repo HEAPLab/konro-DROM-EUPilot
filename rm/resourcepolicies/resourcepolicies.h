@@ -111,23 +111,19 @@ public:
      * \param event the event to add
      */
     virtual void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) override {
-        //cat_.debug("RESOURCEPOLICIES addEvent called");
         queue_.push(event);
     }
 
-    void operator()() {
-        run();
-    }
-
+    /*!
+     * Starts the run() function in a new thread
+     * and the timer() function in a new thread
+     */
     void start();
 
-    void stop() {
-        stop_ = true;
-        if (rpThread_.joinable())
-            rpThread_.join();
-        if (timerThread_.joinable())
-            timerThread_.join();
-    }
+    /*!
+     * Stops the threads
+     */
+    void stop();
 
     /*!
      * Return the policy with the specified name.

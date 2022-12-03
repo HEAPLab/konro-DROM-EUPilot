@@ -8,48 +8,46 @@
 using namespace std;
 
 struct KonroHttp::KonroHttpImpl {
+    log4cpp::Category &cat_;
     httplib::Server srv;
     rmcommon::IEventReceiver *resourcePolicies_;
+
+    KonroHttpImpl() : cat_(log4cpp::Category::getRoot()) {
+    }
 
     void setEventReceiver(rmcommon::IEventReceiver *er) {
         resourcePolicies_ = er;
     }
 
-    void parseJson(const std::string &data) {
-        using namespace nlohmann;
-        basic_json<> j = json::parse(data);
-        for (auto &el : j.items()) {
-            ostringstream os;
-            os << "Key: " << el.key() << ", Value: " << el.value();
-            if (el.key() == "id") {
-                int id = j["id"];
-                os << "(id is " << id << ")";
-            }
-            log4cpp::Category::getRoot().info(os.str());
+    /*!
+     * Extracts the data from the JSON and sends a ProcFeedbackEvent
+     * to the handler, i.e. the EventReceiver
+     *
+     * \param data the JSON in text format
+     */
+    void sendFeedbackEvent(const std::string &data) {
+        if (!resourcePolicies_) {
+            cat_.error("KONROHTTP parseJson: ResourcePolicies not set");
+            return;
         }
-    }
-
-    void parseJson2(const std::string &data) {
         using namespace nlohmann;
         basic_json<> j = json::parse(data);
         if (!j.contains("pid")) {
-            log4cpp::Category::getRoot().error("KONROHTTP missing \"pid\" in feedback message");
+            cat_.error("KONROHTTP missing \"pid\" in feedback message");
             return;
         }
         if (!j.contains("feedback")) {
-            log4cpp::Category::getRoot().error("KONROHTTP missing \"feedback\" in feedback message");
+            cat_.error("KONROHTTP missing \"feedback\" in feedback message");
             return;
         }
         long pid = j["pid"];
         bool feedback = j["feedback"];
-        if (resourcePolicies_) {
-            log4cpp::Category::getRoot().info("KONROHTTP sending feedback event to ResourcePolicies");
-            resourcePolicies_->addEvent(make_shared<rmcommon::ProcFeedbackEvent>(pid, feedback));
-        }
+        cat_.info("KONROHTTP sending feedback event to ResourcePolicies");
+        resourcePolicies_->addEvent(make_shared<rmcommon::ProcFeedbackEvent>(pid, feedback));
     }
 
     void handleGet(const httplib::Request &req, httplib::Response &res){
-        log4cpp::Category::getRoot().info("HTTP GET received");
+        cat_.info("HTTP GET received");
         if (req.has_param("op")) {
             res.set_content("You have requested operation " + req.get_param_value("op") + "\r\n", "text/plain");
         } else {
@@ -58,25 +56,27 @@ struct KonroHttp::KonroHttpImpl {
     }
 
     void handleKonroPost(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader){
-        log4cpp::Category::getRoot().info("HTTP KONRO POST received");
+        cat_.info("HTTP KONRO POST received");
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
                 body.append(data, data_length);
                 return true;
             });
-        res.set_content("You have send a POST '" + body + "'\r\n", "text/plain");
-        parseJson(body);
+        res.set_content("You have sent a POST '" + body + "'\r\n", "text/plain");
     }
 
+    /*!
+     * \brief handles a feedback message sent by an integrated application
+     */
     void handleFeedbackPost(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader){
-        log4cpp::Category::getRoot().info("HTTP FEEDBACK POST received");
+        cat_.info("HTTP FEEDBACK POST received");
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
                 body.append(data, data_length);
                 return true;
             });
         res.set_content("You have sent a FEEDBACK POST '" + body + "'\r\n", "text/plain");
-        parseJson2(body);
+        sendFeedbackEvent(body);
     }
 };
 
@@ -99,6 +99,10 @@ void KonroHttp::start()
 
 void KonroHttp::stop() {
     pimpl_->srv.stop();
+    if (httpThread_.joinable()) {
+        httpThread_.join();
+    }
+    cat_.info("KONROHTTP stopped");
 }
 
 void KonroHttp::setEventReceiver(rmcommon::IEventReceiver *er)
@@ -115,10 +119,12 @@ void KonroHttp::run()
         this->pimpl_->handleGet(req, res);
     });
 
+    /* Add new process under Konro's management */
     pimpl_->srv.Post("/konro", [this](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
         this->pimpl_->handleKonroPost(req, res, content_reader);
     });
 
+    /* Communication with integrated applications */
     pimpl_->srv.Post("/feedback", [this](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
         this->pimpl_->handleFeedbackPost(req, res, content_reader);
     });

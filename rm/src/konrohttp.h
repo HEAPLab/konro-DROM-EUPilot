@@ -24,11 +24,6 @@ public:
     KonroHttp(rmcommon::IEventReceiver *rp = nullptr);
     ~KonroHttp();
 
-    /*! Runs in the same thread */
-    void operator()() {
-        run();
-    }
-
     /*!
      * \brief Starts the HTTP server in a separate thread
      */
