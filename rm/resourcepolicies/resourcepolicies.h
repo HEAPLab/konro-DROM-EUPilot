@@ -19,6 +19,10 @@
 #include <thread>
 #include <atomic>
 
+namespace rmcommon {
+class EventBus;
+}
+
 /*!
  * \brief The ResourcePolicies class
  *
@@ -38,6 +42,7 @@ public:
 
 private:
     log4cpp::Category &cat_;
+    rmcommon::EventBus &bus_;
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(3000);
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     std::thread rpThread_;
@@ -52,6 +57,8 @@ private:
                                    const std::shared_ptr<AppMapping> &rhs);
 
     std::set<std::shared_ptr<AppMapping>, AppComparator> apps_;
+
+    void registerEvents();
 
     void run();
 
@@ -104,7 +111,7 @@ public:
     /*!
      * \param timerSeconds if 0, then the internal timer thread is not started
      */
-    ResourcePolicies(PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
+    ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
 
     /*!
      * \brief Adds an event to the tread safe queue

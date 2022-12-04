@@ -9,11 +9,16 @@
 #include <set>
 #include <memory>
 
+namespace rmcommon {
+    class EventBus;
+}
+
 namespace wm {
 /*!
  * \brief a class for handling and manipulating a set of applications
  */
 class WorkloadManager : public IProcObserver {
+    rmcommon::EventBus &bus_;
     pc::IPlatformControl &platformControl_;
     rmcommon::IEventReceiver &resourcePolicies_;
     log4cpp::Category &cat_;
@@ -85,7 +90,7 @@ class WorkloadManager : public IProcObserver {
     std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
 public:
-    WorkloadManager(pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid);
+    WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid);
 
     // IProcObserver interface implementation
     virtual void update(std::uint8_t *data) override;

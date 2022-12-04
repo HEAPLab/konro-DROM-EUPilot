@@ -8,6 +8,7 @@
 #include "platformmonitor.h"
 #include "proclistener.h"
 #include "konrohttp.h"
+#include "simpleeventbus.h"
 #include <unistd.h>
 
 
@@ -108,10 +109,11 @@ void KonroApplication::run(long pidToMonitor)
 
     ResourcePolicies::Policy policy = ResourcePolicies::getPolicyByName(cfgPolicyName_);
 
+    rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
     PlatformDescription pd;
-    ResourcePolicies rp(pd, policy, cfgTimerSeconds_);
-    wm::WorkloadManager workloadManager(cgc, rp, pid);
+    ResourcePolicies rp(eventBus, pd, policy, cfgTimerSeconds_);
+    wm::WorkloadManager workloadManager(eventBus, cgc, rp, pid);
     PlatformMonitor pm(rp, cfgMonitorPeriod_);
 
     pd.logTopology();

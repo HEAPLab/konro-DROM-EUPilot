@@ -2,6 +2,7 @@
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
 #include "threadname.h"
+#include "simpleeventbus.h"
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -21,12 +22,14 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
     return lhs->getPid() < rhs->getPid();
 }
 
-ResourcePolicies::ResourcePolicies(PlatformDescription pd, Policy policy, int timerSeconds) :
+ResourcePolicies::ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy, int timerSeconds) :
     cat_(log4cpp::Category::getRoot()),
+    bus_(bus),
     platformDescription_(pd),
     apps_(appMappingComp),
     timerSeconds_(timerSeconds)
 {
+    registerEvents();
     policy_ = makePolicy(policy);
 }
 
@@ -71,6 +74,11 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
         return ResourcePolicies::Policy::RandPolicy;
     else
         return ResourcePolicies::Policy::NoPolicy;
+}
+
+void ResourcePolicies::registerEvents()
+{
+    bus_.subscribe<ResourcePolicies, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
 }
 
 void ResourcePolicies::run()
@@ -122,6 +130,7 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 
 void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)
 {
+    cat_.debug("RESOURCEPOLICIES AddProc event received");
     shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
     apps_.insert(appMapping);
     dumpApps();
@@ -130,6 +139,7 @@ void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)
 
 void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 {
+    cat_.debug("RESOURCEPOLICIES RemoveProc event received");
     // search target
     shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
     auto it = apps_.find(appMapping);

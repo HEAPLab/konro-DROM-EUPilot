@@ -1,6 +1,7 @@
 #include "workloadmanager.h"
 #include "addprocevent.h"
 #include "removeprocevent.h"
+#include "simpleeventbus.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -43,7 +44,8 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
     return lhs->getPid() < rhs->getPid();
 }
 
-WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid) :
+WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid) :
+    bus_(bus),
     platformControl_(pc),
     resourcePolicies_(rp),
     cat_(log4cpp::Category::getRoot()),
@@ -51,13 +53,15 @@ WorkloadManager::WorkloadManager(pc::IPlatformControl &pc, rmcommon::IEventRecei
     apps_(appComp)
 {
     add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
+
 }
 
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
     apps_.insert(app);
     platformControl_.addApplication(app);
-    resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
+    //resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
+    bus_.publish(new rmcommon::AddProcEvent(app));
 }
 
 shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
