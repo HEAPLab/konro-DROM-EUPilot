@@ -1,5 +1,7 @@
 #include "proclistener.h"
-
+#include "proclistenerforkevent.h"
+#include "proclistenerexecevent.h"
+#include "proclistenerexitevent.h"
 #include <iostream>
 #include <sstream>
 #include <cstdio>
@@ -173,7 +175,7 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
 
         // Call our handler with the inner proc_event struct
         struct cn_msg* msg = (struct cn_msg*)(NLMSG_DATA(nl_hdr));
-        processEvent(msg->data, nBytes);
+        forwardEvent(msg->data, nBytes);
 
         // Terminate if this was the last message
         if (msg_type == NLMSG_DONE) {
@@ -186,15 +188,21 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
     return true;
 }
 
-void ProcListener::processEvent(uint8_t *data, size_t len)
+void ProcListener::forwardEvent(uint8_t *data, size_t len)
 {
+    using namespace rmcommon;
+
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
+        workloadManager_.addEvent(make_shared<ProcListenerForkEvent>(data, len));
+        break;
     case proc_event::PROC_EVENT_EXEC:
+        workloadManager_.addEvent(make_shared<ProcListenerExecEvent>(data, len));
+        break;
     case proc_event::PROC_EVENT_EXIT:
-        notify(data, len);
+        workloadManager_.addEvent(make_shared<ProcListenerExitEvent>(data, len));
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
            PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */
@@ -245,12 +253,6 @@ void ProcListener::run()
     sendConnectorNetlinkMessageToKernel(nl_socket_, IGNORE);
 
     cat_.info("PROCLISTENER exiting");
-}
-
-void ProcListener::notify(uint8_t *data, size_t len)
-{
-    if (observer_)
-        observer_->update(data, len);
 }
 
 bool ProcListener::stop()

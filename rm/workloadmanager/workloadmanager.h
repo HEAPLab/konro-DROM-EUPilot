@@ -7,6 +7,7 @@
 #include "iplatformcontrol.h"
 #include "ieventreceiver.h"
 #include "concreteeventreceiver.h"
+#include "baseevent.h"
 #include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
@@ -19,7 +20,7 @@ namespace wm {
 /*!
  * \brief a class for handling and manipulating a set of applications
  */
-class WorkloadManager : public IProcObserver {
+class WorkloadManager : public IProcObserver, public rmcommon::ConcreteEventReceiver {
     rmcommon::EventBus &bus_;
     pc::IPlatformControl &platformControl_;
     rmcommon::IEventReceiver &resourcePolicies_;
@@ -32,7 +33,6 @@ class WorkloadManager : public IProcObserver {
                                    const std::shared_ptr<rmcommon::App> &rhs);
 
     std::set<std::shared_ptr<rmcommon::App>, AppComparator> apps_;
-
     /*!
      * Processes a fork event.
      *
@@ -96,6 +96,9 @@ public:
 
     // IProcObserver interface implementation
     virtual void update(std::uint8_t *data, size_t len) override;
+
+    // ConcreteEventReceiver implementation
+    virtual bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
 };
 
 }   // namespace wm

@@ -1,8 +1,6 @@
 #ifndef KONROAPPLICATION_H
 #define KONROAPPLICATION_H
 
-#include "proclistener.h"
-#include "konrohttp.h"
 #include <string>
 #include <log4cpp/Category.hh>
 #include <log4cpp/Appender.hh>
@@ -14,11 +12,18 @@
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
 
+namespace wm {
+    class ProcListener;
+    class WorkloadManager;
+}
+
+class KonroHttp;
 
 class KonroApplication {
     log4cpp::Category &cat_;
-    wm::ProcListener procListener_;
-    KonroHttp http_;
+    wm::ProcListener *procListener_;
+    wm::WorkloadManager *workloadManager_;
+    KonroHttp *http_;
 
     std::string cfgPolicyName_;
     int cfgTimerSeconds_;       // 0 means "no timer"

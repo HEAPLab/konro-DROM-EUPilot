@@ -1,7 +1,8 @@
 #ifndef PROCLISTENER_H
 #define PROCLISTENER_H
 
-#include "iprocobserver.h"
+#include "simpleeventbus.h"
+#include "ieventreceiver.h"
 #include <log4cpp/Category.hh>
 #include <cstdint>
 #include <cctype>
@@ -19,6 +20,8 @@ class ProcListener final {
         STOP = 6
     };
 
+    rmcommon::EventBus &bus_;
+    rmcommon::IEventReceiver &workloadManager_;
     int errno_;
     /*! Netlink socket */
     int nl_socket_;
@@ -26,7 +29,6 @@ class ProcListener final {
     unsigned int nl_pid_;
     /*! stop flag for the thread */
     std::atomic_bool stop_;
-    IProcObserver *observer_;
     log4cpp::Category &cat_;
 
     /*!
@@ -65,13 +67,14 @@ class ProcListener final {
     /*!
      * \brief Notifies the WorkloadManager of a new event
      */
-    void processEvent(std::uint8_t *data, size_t len);
+    void forwardEvent(std::uint8_t *data, size_t len);
     void run();
 
-    void notify(std::uint8_t *data, size_t len);
-
 public:
-    ProcListener() : observer_(nullptr), cat_(log4cpp::Category::getRoot()) {
+    ProcListener(rmcommon::EventBus &eventBus, rmcommon::IEventReceiver &workloadManager) :
+        bus_(eventBus),
+        workloadManager_(workloadManager),
+        cat_(log4cpp::Category::getRoot()) {
     }
 
     void operator()() {
@@ -83,14 +86,6 @@ public:
      * \return the outcome of the operation
      */
     bool stop();
-
-    void attach(IProcObserver *o) {
-        observer_ = o;
-    }
-
-    void detach() {
-        observer_ = nullptr;
-    }
 };
 
 }   // namespace wm

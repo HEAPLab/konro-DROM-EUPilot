@@ -3,6 +3,7 @@
 #include "dir.h"
 #include "makepath.h"
 #include "constants.h"
+#include "proclistener.h"
 #include "resourcepolicies.h"
 #include "workloadmanager.h"
 #include "platformmonitor.h"
@@ -12,7 +13,10 @@
 #include <unistd.h>
 
 
-KonroApplication::KonroApplication() : cat_(log4cpp::Category::getRoot())
+KonroApplication::KonroApplication() :
+    cat_(log4cpp::Category::getRoot()),
+    procListener_(nullptr),
+    workloadManager_(nullptr)
 {
     // set some default values
 
@@ -112,9 +116,14 @@ void KonroApplication::run(long pidToMonitor)
     rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
     PlatformDescription pd;
+    KonroHttp http;
     ResourcePolicies rp(eventBus, pd, policy, cfgTimerSeconds_);
     wm::WorkloadManager workloadManager(eventBus, cgc, rp, pid);
+    wm::ProcListener procListener(eventBus, workloadManager);
     PlatformMonitor pm(rp, cfgMonitorPeriod_);
+
+    procListener_ = &procListener;
+    http_ = &http;
 
     pd.logTopology();
 
@@ -128,6 +137,9 @@ void KonroApplication::run(long pidToMonitor)
     // 3. PlatformMonitor runs in a separate thread
     // 4. KonroHttp runs in a separate thread
 
+    cat_.info("MAIN starting WorkloadManager thread");
+    workloadManager.start();
+
     cat_.info("MAIN starting ResourcePolicies thread");
     rp.start();
 
@@ -137,17 +149,17 @@ void KonroApplication::run(long pidToMonitor)
     cat_.info("MAIN starting ProcListener in the main thread");
 
     cat_.info("MAIN starting HTTP thread");
-    http_.setEventReceiver(&rp);
-    http_.start();
+    http.setEventReceiver(&rp);
+    http.start();
 
-    procListener_.attach(&workloadManager);
-    procListener_();
+    procListener();
 }
 
 void KonroApplication::stop()
 {
-    http_.stop();
-    procListener_.stop();
+    http_->stop();
+    procListener_->stop();
+
 }
 
 void KonroApplication::testPlatformDescription()

@@ -32,8 +32,8 @@ void ConcreteEventReceiver::run()
     while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;
         if (queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS)) {
-            Logger::getRoot().info("CONCRETEEVENTRECEIVER received event %s",
-                                   event->getName().c_str());
+//            Logger::getRoot().info("CONCRETEEVENTRECEIVER received event %s",
+//                                   event->getName().c_str());
             stop_ = !processEvent(event);
         } else {
             // Logger::getRoot().info("ConcreteEventReceiver: no event");

@@ -1,6 +1,9 @@
 #include "workloadmanager.h"
 #include "addprocevent.h"
 #include "removeprocevent.h"
+#include "proclistenerforkevent.h"
+#include "proclistenerexecevent.h"
+#include "proclistenerexitevent.h"
 #include "simpleeventbus.h"
 #include <iostream>
 #include <sstream>
@@ -45,6 +48,7 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
 }
 
 WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid) :
+    rmcommon::ConcreteEventReceiver("WORKLOADMANAGER"),
     bus_(bus),
     platformControl_(pc),
     resourcePolicies_(rp),
@@ -109,6 +113,22 @@ void WorkloadManager::update(uint8_t *data, size_t len)
         cat_.info(os.str());
         break;
     }
+}
+
+bool WorkloadManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
+{
+    using namespace rmcommon;
+
+    if (ProcListenerForkEvent *ev = dynamic_cast<ProcListenerForkEvent *>(event.get())) {
+        processForkEvent(&ev->data_[0]);
+    } else if (ProcListenerExecEvent *ev = dynamic_cast<ProcListenerExecEvent *>(event.get())) {
+        processExecEvent(&ev->data_[0]);
+    } else if (ProcListenerExitEvent *ev = dynamic_cast<ProcListenerExitEvent *>(event.get())) {
+        processExitEvent(&ev->data_[0]);
+    } else {
+        cat_.error("WORKLOADMANAGER received wrong event: %s", event->getName().c_str());
+    }
+    return true;
 }
 
 void WorkloadManager::processForkEvent(uint8_t *data)
