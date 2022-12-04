@@ -17,6 +17,7 @@ class MonitorEvent : public BaseEvent {
     PlatformPower platPower_;
 public:
     MonitorEvent(PlatformTemperature temp, PlatformPower power) :
+        BaseEvent("MonitorEvent"),
         platTemp_(temp),
         platPower_(power)
     {}

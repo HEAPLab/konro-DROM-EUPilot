@@ -29,7 +29,7 @@ namespace rmcommon {
  */
 class ConcreteEventReceiver : public IEventReceiver {
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
-    const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(3000);
+    const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     std::string threadName_;
     std::thread receiverThread_;
     std::atomic_bool stop_;

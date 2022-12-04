@@ -27,6 +27,7 @@ class ProcFeedbackEvent : public BaseEvent {
 
 public:
     ProcFeedbackEvent(pid_t pid, bool feedback) :
+        BaseEvent("ProcFeedbackEvent"),
         pid_(pid),
         feedback_(feedback)
     {}

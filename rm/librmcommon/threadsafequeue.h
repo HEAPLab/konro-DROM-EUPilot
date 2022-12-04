@@ -25,6 +25,13 @@ public:
         cond_.notify_one();
     }
 
+    /*!
+     * Waits until an event is received.
+     * When an event is received, it is copied in "value"
+     * and the function returns.
+     *
+     * \param value the received event
+     */
     void waitAndPop(T &value) {
         std::unique_lock<std::mutex> lck(mut_);
         cond_.wait(lck, [this] {return !data_.empty(); });
@@ -32,6 +39,15 @@ public:
         data_.pop();
     }
 
+    /*!
+     * Waits for the specified number of milliseconds for an event.
+     * If an event is received, it is copied in "value" and true is
+     * returned.  Otherwise, false is returned.
+     *
+     * \param value the received event
+     * \param millis number of milliseconds to wait for the event
+     * \return true if an evetn is received
+     */
     bool waitAndPop(T &value, std::chrono::milliseconds millis) {
         std::unique_lock<std::mutex> lck(mut_);
         if (!cond_.wait_for(lck, millis,
@@ -56,8 +72,6 @@ public:
         std::lock_guard<std::mutex> lck(mut_);
         return data_.empty();
     }
-
-
 };
 
 }   // namespace rmcommon

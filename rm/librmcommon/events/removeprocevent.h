@@ -16,7 +16,9 @@ class RemoveProcEvent : public BaseEvent {
 
 public:
 
-    RemoveProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
+    RemoveProcEvent(std::shared_ptr<rmcommon::App> app) :
+        BaseEvent("RemoveProcEvent"),
+        app_(app) {}
 
     std::shared_ptr<rmcommon::App> getApp() const {
         return app_;

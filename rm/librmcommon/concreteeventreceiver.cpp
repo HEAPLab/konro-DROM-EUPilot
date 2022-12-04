@@ -19,21 +19,27 @@ void ConcreteEventReceiver::addEvent(std::shared_ptr<BaseEvent> event)
 
 void ConcreteEventReceiver::start()
 {
-    log4cpp::Category::getRoot().info("%s starts", threadName_.c_str());
     stop_= false;
     receiverThread_ = thread(&ConcreteEventReceiver::run, this);
-    while (!stop_) {
-        shared_ptr<rmcommon::BaseEvent> event;
-        if (queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS)) {
-            stop_ = !processEvent(event);
-        }
-    }
-    log4cpp::Category::getRoot().info("%s stops", threadName_.c_str());
 }
 
 void ConcreteEventReceiver::run()
 {
     rmcommon::setThreadName(threadName_.c_str());
+
+    using Logger = log4cpp::Category;
+    Logger::getRoot().info("%s starts", threadName_.c_str());
+    while (!stop_) {
+        shared_ptr<rmcommon::BaseEvent> event;
+        if (queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS)) {
+            Logger::getRoot().info("CONCRETEEVENTRECEIVER received event %s",
+                                   event->getName().c_str());
+            stop_ = !processEvent(event);
+        } else {
+            // Logger::getRoot().info("ConcreteEventReceiver: no event");
+        }
+    }
+    Logger::getRoot().info("%s stops", threadName_.c_str());
 }
 
 

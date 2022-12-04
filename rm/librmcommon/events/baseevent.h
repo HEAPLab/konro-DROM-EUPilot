@@ -2,6 +2,7 @@
 #define BASEEVENT_H
 
 #include <iostream>
+#include <string>
 
 namespace rmcommon {
 
@@ -9,7 +10,15 @@ namespace rmcommon {
  * \class a generic event related to a process managed by Konro
  */
 class BaseEvent {
+    std::string name_;
 public:
+    BaseEvent(const char *name) : name_(name) {
+    }
+
+    std::string getName() {
+        return name_;
+    }
+
     virtual void printOnOstream(std::ostream &os) const {
         os << "{}";
     }

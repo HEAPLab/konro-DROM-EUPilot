@@ -11,6 +11,9 @@ namespace rmcommon {
  * at a fixed temporal interval.
  */
 class TimerEvent : public BaseEvent {
+public:
+    TimerEvent() : BaseEvent("TimerEvent") {
+    }
 
     void printOnOstream(std::ostream &os) const override {
         os << "{}";

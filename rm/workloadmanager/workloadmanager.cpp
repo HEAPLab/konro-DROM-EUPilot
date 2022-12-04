@@ -60,8 +60,8 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
     apps_.insert(app);
     platformControl_.addApplication(app);
-    //resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
-    bus_.publish(new rmcommon::AddProcEvent(app));
+    resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
+    //bus_.publish(new rmcommon::AddProcEvent(app));
 }
 
 shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)

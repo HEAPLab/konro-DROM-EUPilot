@@ -2,6 +2,7 @@
 #define RESOURCEPOLICIES_H
 
 #include "ieventreceiver.h"
+#include "concreteeventreceiver.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
 #include "addprocevent.h"
@@ -33,7 +34,7 @@ class EventBus;
  *
  * ResourcePolicies runs in a dedicated thread.
  */
-class ResourcePolicies : public rmcommon::IEventReceiver {
+class ResourcePolicies : public rmcommon::ConcreteEventReceiver {
 public:
     enum class Policy {
         NoPolicy,
@@ -43,9 +44,6 @@ public:
 private:
     log4cpp::Category &cat_;
     rmcommon::EventBus &bus_;
-    const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(3000);
-    rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
-    std::thread rpThread_;
     std::thread timerThread_;
     std::unique_ptr<IBasePolicy> policy_;
     PlatformDescription platformDescription_;
@@ -69,7 +67,7 @@ private:
      * Processes a generic event by calling the appropriate handler function.
      * \param event the event to process
      */
-    void processEvent(std::shared_ptr<rmcommon::BaseEvent> event);
+    bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
 
     /*!
      * Processes an AddProcEvent.
@@ -114,18 +112,10 @@ public:
     ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
 
     /*!
-     * \brief Adds an event to the tread safe queue
-     * \param event the event to add
-     */
-    virtual void addEvent(std::shared_ptr<rmcommon::BaseEvent> event) override {
-        queue_.push(event);
-    }
-
-    /*!
      * Starts the run() function in a new thread
      * and the timer() function in a new thread
      */
-    void start();
+    void start() override;
 
     /*!
      * Stops the threads

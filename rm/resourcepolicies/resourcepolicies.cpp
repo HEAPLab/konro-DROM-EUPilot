@@ -23,6 +23,7 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
 }
 
 ResourcePolicies::ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy, int timerSeconds) :
+    rmcommon::ConcreteEventReceiver("RESOURCEPOLICIES"),
     cat_(log4cpp::Category::getRoot()),
     bus_(bus),
     platformDescription_(pd),
@@ -47,8 +48,7 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
 
 void ResourcePolicies::start()
 {
-    stop_= false;
-    rpThread_ = thread(&ResourcePolicies::run, this);
+    ConcreteEventReceiver::start();
     // If a timer was requested, start the thread now
     if (timerSeconds_ > 0) {
         timerThread_ = thread(&ResourcePolicies::timer, this);
@@ -56,16 +56,6 @@ void ResourcePolicies::start()
     else {
         cat_.info("RESOURCEPOLICIES timer not started");
     }
-}
-
-void ResourcePolicies::stop()
-{
-    stop_ = true;
-    if (rpThread_.joinable())
-        rpThread_.join();
-    if (timerThread_.joinable())
-        timerThread_.join();
-    cat_.info("RESOURCEPOLICIES stopped");
 }
 
 ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &policyName)
@@ -81,22 +71,6 @@ void ResourcePolicies::registerEvents()
     bus_.subscribe<ResourcePolicies, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
 }
 
-void ResourcePolicies::run()
-{
-    rmcommon::setThreadName("RESOURCEPOLICIES");
-    cat_.info("RESOURCEPOLICIES thread starting");
-    while (!stop_) {
-        shared_ptr<rmcommon::BaseEvent> event;
-        bool rc = queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS);
-        if (!rc) {
-            continue;
-        }
-        cat_.debug("RESOURCEPOLICIES event received. Calling ProcessEvent");
-        processEvent(event);
-    }
-    cat_.info("RESOURCEPOLICIES thread exiting");
-}
-
 void ResourcePolicies::timer()
 {
     cat_.info("RESOURCEPOLICIES timer thread starting");
@@ -107,7 +81,7 @@ void ResourcePolicies::timer()
     cat_.info("RESOURCEPOLICIES timer thread exiting");
 }
 
-void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
+bool ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
 #if 1
     ostringstream os;
@@ -126,6 +100,7 @@ void ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
     } else if (rmcommon::ProcFeedbackEvent *e = dynamic_cast<rmcommon::ProcFeedbackEvent *>(event.get())) {
         processProcFeedbackEvent(e);
     }
+    return true;        // continue processing
 }
 
 void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)

@@ -17,7 +17,9 @@ class AddProcEvent : public BaseEvent {
 
 public:
 
-    AddProcEvent(std::shared_ptr<rmcommon::App> app) : app_(app) {}
+    AddProcEvent(std::shared_ptr<rmcommon::App> app) :
+        BaseEvent("AddProcEvent"),
+        app_(app) {}
 
     std::shared_ptr<rmcommon::App> getApp() const {
         return app_;
