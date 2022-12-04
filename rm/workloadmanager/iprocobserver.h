@@ -10,7 +10,7 @@ namespace wm {
  */
 class IProcObserver {
 public:
-    virtual void update(std::uint8_t *data) = 0;
+    virtual void update(std::uint8_t *data, std::size_t len) = 0;
 };
 
 }   // namespace wm

@@ -65,10 +65,10 @@ class ProcListener final {
     /*!
      * \brief Notifies the WorkloadManager of a new event
      */
-    void processEvent(std::uint8_t *data);
+    void processEvent(std::uint8_t *data, size_t len);
     void run();
 
-    void notify(std::uint8_t *data);
+    void notify(std::uint8_t *data, size_t len);
 
 public:
     ProcListener() : observer_(nullptr), cat_(log4cpp::Category::getRoot()) {

@@ -5,6 +5,8 @@
 #include "ieventreceiver.h"
 #include "iprocobserver.h"
 #include "iplatformcontrol.h"
+#include "ieventreceiver.h"
+#include "concreteeventreceiver.h"
 #include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
@@ -93,7 +95,7 @@ public:
     WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid);
 
     // IProcObserver interface implementation
-    virtual void update(std::uint8_t *data) override;
+    virtual void update(std::uint8_t *data, size_t len) override;
 };
 
 }   // namespace wm

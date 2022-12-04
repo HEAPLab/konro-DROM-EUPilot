@@ -89,7 +89,7 @@ bool WorkloadManager::isInKonro(pid_t pid)
     return apps_.find(key) != end(apps_);
 }
 
-void WorkloadManager::update(uint8_t *data)
+void WorkloadManager::update(uint8_t *data, size_t len)
 {
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 

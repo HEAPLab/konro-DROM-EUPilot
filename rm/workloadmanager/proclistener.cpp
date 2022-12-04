@@ -173,7 +173,7 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
 
         // Call our handler with the inner proc_event struct
         struct cn_msg* msg = (struct cn_msg*)(NLMSG_DATA(nl_hdr));
-        processEvent(msg->data);
+        processEvent(msg->data, nBytes);
 
         // Terminate if this was the last message
         if (msg_type == NLMSG_DONE) {
@@ -186,7 +186,7 @@ bool ProcListener::receiveConnectorNetlinkMessage(int socket, void *buffer, size
     return true;
 }
 
-void ProcListener::processEvent(uint8_t *data)
+void ProcListener::processEvent(uint8_t *data, size_t len)
 {
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
@@ -194,7 +194,7 @@ void ProcListener::processEvent(uint8_t *data)
     case proc_event::PROC_EVENT_FORK:
     case proc_event::PROC_EVENT_EXEC:
     case proc_event::PROC_EVENT_EXIT:
-        notify(data);
+        notify(data, len);
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
            PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */
@@ -247,10 +247,10 @@ void ProcListener::run()
     cat_.info("PROCLISTENER exiting");
 }
 
-void ProcListener::notify(uint8_t *data)
+void ProcListener::notify(uint8_t *data, size_t len)
 {
     if (observer_)
-        observer_->update(data);
+        observer_->update(data, len);
 }
 
 bool ProcListener::stop()
