@@ -9,6 +9,9 @@
 
 using namespace std;
 
+
+namespace rp {
+
 /*!
  * Compares two AppMapping ("less" function) handled
  * by shared pointers
@@ -158,3 +161,5 @@ void ResourcePolicies::dumpApps() const
     os << "]";
     cat_.info(os.str());
 }
+
+}   // namespace rp

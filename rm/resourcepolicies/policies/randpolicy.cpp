@@ -8,6 +8,9 @@
 #include <log4cpp/Category.hh>
 
 using namespace std;
+
+namespace rp {
+
 /*!
  * Extracts a random CPU number
  * \param cpusNum the number of CPUs avaiable on the machine
@@ -63,3 +66,5 @@ void RandPolicy::feedback(rmcommon::ProcFeedbackEvent *ev)
 {
     // no action required
 }
+
+}   // namespace rp

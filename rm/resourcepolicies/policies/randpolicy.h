@@ -3,6 +3,8 @@
 
 #include "ibasepolicy.h"
 
+namespace rp {
+
 /*!
  * \class random resource management policy
  *
@@ -22,5 +24,7 @@ public:
     virtual void monitor(rmcommon::MonitorEvent *ev) override;
     virtual void feedback(rmcommon::ProcFeedbackEvent *ev) override;
 };
+
+}   // namespace rp
 
 #endif // RANDPOLICY_H

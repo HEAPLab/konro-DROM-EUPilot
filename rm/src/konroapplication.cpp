@@ -111,13 +111,13 @@ void KonroApplication::run(long pidToMonitor)
 
     //trapCtrlC();
 
-    ResourcePolicies::Policy policy = ResourcePolicies::getPolicyByName(cfgPolicyName_);
+    rp::ResourcePolicies::Policy policy = rp::ResourcePolicies::getPolicyByName(cfgPolicyName_);
 
     rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
     PlatformDescription pd;
     http::KonroHttp http(eventBus);
-    ResourcePolicies rp(eventBus, pd, policy, cfgTimerSeconds_);
+    rp::ResourcePolicies resourcePolicies(eventBus, pd, policy, cfgTimerSeconds_);
     wm::WorkloadManager workloadManager(eventBus, cgc, pid);
     wm::ProcListener procListener(eventBus);
     PlatformMonitor pm(eventBus, cfgMonitorPeriod_);
@@ -125,6 +125,7 @@ void KonroApplication::run(long pidToMonitor)
     procListener_ = &procListener;
     http_ = &http;
     workloadManager_ = &workloadManager;
+    resourcePolicies_ = &resourcePolicies;
 
     pd.logTopology();
 
@@ -143,7 +144,7 @@ void KonroApplication::run(long pidToMonitor)
     workloadManager.start();
 
     cat_.info("MAIN starting ResourcePolicies thread");
-    rp.start();
+    resourcePolicies.start();
 
     cat_.info("MAIN starting PlatformMonitor thread");
     pm.start();

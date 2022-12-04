@@ -3,6 +3,8 @@
 
 #include "ibasepolicy.h"
 
+namespace rp {
+
 /*!
  * \class empty resource management policy
  *
@@ -33,5 +35,7 @@ public:
         // do nothing
     }
 };
+
+}   // namespace rp
 
 #endif // NOPOLICY_H

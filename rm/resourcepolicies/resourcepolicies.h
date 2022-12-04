@@ -24,6 +24,8 @@ namespace rmcommon {
 class EventBus;
 }
 
+namespace rp {
+
 /*!
  * \brief The ResourcePolicies class
  *
@@ -128,5 +130,7 @@ public:
      */
     static Policy getPolicyByName(const std::string &policyName);
 };
+
+}   // namespace rp
 
 #endif // RESOURCEPOLICIES_H

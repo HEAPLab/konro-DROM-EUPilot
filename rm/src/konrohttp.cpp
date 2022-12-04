@@ -13,15 +13,10 @@ struct KonroHttp::KonroHttpImpl {
     rmcommon::EventBus &bus_;
     log4cpp::Category &cat_;
     httplib::Server srv;
-    rmcommon::IEventReceiver *resourcePolicies_;
 
     KonroHttpImpl(rmcommon::EventBus &eventBus) :
         bus_(eventBus),
         cat_(log4cpp::Category::getRoot()) {
-    }
-
-    void setEventReceiver(rmcommon::IEventReceiver *er) {
-        resourcePolicies_ = er;
     }
 
     /*!
@@ -31,10 +26,6 @@ struct KonroHttp::KonroHttpImpl {
      * \param data the JSON in text format
      */
     void sendFeedbackEvent(const std::string &data) {
-        if (!resourcePolicies_) {
-            cat_.error("KONROHTTP parseJson: ResourcePolicies not set");
-            return;
-        }
         using namespace nlohmann;
         basic_json<> j = json::parse(data);
         if (!j.contains("pid")) {
@@ -48,8 +39,8 @@ struct KonroHttp::KonroHttpImpl {
         long pid = j["pid"];
         bool feedback = j["feedback"];
         cat_.info("KONROHTTP sending feedback event to ResourcePolicies");
-        resourcePolicies_->addEvent(make_shared<rmcommon::ProcFeedbackEvent>(pid, feedback));
-    }
+        bus_.publish(new rmcommon::ProcFeedbackEvent(pid, feedback));
+   }
 
     void handleGet(const httplib::Request &req, httplib::Response &res){
         cat_.info("HTTP GET received");

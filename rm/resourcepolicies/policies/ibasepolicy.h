@@ -7,6 +7,8 @@
 #include "procfeedbackevent.h"
 #include <memory>
 
+namespace rp {
+
 /*!
  * \interface an interface for event-based scheduling.
  * Each event type in the system is associated to a handler function.
@@ -45,5 +47,7 @@ public:
      */
     virtual void feedback(rmcommon::ProcFeedbackEvent *ev) = 0;
 };
+
+}   // namespace rp
 
 #endif // IBASEPOLICY_H

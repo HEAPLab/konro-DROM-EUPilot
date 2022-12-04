@@ -8,6 +8,7 @@
 #include "numericvalue.h"
 #include "memorycontrol.h"
 
+namespace rp {
 
 /*!
  * \class encapsulates an application and adds information about
@@ -118,5 +119,7 @@ public:
         maxMemory_ = maxMemory;
     }
 };
+
+}   // namespace rp
 
 #endif // APPMAPPING_H

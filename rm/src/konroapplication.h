@@ -21,11 +21,16 @@ namespace http {
     class KonroHttp;
 }
 
+namespace rp {
+    class ResourcePolicies;
+}
+
 class KonroApplication {
     log4cpp::Category &cat_;
     wm::ProcListener *procListener_;
     wm::WorkloadManager *workloadManager_;
     http::KonroHttp *http_;
+    rp::ResourcePolicies *resourcePolicies_;
 
     std::string cfgPolicyName_;
     int cfgTimerSeconds_;       // 0 means "no timer"

@@ -1,7 +1,6 @@
 #ifndef KONROHTTP_H
 #define KONROHTTP_H
 
-#include "ieventreceiver.h"
 #include "simpleeventbus.h"
 #include <thread>
 #include <memory>
@@ -24,7 +23,7 @@ class KonroHttp {
     void run();
 
 public:
-    KonroHttp(rmcommon::EventBus &eventBus);
+    explicit KonroHttp(rmcommon::EventBus &eventBus);
     ~KonroHttp();
 
     /*!
