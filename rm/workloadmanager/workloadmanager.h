@@ -82,7 +82,7 @@ class WorkloadManager : public rmcommon::ConcreteEventReceiver {
      */
     bool isInKonro(pid_t pid);
 
-    void registerEvents();
+    void subscribeToEvents();
 
     /*!
      * Gets the app with the specified pid from the set of Konro's applications.

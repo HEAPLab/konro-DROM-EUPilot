@@ -55,12 +55,12 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
     pid_(0),
     apps_(appComp)
 {
-    registerEvents();
+    subscribeToEvents();
 
     add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
 }
 
-void WorkloadManager::registerEvents()
+void WorkloadManager::subscribeToEvents()
 {
     using namespace rmcommon;
     auto handlerFunc = &WorkloadManager::addEvent;

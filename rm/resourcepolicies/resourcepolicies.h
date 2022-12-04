@@ -58,7 +58,7 @@ private:
 
     std::set<std::shared_ptr<AppMapping>, AppComparator> apps_;
 
-    void registerEvents();
+    void subscribeToEvents();
 
     void run();
 
@@ -118,11 +118,6 @@ public:
      * and the timer() function in a new thread
      */
     void start() override;
-
-    /*!
-     * Stops the threads
-     */
-    void stop();
 
     /*!
      * Return the policy with the specified name.

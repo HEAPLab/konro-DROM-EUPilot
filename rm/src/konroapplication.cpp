@@ -161,6 +161,7 @@ void KonroApplication::stop()
 {
     http_->stop();
     procListener_->stop();
+    workloadManager_->stop();
 
 }
 

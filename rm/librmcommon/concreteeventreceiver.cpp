@@ -23,6 +23,11 @@ void ConcreteEventReceiver::start()
     receiverThread_ = thread(&ConcreteEventReceiver::run, this);
 }
 
+void ConcreteEventReceiver::stop()
+{
+    stop_= true;
+}
+
 void ConcreteEventReceiver::run()
 {
     rmcommon::setThreadName(threadName_.c_str());

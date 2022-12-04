@@ -48,6 +48,7 @@ public:
     virtual void addEvent(std::shared_ptr<BaseEvent> event) override;
 
     virtual void start();
+    virtual void stop();
 
     /*!
      * Processes a generic event by calling the appropriate handler function.

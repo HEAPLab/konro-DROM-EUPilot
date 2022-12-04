@@ -33,7 +33,7 @@ ResourcePolicies::ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription 
     apps_(appMappingComp),
     timerSeconds_(timerSeconds)
 {
-    registerEvents();
+    subscribeToEvents();
     policy_ = makePolicy(policy);
 }
 
@@ -69,9 +69,10 @@ ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &po
         return ResourcePolicies::Policy::NoPolicy;
 }
 
-void ResourcePolicies::registerEvents()
+void ResourcePolicies::subscribeToEvents()
 {
     bus_.subscribe<ResourcePolicies, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
+    bus_.subscribe<ResourcePolicies, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
 }
 
 void ResourcePolicies::timer()
