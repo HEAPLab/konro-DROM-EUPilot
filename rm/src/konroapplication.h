@@ -22,7 +22,7 @@ namespace http {
 }
 
 namespace rp {
-    class ResourcePolicies;
+    class PolicyManager;
 }
 
 class KonroApplication {
@@ -30,7 +30,7 @@ class KonroApplication {
     wm::ProcListener *procListener_;
     wm::WorkloadManager *workloadManager_;
     http::KonroHttp *http_;
-    rp::ResourcePolicies *resourcePolicies_;
+    rp::PolicyManager *policyManager_;
 
     std::string cfgPolicyName_;
     int cfgTimerSeconds_;       // 0 means "no timer"

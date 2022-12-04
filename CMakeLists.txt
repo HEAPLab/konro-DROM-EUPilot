@@ -10,7 +10,7 @@ add_subdirectory (rm)
 add_subdirectory (konrofeedback)
 
 add_subdirectory (testplatformcontrol)
-add_subdirectory (testresourcepolicies)
+add_subdirectory (testthreadsafequeue)
 add_subdirectory (testsensors)
 add_subdirectory (testhwloc)
 add_subdirectory (testfeedback)

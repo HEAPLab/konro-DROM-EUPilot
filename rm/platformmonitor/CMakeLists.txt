@@ -11,4 +11,4 @@ add_library(platformmonitor
 
 target_include_directories(platformmonitor INTERFACE .)
 target_include_directories(platformmonitor PRIVATE ${SENSORS_INCLUDE_DIR})
-target_link_libraries(platformmonitor PUBLIC resourcepolicies  ${SENSORS_LIBRARY})
+target_link_libraries(platformmonitor PUBLIC policymanager  ${SENSORS_LIBRARY})

@@ -1,5 +1,5 @@
-#ifndef RESOURCEPOLICIES_H
-#define RESOURCEPOLICIES_H
+#ifndef POLICYMANAGER_H
+#define POLICYMANAGER_H
 
 #include "ieventreceiver.h"
 #include "concreteeventreceiver.h"
@@ -27,16 +27,12 @@ class EventBus;
 namespace rp {
 
 /*!
- * \brief The ResourcePolicies class
- *
- * Using a queue, ResourcePolicies receives events from multiple
+ * Using a queue, PolicyManager receives events from multiple
  * threads, adds/removes managed applications to
  * a set and forwards the events to the chosen resource
  * policy.
- *
- * ResourcePolicies runs in a dedicated thread.
  */
-class ResourcePolicies : public rmcommon::ConcreteEventReceiver {
+class PolicyManager : public rmcommon::ConcreteEventReceiver {
 public:
     enum class Policy {
         NoPolicy,
@@ -111,7 +107,7 @@ public:
     /*!
      * \param timerSeconds if 0, then the internal timer thread is not started
      */
-    ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
+    PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
 
     /*!
      * Starts the run() function in a new thread
@@ -128,4 +124,4 @@ public:
 
 }   // namespace rp
 
-#endif // RESOURCEPOLICIES_H
+#endif // POLICYMANAGER_H

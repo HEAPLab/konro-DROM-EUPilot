@@ -10,7 +10,7 @@ macro(add_unit_test testname)
     FILE(GLOB sources ${testname}*.cpp unittest.h)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/testresourcepolicies/${testname}")
-    target_link_libraries(${testname} PUBLIC rmcommon platformcontrol)
+    target_link_libraries(${testname} PUBLIC rmcommon platformcontrol policymanager)
   #endif()
 endmacro(add_unit_test)
 

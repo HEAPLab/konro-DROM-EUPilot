@@ -1,4 +1,4 @@
-#include "resourcepolicies.h"
+#include "policymanager.h"
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
 #include "threadname.h"
@@ -25,8 +25,8 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
     return lhs->getPid() < rhs->getPid();
 }
 
-ResourcePolicies::ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy, int timerSeconds) :
-    rmcommon::ConcreteEventReceiver("RESOURCEPOLICIES"),
+PolicyManager::PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy, int timerSeconds) :
+    rmcommon::ConcreteEventReceiver("POLICYMANAGER"),
     cat_(log4cpp::Category::getRoot()),
     bus_(bus),
     platformDescription_(pd),
@@ -37,7 +37,7 @@ ResourcePolicies::ResourcePolicies(rmcommon::EventBus &bus, PlatformDescription 
     policy_ = makePolicy(policy);
 }
 
-std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
+std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
 {
     switch (policy) {
     case Policy::RandPolicy:
@@ -49,47 +49,47 @@ std::unique_ptr<IBasePolicy> ResourcePolicies::makePolicy(Policy policy)
     }
 }
 
-void ResourcePolicies::start()
+void PolicyManager::start()
 {
     ConcreteEventReceiver::start();
     // If a timer was requested, start the thread now
     if (timerSeconds_ > 0) {
-        timerThread_ = thread(&ResourcePolicies::timer, this);
+        timerThread_ = thread(&PolicyManager::timer, this);
     }
     else {
-        cat_.info("RESOURCEPOLICIES timer not started");
+        cat_.info("POLICYMANAGER timer not started");
     }
 }
 
-ResourcePolicies::Policy ResourcePolicies::getPolicyByName(const std::string &policyName)
+PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyName)
 {
     if (policyName == "RandPolicy")
-        return ResourcePolicies::Policy::RandPolicy;
+        return PolicyManager::Policy::RandPolicy;
     else
-        return ResourcePolicies::Policy::NoPolicy;
+        return PolicyManager::Policy::NoPolicy;
 }
 
-void ResourcePolicies::subscribeToEvents()
+void PolicyManager::subscribeToEvents()
 {
-    bus_.subscribe<ResourcePolicies, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
-    bus_.subscribe<ResourcePolicies, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &ResourcePolicies::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
 }
 
-void ResourcePolicies::timer()
+void PolicyManager::timer()
 {
-    cat_.info("RESOURCEPOLICIES timer thread starting");
+    cat_.info("POLICYMANAGER timer thread starting");
     while (!stop_) {
         this_thread::sleep_for(chrono::seconds(timerSeconds_));
         addEvent(make_shared<rmcommon::TimerEvent>());
     }
-    cat_.info("RESOURCEPOLICIES timer thread exiting");
+    cat_.info("POLICYMANAGER timer thread exiting");
 }
 
-bool ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
+bool PolicyManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
 #if 1
     ostringstream os;
-    os << "RESOURCEPOLICIES received message => " << *event;
+    os << "POLICYMANAGER received message => " << *event;
     cat_.debug(os.str());
 #endif
 
@@ -107,18 +107,18 @@ bool ResourcePolicies::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
     return true;        // continue processing
 }
 
-void ResourcePolicies::processAddProcEvent(rmcommon::AddProcEvent *ev)
+void PolicyManager::processAddProcEvent(rmcommon::AddProcEvent *ev)
 {
-    cat_.debug("RESOURCEPOLICIES AddProc event received");
+    cat_.debug("POLICYMANAGER AddProc event received");
     shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
     apps_.insert(appMapping);
     dumpApps();
     policy_->addApp(appMapping);
 }
 
-void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
+void PolicyManager::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
 {
-    cat_.debug("RESOURCEPOLICIES RemoveProc event received");
+    cat_.debug("POLICYMANAGER RemoveProc event received");
     // search target
     shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
     auto it = apps_.find(appMapping);
@@ -129,28 +129,28 @@ void ResourcePolicies::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
     dumpApps();
 }
 
-void ResourcePolicies::processTimerEvent(rmcommon::TimerEvent *ev)
+void PolicyManager::processTimerEvent(rmcommon::TimerEvent *ev)
 {
-    cat_.debug("RESOURCEPOLICIES timer event received");
+    cat_.debug("POLICYMANAGER timer event received");
     policy_->timer();
 }
 
-void ResourcePolicies::processMonitorEvent(rmcommon::MonitorEvent *ev)
+void PolicyManager::processMonitorEvent(rmcommon::MonitorEvent *ev)
 {
-    cat_.debug("RESOURCEPOLICIES monitor event received");
+    cat_.debug("POLICYMANAGER monitor event received");
     policy_->monitor(ev);
 }
 
-void ResourcePolicies::processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev)
+void PolicyManager::processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev)
 {
-    cat_.debug("RESOURCEPOLICIES feedback event received");
+    cat_.debug("POLICYMANAGER feedback event received");
     policy_->feedback(ev);
 }
 
-void ResourcePolicies::dumpApps() const
+void PolicyManager::dumpApps() const
 {
     std::ostringstream os;
-    os << "RESOURCEPOLICIES handling PIDS [";
+    os << "POLICYMANAGER handling PIDS [";
     bool first = true;
     for (auto &app: apps_) {
         if (first)

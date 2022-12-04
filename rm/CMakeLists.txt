@@ -7,7 +7,7 @@ add_subdirectory (platformdescription)
 add_subdirectory (librmcommon)
 add_subdirectory (platformcontrol)
 add_subdirectory (workloadmanager)
-add_subdirectory (resourcepolicies)
+add_subdirectory (policymanager)
 add_subdirectory (platformmonitor)
 
 file(GLOB konro_SOURCES "src/*.cpp")
@@ -22,7 +22,7 @@ target_link_libraries(konro PUBLIC
     rmcommon
     platformcontrol
     workloadmanager
-    resourcepolicies
+    policymanager
     platformmonitor
     ${LOG4CPP_LIBRARIES})
 

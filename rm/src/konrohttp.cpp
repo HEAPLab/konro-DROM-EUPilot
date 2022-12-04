@@ -38,7 +38,7 @@ struct KonroHttp::KonroHttpImpl {
         }
         long pid = j["pid"];
         bool feedback = j["feedback"];
-        cat_.info("KONROHTTP sending feedback event to ResourcePolicies");
+        cat_.info("KONROHTTP sending feedback event to PolicyManager");
         bus_.publish(new rmcommon::ProcFeedbackEvent(pid, feedback));
    }
 

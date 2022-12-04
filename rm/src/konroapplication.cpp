@@ -4,7 +4,7 @@
 #include "makepath.h"
 #include "constants.h"
 #include "proclistener.h"
-#include "resourcepolicies.h"
+#include "policymanager.h"
 #include "workloadmanager.h"
 #include "platformmonitor.h"
 #include "proclistener.h"
@@ -77,7 +77,7 @@ void KonroApplication::loadConfiguration()
     }
 
     try {
-        cfgTimerSeconds_ = config.read<int>("resourcepolicies", "timerseconds");
+        cfgTimerSeconds_ = config.read<int>("policymanager", "timerseconds");
         cat_.info("MAIN timer seconds = %d", cfgTimerSeconds_);
     } catch (std::logic_error &e) {
         cat_.info("MAIN could not read timerseconds from Konro configuration %s", konroConfigFile.c_str());
@@ -111,13 +111,13 @@ void KonroApplication::run(long pidToMonitor)
 
     //trapCtrlC();
 
-    rp::ResourcePolicies::Policy policy = rp::ResourcePolicies::getPolicyByName(cfgPolicyName_);
+    rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
     rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
     PlatformDescription pd;
     http::KonroHttp http(eventBus);
-    rp::ResourcePolicies resourcePolicies(eventBus, pd, policy, cfgTimerSeconds_);
+    rp::PolicyManager policyManager(eventBus, pd, policy, cfgTimerSeconds_);
     wm::WorkloadManager workloadManager(eventBus, cgc, pid);
     wm::ProcListener procListener(eventBus);
     PlatformMonitor pm(eventBus, cfgMonitorPeriod_);
@@ -125,7 +125,7 @@ void KonroApplication::run(long pidToMonitor)
     procListener_ = &procListener;
     http_ = &http;
     workloadManager_ = &workloadManager;
-    resourcePolicies_ = &resourcePolicies;
+    policyManager_ = &policyManager;
 
     pd.logTopology();
 
@@ -136,15 +136,15 @@ void KonroApplication::run(long pidToMonitor)
     //
     // 1. ProcListener runs in the current (main) thread
     // 2. WorkloadManager runs in a separate thread
-    // 3. ResourcePolicies runs in a separate thread
+    // 3. PolicyManager runs in a separate thread
     // 4. PlatformMonitor runs in a separate thread
     // 5. KonroHttp runs in a separate thread
 
     cat_.info("MAIN starting WorkloadManager thread");
     workloadManager.start();
 
-    cat_.info("MAIN starting ResourcePolicies thread");
-    resourcePolicies.start();
+    cat_.info("MAIN starting PolicyManager thread");
+    policyManager.start();
 
     cat_.info("MAIN starting PlatformMonitor thread");
     pm.start();

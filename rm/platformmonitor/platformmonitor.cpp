@@ -243,7 +243,6 @@ void PlatformMonitor::run()
         rmcommon::PlatformPower platPower;
         pimpl_->handleSensors(platTemp, platPower);
         bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
-        //resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>(platTemp, platPower));
     }
     cat_.info("PLATFORMMONITOR exiting");
 }
