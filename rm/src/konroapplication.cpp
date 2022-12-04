@@ -116,14 +116,15 @@ void KonroApplication::run(long pidToMonitor)
     rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
     PlatformDescription pd;
-    KonroHttp http;
+    http::KonroHttp http(eventBus);
     ResourcePolicies rp(eventBus, pd, policy, cfgTimerSeconds_);
-    wm::WorkloadManager workloadManager(eventBus, cgc, rp, pid);
-    wm::ProcListener procListener(eventBus, workloadManager);
-    PlatformMonitor pm(rp, cfgMonitorPeriod_);
+    wm::WorkloadManager workloadManager(eventBus, cgc, pid);
+    wm::ProcListener procListener(eventBus);
+    PlatformMonitor pm(eventBus, cfgMonitorPeriod_);
 
     procListener_ = &procListener;
     http_ = &http;
+    workloadManager_ = &workloadManager;
 
     pd.logTopology();
 
@@ -132,10 +133,11 @@ void KonroApplication::run(long pidToMonitor)
 
     // Note on threads:
     //
-    // 1. ProcListener and WorkloadManager run in the current (main) thread
-    // 2. ResourcePolicies runs in a separate thread
-    // 3. PlatformMonitor runs in a separate thread
-    // 4. KonroHttp runs in a separate thread
+    // 1. ProcListener runs in the current (main) thread
+    // 2. WorkloadManager runs in a separate thread
+    // 3. ResourcePolicies runs in a separate thread
+    // 4. PlatformMonitor runs in a separate thread
+    // 5. KonroHttp runs in a separate thread
 
     cat_.info("MAIN starting WorkloadManager thread");
     workloadManager.start();
@@ -149,7 +151,6 @@ void KonroApplication::run(long pidToMonitor)
     cat_.info("MAIN starting ProcListener in the main thread");
 
     cat_.info("MAIN starting HTTP thread");
-    http.setEventReceiver(&rp);
     http.start();
 
     procListener();

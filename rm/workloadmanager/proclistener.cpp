@@ -22,6 +22,12 @@ namespace wm {
 #define KERNEL_PID                  0
 #define NLMSG_STOP_MESSAGE_TYPE     (NLMSG_MIN_TYPE+12345)
 
+
+ProcListener::ProcListener(rmcommon::EventBus &eventBus) :
+    bus_(eventBus),
+    cat_(log4cpp::Category::getRoot()) {
+}
+
 int ProcListener::createNetlinkSocket()
 {
     int sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
@@ -196,13 +202,13 @@ void ProcListener::forwardEvent(uint8_t *data, size_t len)
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
-        workloadManager_.addEvent(make_shared<ProcListenerForkEvent>(data, len));
+        bus_.publish(new ProcListenerForkEvent(data, len));
         break;
     case proc_event::PROC_EVENT_EXEC:
-        workloadManager_.addEvent(make_shared<ProcListenerExecEvent>(data, len));
+        bus_.publish(new ProcListenerExecEvent(data, len));
         break;
     case proc_event::PROC_EVENT_EXIT:
-        workloadManager_.addEvent(make_shared<ProcListenerExitEvent>(data, len));
+        bus_.publish(new ProcListenerExitEvent(data, len));
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
            PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */

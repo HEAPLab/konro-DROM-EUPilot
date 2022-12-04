@@ -1,7 +1,7 @@
 #ifndef PLATFORMMONITOR_H
 #define PLATFORMMONITOR_H
 
-#include "ieventreceiver.h"
+#include "simpleeventbus.h"
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -19,12 +19,12 @@ class PlatformMonitor {
     log4cpp::Category &cat_;
     int monitorPeriod_;
     std::unique_ptr<PlatformMonitorImpl> pimpl_;
-    rmcommon::IEventReceiver &resourcePolicies_;
+    rmcommon::EventBus &bus_;
     std::thread pmThread_;
     std::atomic_bool stop_;
     void run();
 public:
-    PlatformMonitor(rmcommon::IEventReceiver &rp, int monitorPeriod);
+    PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod);
     ~PlatformMonitor();
     void start();
     void stop();

@@ -17,13 +17,15 @@ namespace wm {
     class WorkloadManager;
 }
 
-class KonroHttp;
+namespace http {
+    class KonroHttp;
+}
 
 class KonroApplication {
     log4cpp::Category &cat_;
     wm::ProcListener *procListener_;
     wm::WorkloadManager *workloadManager_;
-    KonroHttp *http_;
+    http::KonroHttp *http_;
 
     std::string cfgPolicyName_;
     int cfgTimerSeconds_;       // 0 means "no timer"

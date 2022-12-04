@@ -3,7 +3,6 @@
 
 #include "app.h"
 #include "ieventreceiver.h"
-#include "iprocobserver.h"
 #include "iplatformcontrol.h"
 #include "ieventreceiver.h"
 #include "concreteeventreceiver.h"
@@ -20,10 +19,9 @@ namespace wm {
 /*!
  * \brief a class for handling and manipulating a set of applications
  */
-class WorkloadManager : public IProcObserver, public rmcommon::ConcreteEventReceiver {
+class WorkloadManager : public rmcommon::ConcreteEventReceiver {
     rmcommon::EventBus &bus_;
     pc::IPlatformControl &platformControl_;
-    rmcommon::IEventReceiver &resourcePolicies_;
     log4cpp::Category &cat_;
     /*! pid to monitor */
     int pid_;
@@ -84,6 +82,8 @@ class WorkloadManager : public IProcObserver, public rmcommon::ConcreteEventRece
      */
     bool isInKonro(pid_t pid);
 
+    void registerEvents();
+
     /*!
      * Gets the app with the specified pid from the set of Konro's applications.
      * \param pid the pid of the application of interest
@@ -92,10 +92,7 @@ class WorkloadManager : public IProcObserver, public rmcommon::ConcreteEventRece
     std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
 public:
-    WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid);
-
-    // IProcObserver interface implementation
-    virtual void update(std::uint8_t *data, size_t len) override;
+    WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid);
 
     // ConcreteEventReceiver implementation
     virtual bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;

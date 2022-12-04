@@ -16,12 +16,11 @@ using namespace std;
 
 struct PlatformMonitor::PlatformMonitorImpl {
 
-    rmcommon::IEventReceiver &rp;
     bool initialized = false;
     vector<string> cpuChips;
     vector<string> batteryChips;
 
-    PlatformMonitorImpl(rmcommon::IEventReceiver &rp): rp(rp) {
+    PlatformMonitorImpl() {
         init();
     }
 
@@ -190,10 +189,10 @@ struct PlatformMonitor::PlatformMonitorImpl {
     }
 };
 
-PlatformMonitor::PlatformMonitor(rmcommon::IEventReceiver &rp, int monitorPeriod) :
-    pimpl_(new PlatformMonitorImpl(rp)),
+PlatformMonitor::PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod) :
+    pimpl_(new PlatformMonitorImpl()),
+    bus_(eventBus),
     cat_(log4cpp::Category::getRoot()),
-    resourcePolicies_(rp),
     monitorPeriod_(monitorPeriod)
 {
     rmcommon::setThreadName("PLATFORMMONITOR");
@@ -243,7 +242,8 @@ void PlatformMonitor::run()
         rmcommon::PlatformTemperature platTemp;
         rmcommon::PlatformPower platPower;
         pimpl_->handleSensors(platTemp, platPower);
-        resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>(platTemp, platPower));
+        bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
+        //resourcePolicies_.addEvent(make_shared<rmcommon::MonitorEvent>(platTemp, platPower));
     }
     cat_.info("PLATFORMMONITOR exiting");
 }

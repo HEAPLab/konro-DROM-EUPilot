@@ -21,7 +21,7 @@ class ProcListener final {
     };
 
     rmcommon::EventBus &bus_;
-    rmcommon::IEventReceiver &workloadManager_;
+
     int errno_;
     /*! Netlink socket */
     int nl_socket_;
@@ -71,11 +71,7 @@ class ProcListener final {
     void run();
 
 public:
-    ProcListener(rmcommon::EventBus &eventBus, rmcommon::IEventReceiver &workloadManager) :
-        bus_(eventBus),
-        workloadManager_(workloadManager),
-        cat_(log4cpp::Category::getRoot()) {
-    }
+    explicit ProcListener(rmcommon::EventBus &eventBus);
 
     void operator()() {
         run();

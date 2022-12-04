@@ -47,25 +47,34 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
     return lhs->getPid() < rhs->getPid();
 }
 
-WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, rmcommon::IEventReceiver &rp, int pid) :
+WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid) :
     rmcommon::ConcreteEventReceiver("WORKLOADMANAGER"),
     bus_(bus),
     platformControl_(pc),
-    resourcePolicies_(rp),
     cat_(log4cpp::Category::getRoot()),
     pid_(0),
     apps_(appComp)
 {
-    add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
+    registerEvents();
 
+    add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
+}
+
+void WorkloadManager::registerEvents()
+{
+    using namespace rmcommon;
+    auto handlerFunc = &WorkloadManager::addEvent;
+
+    bus_.subscribe<WorkloadManager, ProcListenerForkEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ProcListenerExecEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ProcListenerExitEvent, BaseEvent>(this, handlerFunc);
 }
 
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
     apps_.insert(app);
     platformControl_.addApplication(app);
-    resourcePolicies_.addEvent(make_shared<rmcommon::AddProcEvent>(app));
-    //bus_.publish(new rmcommon::AddProcEvent(app));
+    bus_.publish(new rmcommon::AddProcEvent(app));
 }
 
 shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
@@ -81,7 +90,7 @@ void WorkloadManager::remove(pid_t pid)
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
-        resourcePolicies_.addEvent(make_shared<rmcommon::RemoveProcEvent>(*it));
+        bus_.publish(new rmcommon::RemoveProcEvent(*it));
         platformControl_.removeApplication(*it);
         apps_.erase(it);
     }
@@ -91,28 +100,6 @@ bool WorkloadManager::isInKonro(pid_t pid)
 {
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
     return apps_.find(key) != end(apps_);
-}
-
-void WorkloadManager::update(uint8_t *data, size_t len)
-{
-    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
-
-    switch (ev->what) {
-    case proc_event::PROC_EVENT_FORK:
-        processForkEvent(data);
-        break;
-    case proc_event::PROC_EVENT_EXEC:
-        processExecEvent(data);
-        break;
-    case proc_event::PROC_EVENT_EXIT:
-        processExitEvent(data);
-        break;
-    default:
-        ostringstream os;
-        os << "WORKLOADMANAGER event " << ev->what << " received";
-        cat_.info(os.str());
-        break;
-    }
 }
 
 bool WorkloadManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)

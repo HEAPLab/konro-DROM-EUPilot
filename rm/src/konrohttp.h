@@ -2,9 +2,12 @@
 #define KONROHTTP_H
 
 #include "ieventreceiver.h"
+#include "simpleeventbus.h"
 #include <thread>
 #include <memory>
 #include <log4cpp/Category.hh>
+
+namespace http {
 
 /*!
  * \brief a simple server running in a dedicated thread.
@@ -21,7 +24,7 @@ class KonroHttp {
     void run();
 
 public:
-    KonroHttp(rmcommon::IEventReceiver *rp = nullptr);
+    KonroHttp(rmcommon::EventBus &eventBus);
     ~KonroHttp();
 
     /*!
@@ -33,8 +36,8 @@ public:
      * \brief Stops the HTTP server
      */
     void stop();
-
-    void setEventReceiver(rmcommon::IEventReceiver *er);
 };
+
+}   // namespace http
 
 #endif // KONROHTTP_H

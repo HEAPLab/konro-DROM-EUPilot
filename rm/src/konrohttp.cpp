@@ -7,12 +7,17 @@
 
 using namespace std;
 
+namespace http {
+
 struct KonroHttp::KonroHttpImpl {
+    rmcommon::EventBus &bus_;
     log4cpp::Category &cat_;
     httplib::Server srv;
     rmcommon::IEventReceiver *resourcePolicies_;
 
-    KonroHttpImpl() : cat_(log4cpp::Category::getRoot()) {
+    KonroHttpImpl(rmcommon::EventBus &eventBus) :
+        bus_(eventBus),
+        cat_(log4cpp::Category::getRoot()) {
     }
 
     void setEventReceiver(rmcommon::IEventReceiver *er) {
@@ -80,13 +85,12 @@ struct KonroHttp::KonroHttpImpl {
     }
 };
 
-KonroHttp::KonroHttp(rmcommon::IEventReceiver *rp) :
-    pimpl_(new KonroHttpImpl),
+KonroHttp::KonroHttp(rmcommon::EventBus &eventBus) :
+    pimpl_(new KonroHttpImpl(eventBus)),
     cat_(log4cpp::Category::getRoot())
 {
   rmcommon::setThreadName("KONROHTTP");
 }
-
 
 KonroHttp::~KonroHttp()
 {
@@ -103,11 +107,6 @@ void KonroHttp::stop() {
         httpThread_.join();
     }
     cat_.info("KONROHTTP stopped");
-}
-
-void KonroHttp::setEventReceiver(rmcommon::IEventReceiver *er)
-{
-    pimpl_->setEventReceiver(er);
 }
 
 void KonroHttp::run()
@@ -133,3 +132,5 @@ void KonroHttp::run()
 
     cat_.info("KONROHTTP thread exiting");
 }
+
+}   // namespace http
