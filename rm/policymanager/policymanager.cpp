@@ -2,7 +2,7 @@
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
 #include "threadname.h"
-#include "simpleeventbus.h"
+#include "eventbus.h"
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -26,7 +26,7 @@ static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<A
 }
 
 PolicyManager::PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy, int timerSeconds) :
-    rmcommon::ConcreteEventReceiver("POLICYMANAGER"),
+    rmcommon::BaseEventReceiver("POLICYMANAGER"),
     cat_(log4cpp::Category::getRoot()),
     bus_(bus),
     platformDescription_(pd),
@@ -51,7 +51,7 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
 
 void PolicyManager::start()
 {
-    ConcreteEventReceiver::start();
+    BaseEventReceiver::start();
     // If a timer was requested, start the thread now
     if (timerSeconds_ > 0) {
         timerThread_ = thread(&PolicyManager::timer, this);

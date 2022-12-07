@@ -1,4 +1,4 @@
-#include "concreteeventreceiver.h"
+#include "baseeventreceiver.h"
 #include "threadname.h"
 #include <log4cpp/Category.hh>
 
@@ -6,29 +6,29 @@ using namespace std;
 
 namespace rmcommon {
 
-ConcreteEventReceiver::ConcreteEventReceiver(const char *threadName) :
+BaseEventReceiver::BaseEventReceiver(const char *threadName) :
     threadName_(threadName),
     stop_(false)
 {
 }
 
-void ConcreteEventReceiver::addEvent(std::shared_ptr<BaseEvent> event)
+void BaseEventReceiver::addEvent(std::shared_ptr<BaseEvent> event)
 {
     queue_.push(event);
 }
 
-void ConcreteEventReceiver::start()
+void BaseEventReceiver::start()
 {
     stop_= false;
-    receiverThread_ = thread(&ConcreteEventReceiver::run, this);
+    receiverThread_ = thread(&BaseEventReceiver::run, this);
 }
 
-void ConcreteEventReceiver::stop()
+void BaseEventReceiver::stop()
 {
     stop_= true;
 }
 
-void ConcreteEventReceiver::run()
+void BaseEventReceiver::run()
 {
     rmcommon::setThreadName(threadName_.c_str());
 
@@ -37,11 +37,11 @@ void ConcreteEventReceiver::run()
     while (!stop_) {
         shared_ptr<rmcommon::BaseEvent> event;
         if (queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS)) {
-//            Logger::getRoot().info("CONCRETEEVENTRECEIVER received event %s",
+//            Logger::getRoot().info("BASEEEVENTRECEIVER received event %s",
 //                                   event->getName().c_str());
             stop_ = !processEvent(event);
         } else {
-            // Logger::getRoot().info("ConcreteEventReceiver: no event");
+            // Logger::getRoot().info("BaseEventReceiver: no event");
         }
     }
     Logger::getRoot().info("%s stops", threadName_.c_str());

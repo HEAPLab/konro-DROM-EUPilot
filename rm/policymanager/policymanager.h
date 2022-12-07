@@ -2,7 +2,7 @@
 #define POLICYMANAGER_H
 
 #include "ieventreceiver.h"
-#include "concreteeventreceiver.h"
+#include "baseeventreceiver.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
 #include "addprocevent.h"
@@ -32,7 +32,7 @@ namespace rp {
  * a set and forwards the events to the chosen resource
  * policy.
  */
-class PolicyManager : public rmcommon::ConcreteEventReceiver {
+class PolicyManager : public rmcommon::BaseEventReceiver {
 public:
     enum class Policy {
         NoPolicy,

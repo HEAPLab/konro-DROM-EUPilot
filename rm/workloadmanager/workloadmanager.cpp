@@ -4,7 +4,7 @@
 #include "proclistenerforkevent.h"
 #include "proclistenerexecevent.h"
 #include "proclistenerexitevent.h"
-#include "simpleeventbus.h"
+#include "eventbus.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -48,7 +48,7 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
 }
 
 WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid) :
-    rmcommon::ConcreteEventReceiver("WORKLOADMANAGER"),
+    rmcommon::BaseEventReceiver("WORKLOADMANAGER"),
     bus_(bus),
     platformControl_(pc),
     cat_(log4cpp::Category::getRoot()),

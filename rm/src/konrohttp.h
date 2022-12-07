@@ -1,7 +1,7 @@
 #ifndef KONROHTTP_H
 #define KONROHTTP_H
 
-#include "simpleeventbus.h"
+#include "eventbus.h"
 #include <thread>
 #include <memory>
 #include <log4cpp/Category.hh>

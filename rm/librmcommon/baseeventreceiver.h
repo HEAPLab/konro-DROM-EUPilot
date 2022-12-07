@@ -1,5 +1,5 @@
-#ifndef CONCRETEEVENTRECEIVER_H
-#define CONCRETEEVENTRECEIVER_H
+#ifndef BASEEVENTRECEIVER_H
+#define BASEEVENTRECEIVER_H
 
 #include "ieventreceiver.h"
 #include "threadsafequeue.h"
@@ -15,7 +15,7 @@ namespace rmcommon {
  * Base class for all classes which receive and process
  * events in a separate thread.
  * \p
- * ConcreteEventReceiver receives BaseEvents via addEvent
+ * BaseEventReceiver receives BaseEvents via addEvent
  * and puts them in a queue. For each event, the processEvent
  * function is called.
  * \p
@@ -27,7 +27,7 @@ namespace rmcommon {
  * bool processEvent(.....);
  * \endcode
  */
-class ConcreteEventReceiver : public IEventReceiver {
+class BaseEventReceiver : public IEventReceiver {
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     std::string threadName_;
@@ -38,7 +38,7 @@ class ConcreteEventReceiver : public IEventReceiver {
     void run();
 
 protected:
-    ConcreteEventReceiver(const char *threadName);
+    BaseEventReceiver(const char *threadName);
 public:
 
     /*!
@@ -59,4 +59,4 @@ public:
 
 }   // namespace rmcommon
 
-#endif // CONCRETEEVENTRECEIVER_H
+#endif // BASEEVENTRECEIVER_H

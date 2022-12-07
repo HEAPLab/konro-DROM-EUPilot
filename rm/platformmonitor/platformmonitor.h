@@ -1,7 +1,7 @@
 #ifndef PLATFORMMONITOR_H
 #define PLATFORMMONITOR_H
 
-#include "simpleeventbus.h"
+#include "eventbus.h"
 #include <thread>
 #include <atomic>
 #include <memory>

@@ -1,5 +1,5 @@
-#ifndef SIMPLEEVENTBUS_H
-#define SIMPLEEVENTBUS_H
+#ifndef EVENTBUS_H
+#define EVENTBUS_H
 
 // This implementation was inspired by code from Niko Savas with the
 // folllowing licence:
@@ -85,19 +85,23 @@ private:
  * \code
  * class EventBase {};
  * class EventDerived1 : public EventBase {};
+ * class EventDerived2 : public EventBase {};
  *
  * class MyEventDerived1Consumer {
  * public:
- *     // always receive a shared_ptr<>
- *     void process1(shared_ptr<EventDerived1> event)  {
+ *     // always receive a shared_ptr<>to the BaseEvent
+ *     bool processEvent(std::shared_ptr<EventBase> event);
  * }
  *
  * EventBus bus;
  * MyEventDerived1Consumer consumer;
- * bus.subscribe(&consumer, &MyEventDerived1Consumer::process1);
+ *
+ * bus.subscribe<MyEventDerived1Consumer, EventDerived1, EventBase>
+ *                  (this, &MyEventDerived1Consumer::processEvent);
+ *
  * // always publish a raw pointer. The event bus creates the shared_ptr<>
  * // which is passed to all observers
- * bus.publish(new EventDerived1("event1"));
+ * bus.publish(new EventDerived1());
  * \endcode
  */
 class EventBus {
@@ -155,7 +159,8 @@ public:
      * Note that the observers are processed sequentially, i.e. observer2 will not
      * be called until observer1 has finished processing.
      *
-     * \param event the event to publish
+     * \param event the event to publish. A shared_ptr of this event will be created
+     *              from the event and sent to the receivers
      */
     template<typename EventType>
     void publish(EventType *event) {
@@ -164,6 +169,8 @@ public:
         if (handlers == nullptr) {
             return;         // no subscriber for this event type
         }
+        // create the shared_ptr of the event that will be passed
+        // to the receivers
         std::shared_ptr<EventType> p = std::shared_ptr<EventType>(event);
         for (auto handler : *handlers) {
             if (handler != nullptr) {
@@ -174,4 +181,4 @@ public:
 };
 
 }   // namespace rmcommon
-#endif // SIMPLEEVENTBUS_H
+#endif // EVENTBUS_H

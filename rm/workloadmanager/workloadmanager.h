@@ -5,7 +5,7 @@
 #include "ieventreceiver.h"
 #include "iplatformcontrol.h"
 #include "ieventreceiver.h"
-#include "concreteeventreceiver.h"
+#include "baseeventreceiver.h"
 #include "baseevent.h"
 #include <log4cpp/Category.hh>
 #include <set>
@@ -19,7 +19,7 @@ namespace wm {
 /*!
  * \brief a class for handling and manipulating a set of applications
  */
-class WorkloadManager : public rmcommon::ConcreteEventReceiver {
+class WorkloadManager : public rmcommon::BaseEventReceiver {
     rmcommon::EventBus &bus_;
     pc::IPlatformControl &platformControl_;
     log4cpp::Category &cat_;
@@ -94,7 +94,6 @@ class WorkloadManager : public rmcommon::ConcreteEventReceiver {
 public:
     WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid);
 
-    // ConcreteEventReceiver implementation
     virtual bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
 };
 

@@ -9,7 +9,7 @@
 #include "platformmonitor.h"
 #include "proclistener.h"
 #include "konrohttp.h"
-#include "simpleeventbus.h"
+#include "eventbus.h"
 #include <unistd.h>
 
 
