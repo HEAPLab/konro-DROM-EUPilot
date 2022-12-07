@@ -11,11 +11,10 @@ namespace rmcommon {
  */
 class App {
 public:
-    enum AppType {
+    enum class AppType {
         UNKNOWN,
         STANDALONE,
-        INTEGRATED,
-        KUBERNETES
+        INTEGRATED
     };
 
 private:
@@ -23,7 +22,8 @@ private:
     AppType appType_;
     std::string name_;
 
-    App(pid_t pid, AppType appType) : pid_(pid), appType_(appType) {}
+    App(pid_t pid, AppType appType, std::string appName = "") :
+        pid_(pid), appType_(appType), name_(appName) {}
 
 public:
     typedef std::shared_ptr<App> AppPtr;
@@ -44,6 +44,19 @@ public:
         // Note: to use std::make_shared, the constructor must be public;
         //       in this context it is better to use new App(...)
         return std::shared_ptr<App>(new App(pid, appType));
+    }
+
+    /*!
+     * Return the app type with the specified name.
+     * If no app type exists with that name, UNKNOWN is returned.
+     */
+    static AppType getTypeByName(const std::string &appType) {
+        if (appType == "STANDALONE")
+            return AppType::STANDALONE;
+        else if (appType == "INTEGRATED")
+            return AppType::INTEGRATED;
+        else
+            return AppType::UNKNOWN;
     }
 
     /*!

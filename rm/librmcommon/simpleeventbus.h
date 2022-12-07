@@ -106,6 +106,7 @@ class EventBus {
     std::mutex global_mutex;
 
 public:
+    explicit EventBus() {}
     ~EventBus() {
         {
             std::unique_lock<std::mutex> lck(global_mutex);
@@ -122,11 +123,17 @@ public:
         }
     }
 
+    // Disable copy and assignment
+    EventBus(const EventBus &other) = delete;
+    EventBus &operator=(const EventBus &other) = delete;
+    EventBus(EventBus &&other) noexcept = delete;
+    EventBus &operator=(EventBus &&other) noexcept = delete;
+
     /*!
      * Subscribes an observer of type T to receive events of type EventType
      *
-     * \param instance Instance of the object of type T
-     * \param memberFunction The function to call when an event of type
+     * \param instance the instance of the object of type T
+     * \param memberFunction the function to call when an event of type
      *                       EventType is called
      */
     template<typename T, typename EventType, typename BaseEvent = EventType>
@@ -148,7 +155,7 @@ public:
      * Note that the observers are processed sequentially, i.e. observer2 will not
      * be called until observer1 has finished processing.
      *
-     * \param event The event to publish
+     * \param event the event to publish
      */
     template<typename EventType>
     void publish(EventType *event) {

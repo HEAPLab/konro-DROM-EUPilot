@@ -1,5 +1,5 @@
-#ifndef KONROAPPLICATION_H
-#define KONROAPPLICATION_H
+#ifndef KONROMANAGER_H
+#define KONROMANAGER_H
 
 #include <string>
 #include <log4cpp/Category.hh>
@@ -25,7 +25,7 @@ namespace rp {
     class PolicyManager;
 }
 
-class KonroApplication {
+class KonroManager {
     log4cpp::Category &cat_;
     wm::ProcListener *procListener_;
     wm::WorkloadManager *workloadManager_;
@@ -42,7 +42,7 @@ class KonroApplication {
     void setupLogging();
     void loadConfiguration();
 public:
-    KonroApplication();
+    KonroManager();
 
     /*!
      * Configures and starts the ProcListener in the main thread
@@ -58,4 +58,4 @@ public:
     void testPlatformDescription();
 };
 
-#endif // KONROAPPLICATION_H
+#endif // KONROMANAGER_H

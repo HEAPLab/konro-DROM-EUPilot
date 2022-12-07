@@ -57,7 +57,7 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
 {
     subscribeToEvents();
 
-    add(rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE));
+    add(rmcommon::App::makeApp(pid, rmcommon::App::AppType::STANDALONE));
 }
 
 void WorkloadManager::subscribeToEvents()
@@ -79,7 +79,7 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 
 shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
 {
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     auto it = apps_.find(key);
     return *it;
 }
@@ -87,7 +87,7 @@ shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
 
 void WorkloadManager::remove(pid_t pid)
 {
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
         bus_.publish(new rmcommon::RemoveProcEvent(*it));
@@ -98,7 +98,7 @@ void WorkloadManager::remove(pid_t pid)
 
 bool WorkloadManager::isInKonro(pid_t pid)
 {
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::UNKNOWN);
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     return apps_.find(key) != end(apps_);
 }
 
@@ -128,7 +128,7 @@ void WorkloadManager::processForkEvent(uint8_t *data)
     // https://natanyellin.com/posts/understanding-netlink-process-connector-output/
 
     if (isInKonro(ev->event_data.fork.parent_pid)) {
-        shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(ev->event_data.fork.child_pid, rmcommon::App::STANDALONE);
+        shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(ev->event_data.fork.child_pid, rmcommon::App::AppType::STANDALONE);
         app->setName(getProcessNameByPid(app->getPid()));
         add(app);
 

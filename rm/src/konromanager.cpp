@@ -1,5 +1,5 @@
 #include "config.h"
-#include "konroapplication.h"
+#include "konromanager.h"
 #include "dir.h"
 #include "makepath.h"
 #include "constants.h"
@@ -13,10 +13,12 @@
 #include <unistd.h>
 
 
-KonroApplication::KonroApplication() :
+KonroManager::KonroManager() :
     cat_(log4cpp::Category::getRoot()),
     procListener_(nullptr),
-    workloadManager_(nullptr)
+    workloadManager_(nullptr),
+    http_(nullptr),
+    policyManager_(nullptr)
 {
     // set some default values
 
@@ -29,7 +31,7 @@ KonroApplication::KonroApplication() :
     loadConfiguration();
 }
 
-std::string KonroApplication::configFilePath()
+std::string KonroManager::configFilePath()
 {
     std::string home = rmcommon::Dir::home();
     if (home.empty())
@@ -38,7 +40,7 @@ std::string KonroApplication::configFilePath()
         return rmcommon::make_path(home, CONFIG_PATH);
 }
 
-void KonroApplication::setupLogging()
+void KonroManager::setupLogging()
 {
     // Log4CPP configuration
 
@@ -57,7 +59,7 @@ void KonroApplication::setupLogging()
 }
 
 
-void KonroApplication::loadConfiguration()
+void KonroManager::loadConfiguration()
 {
     std::string konroConfigFile = configFilePath();
     cat_.info("MAIN Konro configuration file is %s", konroConfigFile.c_str());
@@ -105,7 +107,7 @@ void KonroApplication::loadConfiguration()
     }
 }
 
-void KonroApplication::run(long pidToMonitor)
+void KonroManager::run(long pidToMonitor)
 {
     pid_t pid = static_cast<pid_t>(pidToMonitor);
 
@@ -157,7 +159,7 @@ void KonroApplication::run(long pidToMonitor)
     procListener();
 }
 
-void KonroApplication::stop()
+void KonroManager::stop()
 {
     http_->stop();
     procListener_->stop();
@@ -165,7 +167,7 @@ void KonroApplication::stop()
 
 }
 
-void KonroApplication::testPlatformDescription()
+void KonroManager::testPlatformDescription()
 {
     PlatformDescription pd;
     pd.logTopology();

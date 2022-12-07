@@ -1,4 +1,4 @@
-#include "konroapplication.h"
+#include "konromanager.h"
 #include "threadname.h"
 #include <iostream>
 #include <stdexcept>
@@ -10,7 +10,7 @@
 
 static void trapCtrlC();
 
-static KonroApplication konroApp;
+static KonroManager konroManager;
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     if (argc >= 2) {
         trapCtrlC();
         long pidToMonitor = strtol(argv[1], nullptr, 10);
-        konroApp.run(pidToMonitor);
+        konroManager.run(pidToMonitor);
     }
     return EXIT_SUCCESS;
 }
@@ -28,7 +28,7 @@ static void ctrlCHandler(int s)
 {
     puts("Ctrl-C");
     log4cpp::Category::getRoot().info("MAIN Ctrl-C: stopping konro");
-    konroApp.stop();
+    konroManager.stop();
 }
 
 static void trapCtrlC()

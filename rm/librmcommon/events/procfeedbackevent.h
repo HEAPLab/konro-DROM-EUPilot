@@ -20,13 +20,10 @@ class ProcFeedbackEvent : public BaseEvent {
     /*! The application sending the feedback */
     pid_t pid_;
 
-    /* 0 = the current QoS level is sufficient
-     * 1 = the current QoS level is insufficient
-     */
-    bool feedback_;
+    int feedback_;
 
 public:
-    ProcFeedbackEvent(pid_t pid, bool feedback) :
+    ProcFeedbackEvent(pid_t pid, int feedback) :
         BaseEvent("ProcFeedbackEvent"),
         pid_(pid),
         feedback_(feedback)
@@ -36,7 +33,7 @@ public:
         return pid_;
     }
 
-    bool getFeedback() const noexcept {
+    int getFeedback() const noexcept {
         return feedback_;
     }
 

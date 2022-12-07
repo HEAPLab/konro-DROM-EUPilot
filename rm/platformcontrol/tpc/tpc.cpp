@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     int pid = atoi(argv[1]);
 
     pc::CGroupControl cgc;
-    std::shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(pid, rmcommon::App::STANDALONE);
+    std::shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(pid, rmcommon::App::AppType::STANDALONE);
 
     int major = 8, minor = 0;
     try {

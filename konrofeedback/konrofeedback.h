@@ -9,20 +9,17 @@
  * message to Konro using the elements of this class.
  */
 class KonroFeedback {
-    /*
-     * 0 = the current QoS level is sufficient
-     * 1 = the current QoS level is insufficient
-     */
-    bool feedback_;
+
+    int feedback_;
 
     std::string sendFeedbackHelper(const std::string &text);
 
 public:
-    KonroFeedback(bool feedback) : feedback_(feedback)
+    KonroFeedback(int feedback) : feedback_(feedback)
       { }
     ~KonroFeedback() = default;
 
-    void setFeedback(bool feedback) noexcept {
+    void setFeedback(int feedback) noexcept {
         feedback_ = feedback;
     }
 
