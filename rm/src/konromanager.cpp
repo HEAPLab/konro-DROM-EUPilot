@@ -11,14 +11,46 @@
 #include "konrohttp.h"
 #include "eventbus.h"
 #include <unistd.h>
+#include <log4cpp/Appender.hh>
+#include <log4cpp/FileAppender.hh>
+#include <log4cpp/OstreamAppender.hh>
+#include <log4cpp/Layout.hh>
+#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/SimpleLayout.hh>
+#include <log4cpp/PatternLayout.hh>
+#include <log4cpp/Priority.hh>
 
+
+struct KonroManager::KonroManagerImpl {
+    rmcommon::EventBus eventBus;
+    pc::CGroupControl cgc;
+    PlatformDescription pd;
+    wm::ProcListener *procListener;
+    wm::WorkloadManager *workloadManager;
+    http::KonroHttp *http;
+    rp::PolicyManager *policyManager;
+    PlatformMonitor *platformMonitor;
+
+    KonroManagerImpl() {
+        procListener = nullptr;
+        workloadManager = nullptr;
+        http = nullptr;
+        policyManager = nullptr;
+        platformMonitor = nullptr;
+    }
+
+    ~KonroManagerImpl() {
+        delete procListener;
+        delete workloadManager;
+        delete http;
+        delete policyManager;
+        delete platformMonitor;
+    }
+};
 
 KonroManager::KonroManager() :
-    cat_(log4cpp::Category::getRoot()),
-    procListener_(nullptr),
-    workloadManager_(nullptr),
-    http_(nullptr),
-    policyManager_(nullptr)
+    pimpl_(new KonroManagerImpl()),
+    cat_(log4cpp::Category::getRoot())
 {
     // set some default values
 
@@ -29,6 +61,11 @@ KonroManager::KonroManager() :
 
     setupLogging();
     loadConfiguration();
+}
+
+KonroManager::~KonroManager()
+{
+    cat_.debug("KonroManager destructor called");
 }
 
 std::string KonroManager::configFilePath()
@@ -45,11 +82,14 @@ void KonroManager::setupLogging()
     // Log4CPP configuration
 
     log4cpp::Appender *appender1 = new log4cpp::OstreamAppender("console", &std::cout);
+    log4cpp::PatternLayout *layout1 = new log4cpp::PatternLayout();
+    layout1->setConversionPattern("%d [%p] %m%n");
+    appender1->setLayout(layout1);
+
     log4cpp::Appender *appender2 = new log4cpp::FileAppender("logfile", "konro.log");
-    log4cpp::PatternLayout *layout = new log4cpp::PatternLayout();
-    layout->setConversionPattern("%d [%p] %m%n");
-    appender1->setLayout(layout);
-    appender2->setLayout(layout);
+    log4cpp::PatternLayout *layout2 = new log4cpp::PatternLayout();
+    layout2->setConversionPattern("%d [%p] %m%n");
+    appender2->setLayout(layout2);
 
     cat_.setPriority(log4cpp::Priority::DEBUG);
     cat_.addAppender(appender1);
@@ -111,28 +151,17 @@ void KonroManager::run(long pidToMonitor)
 {
     pid_t pid = static_cast<pid_t>(pidToMonitor);
 
-    //trapCtrlC();
-
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
-    rmcommon::EventBus eventBus;
-    pc::CGroupControl cgc;
-    PlatformDescription pd;
-    http::KonroHttp http(eventBus);
-    rp::PolicyManager policyManager(eventBus, pd, policy, cfgTimerSeconds_);
-    wm::WorkloadManager workloadManager(eventBus, cgc, pid);
-    wm::ProcListener procListener(eventBus);
-    PlatformMonitor pm(eventBus, cfgMonitorPeriod_);
+    pimpl_->http = new http::KonroHttp(pimpl_->eventBus);
+    pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->pd, policy, cfgTimerSeconds_);
+    pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);
+    pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
+    pimpl_->platformMonitor =new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
 
-    procListener_ = &procListener;
-    http_ = &http;
-    workloadManager_ = &workloadManager;
-    policyManager_ = &policyManager;
-
-    pd.logTopology();
-
-    pm.setCpuModuleNames(cfgCpuModuleNames_);
-    pm.setBatteryModuleNames(cfgBatteryModuleNames_);
+    pimpl_->pd.logTopology();
+    pimpl_->platformMonitor->setCpuModuleNames(cfgCpuModuleNames_);
+    pimpl_->platformMonitor->setBatteryModuleNames(cfgBatteryModuleNames_);
 
     // Note on threads:
     //
@@ -143,28 +172,45 @@ void KonroManager::run(long pidToMonitor)
     // 5. KonroHttp runs in a separate thread
 
     cat_.info("MAIN starting WorkloadManager thread");
-    workloadManager.start();
+    pimpl_->workloadManager->start();
 
     cat_.info("MAIN starting PolicyManager thread");
-    policyManager.start();
+    pimpl_->policyManager->start();
 
     cat_.info("MAIN starting PlatformMonitor thread");
-    pm.start();
+    pimpl_->platformMonitor->start();
 
-    cat_.info("MAIN starting ProcListener in the main thread");
 
     cat_.info("MAIN starting HTTP thread");
-    http.start();
+    pimpl_->http->start();
 
-    procListener();
+    cat_.info("MAIN running ProcListener in the main thread");
+    pimpl_->procListener->run();
+
+    // when ProcListener returns we stop all the threads
+
+    cat_.info("KONROMANAGER stopping threads");
+
+    pimpl_->http->stop();
+    pimpl_->platformMonitor->stop();
+    pimpl_->workloadManager->stop();
+    pimpl_->policyManager->stop();
+
+    // ... and finally join all the threads
+
+    cat_.info("KONROMANAGER joining threads");
+
+    pimpl_->http->join();
+    pimpl_->platformMonitor->join();
+    pimpl_->workloadManager->join();
+    pimpl_->policyManager->join();
+
+    cat_.info("KONROMANAGER exiting");
 }
 
 void KonroManager::stop()
 {
-    http_->stop();
-    procListener_->stop();
-    workloadManager_->stop();
-
+    pimpl_->procListener->stop();
 }
 
 void KonroManager::testPlatformDescription()

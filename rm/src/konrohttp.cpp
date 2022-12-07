@@ -108,7 +108,6 @@ KonroHttp::KonroHttp(rmcommon::EventBus &eventBus) :
     pimpl_(new KonroHttpImpl(eventBus)),
     cat_(log4cpp::Category::getRoot())
 {
-  rmcommon::setThreadName("KONROHTTP");
 }
 
 KonroHttp::~KonroHttp()
@@ -122,10 +121,14 @@ void KonroHttp::start()
 
 void KonroHttp::stop() {
     pimpl_->srv.stop();
+    cat_.info("KONROHTTP stopped");
+}
+
+void KonroHttp::join()
+{
     if (httpThread_.joinable()) {
         httpThread_.join();
     }
-    cat_.info("KONROHTTP stopped");
 }
 
 void KonroHttp::run()

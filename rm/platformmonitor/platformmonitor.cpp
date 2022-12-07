@@ -195,13 +195,10 @@ PlatformMonitor::PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod
     cat_(log4cpp::Category::getRoot()),
     monitorPeriod_(monitorPeriod)
 {
-    rmcommon::setThreadName("PLATFORMMONITOR");
 }
 
 PlatformMonitor::~PlatformMonitor()
 {
-    stop();
-    pimpl_->fini();
 }
 
 /*!
@@ -219,6 +216,10 @@ void PlatformMonitor::start()
 void PlatformMonitor::stop()
 {
     stop_ = true;
+}
+
+void PlatformMonitor::join()
+{
     if (pmThread_.joinable()) {
         pmThread_.join();
     }
@@ -236,9 +237,15 @@ void PlatformMonitor::setBatteryModuleNames(const std::string &names)
 
 void PlatformMonitor::run()
 {
+    rmcommon::setThreadName("PLATFORMMONITOR");
     cat_.info("PLATFORMMONITOR running");
     while (!stop_) {
-        this_thread::sleep_for(chrono::seconds(monitorPeriod_));
+        for (int i = 0; i < monitorPeriod_ && !stop_ ; ++i) {
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+        if (stop_) {
+            break;
+        }
         rmcommon::PlatformTemperature platTemp;
         rmcommon::PlatformPower platPower;
         pimpl_->handleSensors(platTemp, platPower);

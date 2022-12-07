@@ -61,6 +61,19 @@ void PolicyManager::start()
     }
 }
 
+void PolicyManager::stop()
+{
+    // stop the internal timer thread
+    if (timerSeconds_ > 0) {
+        stopTimer_ = true;
+        if (timerThread_.joinable()) {
+            timerThread_.join();
+        }
+    }
+    // stop our own thread
+    BaseEventReceiver::stop();
+}
+
 PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyName)
 {
     if (policyName == "RandPolicy")
@@ -73,13 +86,21 @@ void PolicyManager::subscribeToEvents()
 {
     bus_.subscribe<PolicyManager, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
     bus_.subscribe<PolicyManager, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::MonitorEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
 }
 
 void PolicyManager::timer()
 {
     cat_.info("POLICYMANAGER timer thread starting");
-    while (!stop_) {
-        this_thread::sleep_for(chrono::seconds(timerSeconds_));
+    while (!stopTimer_) {
+        for (int i = 0; i < timerSeconds_ && !stopTimer_; ++i) {
+            this_thread::sleep_for(chrono::seconds(1));
+        }
+        if (stopTimer_) {
+            break;
+        }
+        // put the event directly on our queue, without
+        // going through the event bus
         addEvent(make_shared<rmcommon::TimerEvent>());
     }
     cat_.info("POLICYMANAGER timer thread exiting");

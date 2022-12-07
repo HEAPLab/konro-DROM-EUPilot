@@ -28,6 +28,13 @@ void BaseEventReceiver::stop()
     stop_= true;
 }
 
+void BaseEventReceiver::join()
+{
+    if (receiverThread_.joinable()) {
+        receiverThread_.join();
+    }
+}
+
 void BaseEventReceiver::run()
 {
     rmcommon::setThreadName(threadName_.c_str());

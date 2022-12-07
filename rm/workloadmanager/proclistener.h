@@ -68,14 +68,11 @@ class ProcListener final {
      * \brief Notifies the WorkloadManager of a new event
      */
     void forwardEvent(std::uint8_t *data, size_t len);
-    void run();
 
 public:
     explicit ProcListener(rmcommon::EventBus &eventBus);
 
-    void operator()() {
-        run();
-    }
+    void run();
 
     /*!
      * \brief Sends a STOP message to the thread using Netlink

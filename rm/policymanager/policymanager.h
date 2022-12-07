@@ -46,7 +46,7 @@ private:
     std::unique_ptr<IBasePolicy> policy_;
     PlatformDescription platformDescription_;
     int timerSeconds_;
-    std::atomic_bool stop_;
+    std::atomic_bool stopTimer_;
 
     /*! Comparison function for the set */
     using AppComparator = bool (*)(const std::shared_ptr<AppMapping> &lhs,
@@ -114,6 +114,8 @@ public:
      * and the timer() function in a new thread
      */
     void start() override;
+
+    void stop() override;
 
     /*!
      * Return the policy with the specified name.

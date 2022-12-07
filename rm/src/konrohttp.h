@@ -35,6 +35,8 @@ public:
      * \brief Stops the HTTP server
      */
     void stop();
+
+    void join();
 };
 
 }   // namespace http

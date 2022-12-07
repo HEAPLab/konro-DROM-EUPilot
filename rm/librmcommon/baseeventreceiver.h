@@ -49,6 +49,7 @@ public:
 
     virtual void start();
     virtual void stop();
+    virtual void join();
 
     /*!
      * Processes a generic event by calling the appropriate handler function.

@@ -28,6 +28,7 @@ public:
     ~PlatformMonitor();
     void start();
     void stop();
+    void join();
 
     /*!
      * \brief setCpuModuleNames

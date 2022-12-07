@@ -6,11 +6,12 @@
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
+#include <memory>
 #include <log4cpp/Category.hh>
 
 static void trapCtrlC();
 
-static KonroManager konroManager;
+static KonroManager *konroManager;
 
 int main(int argc, char *argv[])
 {
@@ -19,8 +20,11 @@ int main(int argc, char *argv[])
     if (argc >= 2) {
         trapCtrlC();
         long pidToMonitor = strtol(argv[1], nullptr, 10);
-        konroManager.run(pidToMonitor);
+        konroManager = new KonroManager();
+        konroManager->run(pidToMonitor);
+        delete konroManager;
     }
+    log4cpp::Category::getRoot().info("MAIN exiting");
     return EXIT_SUCCESS;
 }
 
@@ -28,7 +32,7 @@ static void ctrlCHandler(int s)
 {
     puts("Ctrl-C");
     log4cpp::Category::getRoot().info("MAIN Ctrl-C: stopping konro");
-    konroManager.stop();
+    konroManager->stop();
 }
 
 static void trapCtrlC()
