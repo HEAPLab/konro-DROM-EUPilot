@@ -1,7 +1,6 @@
 #ifndef POLICYMANAGER_H
 #define POLICYMANAGER_H
 
-#include "ieventreceiver.h"
 #include "baseeventreceiver.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
@@ -56,8 +55,6 @@ private:
 
     void subscribeToEvents();
 
-    void run();
-
     /*! Encapsulates the timer thread logic */
     void timer();
 
@@ -108,6 +105,7 @@ public:
      * \param timerSeconds if 0, then the internal timer thread is not started
      */
     PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
+    virtual ~PolicyManager() = default;
 
     /*!
      * Starts the run() function in a new thread

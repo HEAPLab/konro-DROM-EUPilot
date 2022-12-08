@@ -2,7 +2,6 @@
 #define PROCLISTENER_H
 
 #include "eventbus.h"
-#include "ieventreceiver.h"
 #include <log4cpp/Category.hh>
 #include <cstdint>
 #include <cctype>

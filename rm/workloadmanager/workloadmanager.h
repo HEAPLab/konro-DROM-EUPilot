@@ -2,9 +2,7 @@
 #define WORKLOADMANAGER_H
 
 #include "app.h"
-#include "ieventreceiver.h"
 #include "iplatformcontrol.h"
-#include "ieventreceiver.h"
 #include "baseeventreceiver.h"
 #include "baseevent.h"
 #include <log4cpp/Category.hh>

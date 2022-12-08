@@ -2,6 +2,7 @@
 #define KONROHTTP_H
 
 #include "eventbus.h"
+#include "basethread.h"
 #include <thread>
 #include <memory>
 #include <log4cpp/Category.hh>
@@ -13,30 +14,19 @@ namespace http {
  * Can be used by external processes to send requests or information
  * to Konro.
  */
-class KonroHttp {
+class KonroHttp : public rmcommon::BaseThread {
     struct KonroHttpImpl;
     std::unique_ptr<KonroHttpImpl> pimpl_;
     log4cpp::Category &cat_;
-    std::thread httpThread_;
 
     /*! The thread function */
-    void run();
+    virtual void run() override;
 
 public:
     explicit KonroHttp(rmcommon::EventBus &eventBus);
     ~KonroHttp();
 
-    /*!
-     * \brief Starts the HTTP server in a separate thread
-     */
-    void start();
-
-    /*!
-     * \brief Stops the HTTP server
-     */
-    void stop();
-
-    void join();
+    virtual void stop() override;
 };
 
 }   // namespace http

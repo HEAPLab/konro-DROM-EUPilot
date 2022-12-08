@@ -1,7 +1,7 @@
 #ifndef BASEEVENTRECEIVER_H
 #define BASEEVENTRECEIVER_H
 
-#include "ieventreceiver.h"
+#include "basethread.h"
 #include "threadsafequeue.h"
 #include "events/baseevent.h"
 #include <string>
@@ -27,29 +27,24 @@ namespace rmcommon {
  * bool processEvent(.....);
  * \endcode
  */
-class BaseEventReceiver : public IEventReceiver {
+class BaseEventReceiver : public rmcommon::BaseThread {
     rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     std::string threadName_;
-    std::thread receiverThread_;
-    std::atomic_bool stop_;
 
     /*! The thread function */
-    void run();
+    virtual void run() override;
 
 protected:
     BaseEventReceiver(const char *threadName);
+
 public:
 
     /*!
      * \brief Adds an event to the tread safe queue
      * \param event the event to add
      */
-    virtual void addEvent(std::shared_ptr<BaseEvent> event) override;
-
-    virtual void start();
-    virtual void stop();
-    virtual void join();
+    virtual void addEvent(std::shared_ptr<BaseEvent> event);
 
     /*!
      * Processes a generic event by calling the appropriate handler function.

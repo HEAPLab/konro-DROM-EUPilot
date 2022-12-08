@@ -201,30 +201,6 @@ PlatformMonitor::~PlatformMonitor()
 {
 }
 
-/*!
- * \brief Starts the thred function "run()"
- */
-void PlatformMonitor::start()
-{
-    stop_ = false;
-    pmThread_ = thread(&PlatformMonitor::run, this);
-}
-
-/*!
- * \brief Stops and joins the thread
- */
-void PlatformMonitor::stop()
-{
-    stop_ = true;
-}
-
-void PlatformMonitor::join()
-{
-    if (pmThread_.joinable()) {
-        pmThread_.join();
-    }
-}
-
 void PlatformMonitor::setCpuModuleNames(const std::string &names)
 {
     pimpl_->setCpuModuleNames(names);
@@ -237,13 +213,13 @@ void PlatformMonitor::setBatteryModuleNames(const std::string &names)
 
 void PlatformMonitor::run()
 {
-    rmcommon::setThreadName("PLATFORMMONITOR");
+    setThreadName("PLATFORMMONITOR");
     cat_.info("PLATFORMMONITOR running");
-    while (!stop_) {
-        for (int i = 0; i < monitorPeriod_ && !stop_ ; ++i) {
+    while (!stopped()) {
+        for (int i = 0; i < monitorPeriod_ && !stopped() ; ++i) {
             this_thread::sleep_for(chrono::seconds(1));
         }
-        if (stop_) {
+        if (stopped()) {
             break;
         }
         rmcommon::PlatformTemperature platTemp;

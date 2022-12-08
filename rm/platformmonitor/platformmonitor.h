@@ -2,6 +2,7 @@
 #define PLATFORMMONITOR_H
 
 #include "eventbus.h"
+#include "basethread.h"
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -14,21 +15,17 @@
  * the thread safe queue.
  * PlatformMonitor runs in a dedicated thread.
  */
-class PlatformMonitor {
+class PlatformMonitor : public rmcommon::BaseThread {
     struct PlatformMonitorImpl;
     log4cpp::Category &cat_;
     int monitorPeriod_;
     std::unique_ptr<PlatformMonitorImpl> pimpl_;
     rmcommon::EventBus &bus_;
-    std::thread pmThread_;
-    std::atomic_bool stop_;
-    void run();
+
+    virtual void run() override;
 public:
     PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod);
     ~PlatformMonitor();
-    void start();
-    void stop();
-    void join();
 
     /*!
      * \brief setCpuModuleNames

@@ -114,26 +114,16 @@ KonroHttp::~KonroHttp()
 {
 }
 
-void KonroHttp::start()
+void KonroHttp::stop()
 {
-    httpThread_ = thread(&KonroHttp::run, this);
-}
-
-void KonroHttp::stop() {
     pimpl_->srv.stop();
-    cat_.info("KONROHTTP stopped");
-}
-
-void KonroHttp::join()
-{
-    if (httpThread_.joinable()) {
-        httpThread_.join();
-    }
+    BaseThread::stop();     // not really needed here because there is no loop
+    cat_.info("KONROHTTP server stopped");
 }
 
 void KonroHttp::run()
 {
-    rmcommon::setThreadName("KONROHTTP");
+    setThreadName("KONROHTTP");
     cat_.info("KONROHTTP thread starting");
 
     pimpl_->srv.Get("/konro", [this](const httplib::Request &req, httplib::Response &res) {
@@ -149,6 +139,8 @@ void KonroHttp::run()
     pimpl_->srv.Post("/feedback", [this](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
         this->pimpl_->handleFeedbackPost(req, res, content_reader);
     });
+
+    cat_.info("KONROHTTP server starting");
 
     pimpl_->srv.listen("localhost", 8080);
 
