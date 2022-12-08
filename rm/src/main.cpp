@@ -11,6 +11,8 @@
 
 static void trapCtrlC();
 
+// KonroManager is declared at file scope in order
+// to be usable from ctrlCHandler
 static KonroManager *konroManager;
 
 int main(int argc, char *argv[])
@@ -22,6 +24,8 @@ int main(int argc, char *argv[])
         long pidToMonitor = strtol(argv[1], nullptr, 10);
         konroManager = new KonroManager();
         konroManager->run(pidToMonitor);
+        // KonroManager must be deleted before exiting from main
+        // or a segmentation fault occurs in log4cpp
         delete konroManager;
     }
     log4cpp::Category::getRoot().info("MAIN exiting");
