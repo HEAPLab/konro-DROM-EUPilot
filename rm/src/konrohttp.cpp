@@ -2,7 +2,8 @@
 #include "threadname.h"
 #include "../../lib/httplib/httplib.h"
 #include "../../lib/json/json.hpp"
-#include "procfeedbackevent.h"
+#include "feedbackrequestevent.h"
+#include "addrequestevent.h"
 #include "app.h"
 #include <chrono>
 
@@ -30,7 +31,7 @@ struct KonroHttp::KonroHttpImpl {
     }
 
     /*!
-     * Extracts the data from the JSON and publishes a ProcFeedbackEvent
+     * Extracts the data from the JSON and publishes a FeedbackRequestEvent
      *
      * \param data the JSON in text format
      */
@@ -40,8 +41,8 @@ struct KonroHttp::KonroHttpImpl {
         if (isInJson(j, "pid") && isInJson(j, "feedback")) {
             long pid = j["pid"];
             bool feedback = j["feedback"];
-            cat_.info("KONROHTTP publishing feedback event from pid %ld", pid);
-            bus_.publish(new rmcommon::ProcFeedbackEvent(pid, feedback));
+            cat_.info("KONROHTTP publishing FeedbackRequestEvent from pid %ld", pid);
+            bus_.publish(new rmcommon::FeedbackRequestEvent(pid, feedback));
         }
    }
 
@@ -56,13 +57,14 @@ struct KonroHttp::KonroHttpImpl {
         if (isInJson(j, "pid") && isInJson(j, "type")) {
             long pid = j["pid"];
             string type = j["type"];
+            string name = j["name"];
             rmcommon::App::AppType appType = rmcommon::App::getTypeByName(type);
             if (appType == rmcommon::App::AppType::UNKNOWN) {
                 cat_.error("KONROHTTP invalid application type %s", type.c_str());
                 return;
             }
-            cat_.info("KONROHTTP publishing AddRequest event for pid %ld", pid);
-            //bus_.publish(new rmcommon::ProcFeedbackEvent(pid, feedback));
+            cat_.info("KONROHTTP publishing AddRequestEvent for pid %ld", pid);
+            bus_.publish(new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name)));
         }
    }
 
@@ -85,7 +87,7 @@ struct KonroHttp::KonroHttpImpl {
                 body.append(data, data_length);
                 return true;
             });
-        res.set_content("You have sent a POST '" + body + "'\r\n", "text/plain");
+        res.set_content("You have sent an ADD POST '" + body + "'\r\n", "text/plain");
         sendAddEvent(body);
     }
 

@@ -4,6 +4,7 @@
 #include "proclistenerforkevent.h"
 #include "proclistenerexecevent.h"
 #include "proclistenerexitevent.h"
+#include "procfeedbackevent.h"
 #include "eventbus.h"
 #include <iostream>
 #include <sstream>
@@ -68,6 +69,8 @@ void WorkloadManager::subscribeToEvents()
     bus_.subscribe<WorkloadManager, ProcListenerForkEvent, BaseEvent>(this, handlerFunc);
     bus_.subscribe<WorkloadManager, ProcListenerExecEvent, BaseEvent>(this, handlerFunc);
     bus_.subscribe<WorkloadManager, ProcListenerExitEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, AddRequestEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, FeedbackRequestEvent, BaseEvent>(this, handlerFunc);
 }
 
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
@@ -83,7 +86,6 @@ shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
     auto it = apps_.find(key);
     return *it;
 }
-
 
 void WorkloadManager::remove(pid_t pid)
 {
@@ -112,6 +114,10 @@ bool WorkloadManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
         processExecEvent(&ev->data_[0]);
     } else if (ProcListenerExitEvent *ev = dynamic_cast<ProcListenerExitEvent *>(event.get())) {
         processExitEvent(&ev->data_[0]);
+    } else if (AddRequestEvent *ev = dynamic_cast<AddRequestEvent *>(event.get())) {
+        processAddRequestEvent(ev);
+    } else if (FeedbackRequestEvent *ev = dynamic_cast<FeedbackRequestEvent *>(event.get())) {
+        processFeedbackRequestEvent(ev);
     } else {
         cat_.error("WORKLOADMANAGER received wrong event: %s", event->getName().c_str());
     }
@@ -178,7 +184,7 @@ void WorkloadManager::processExitEvent(uint8_t *data)
         remove(pid);
 
         ostringstream os;
-        os << "WORKLOADMANAGER exec {"
+        os << "WORKLOADMANAGER exit {"
            << "\"process_pid\":"
            << ev->event_data.exit.process_pid
            << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exit.process_pid) << '\''
@@ -187,6 +193,43 @@ void WorkloadManager::processExitEvent(uint8_t *data)
            << "}";
         cat_.info(os.str());
         dumpMonitoredApps();
+    }
+}
+
+void WorkloadManager::processAddRequestEvent(rmcommon::AddRequestEvent *ev)
+{
+    add(ev->getApp());
+
+    ostringstream os;
+    os << "WORKLOADMANAGER AddRequest {"
+       << "\"process_pid\":"
+       << ev->getApp()->getPid()
+       << ",\"process_name\":" << '\'' << ev->getApp()->getPid() << '\''
+       << "}";
+    cat_.info(os.str());
+    dumpMonitoredApps();
+}
+
+void WorkloadManager::processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev)
+{
+    if(isInKonro(ev->getPid())) {
+        bus_.publish(new rmcommon::ProcFeedbackEvent(ev->getPid(), ev->getFeedback()));
+
+        ostringstream os;
+        os << "WORKLOADMANAGER FeedbackRequest {"
+           << "\"process_pid\":"
+           << ev->getPid()
+           << ",\"feedback_value\":" << '\'' << ev->getFeedback() << '\''
+           << "}";
+        cat_.info(os.str());
+    } else {
+        ostringstream os;
+        os << "WORKLOADMANAGER FeedbackRequest received from process not in Konro {"
+           << "\"process_pid\":"
+           << ev->getPid()
+           << ",\"feedback_value\":" << '\'' << ev->getFeedback() << '\''
+           << "}";
+        cat_.error(os.str());
     }
 }
 

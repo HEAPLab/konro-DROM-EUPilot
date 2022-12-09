@@ -5,6 +5,8 @@
 #include "iplatformcontrol.h"
 #include "baseeventreceiver.h"
 #include "baseevent.h"
+#include "addrequestevent.h"
+#include "feedbackrequestevent.h"
 #include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
@@ -29,6 +31,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
                                    const std::shared_ptr<rmcommon::App> &rhs);
 
     std::set<std::shared_ptr<rmcommon::App>, AppComparator> apps_;
+
     /*!
      * Processes a fork event.
      *
@@ -52,6 +55,17 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * from Konro's management.
      */
     void processExitEvent(std::uint8_t *data);
+
+    /*!
+     * Processes a request to add a new event to Konro.
+     *
+     * When a new add reqeust is received, the necessary actions are
+     * performed in the Platfrom Control layer and a new event is published
+     * to the Event Bus to notify the Polcy Manager.
+     */
+    void processAddRequestEvent(rmcommon::AddRequestEvent *ev);
+
+    void processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev);
 
     void dumpMonitoredApps();
 

@@ -22,7 +22,7 @@ private:
     AppType appType_;
     std::string name_;
 
-    App(pid_t pid, AppType appType, std::string appName = "") :
+    App(pid_t pid, AppType appType, std::string appName) :
         pid_(pid), appType_(appType), name_(appName) {}
 
 public:
@@ -40,10 +40,10 @@ public:
      * \param appType the type of the app
      * \returns the shared_ptr to the App
      */
-    static std::shared_ptr<App> makeApp(pid_t pid, AppType appType) {
+    static std::shared_ptr<App> makeApp(pid_t pid, AppType appType, std::string appName = "") {
         // Note: to use std::make_shared, the constructor must be public;
         //       in this context it is better to use new App(...)
-        return std::shared_ptr<App>(new App(pid, appType));
+        return std::shared_ptr<App>(new App(pid, appType, appName));
     }
 
     /*!

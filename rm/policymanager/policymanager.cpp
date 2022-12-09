@@ -85,6 +85,8 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
 void PolicyManager::subscribeToEvents()
 {
     bus_.subscribe<PolicyManager, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::RemoveProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::TimerEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
     bus_.subscribe<PolicyManager, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
     bus_.subscribe<PolicyManager, rmcommon::MonitorEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
 }
