@@ -4,7 +4,7 @@
 #include "../appmapping.h"
 #include "platformdescription.h"
 #include "monitorevent.h"
-#include "procfeedbackevent.h"
+#include "feedbackevent.h"
 #include <memory>
 
 namespace rp {
@@ -45,7 +45,7 @@ public:
     /*!
      * Handles a platform monitor event.
      */
-    virtual void feedback(rmcommon::ProcFeedbackEvent *ev) = 0;
+    virtual void feedback(rmcommon::FeedbackEvent *ev) = 0;
 };
 
 }   // namespace rp

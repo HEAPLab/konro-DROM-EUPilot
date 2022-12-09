@@ -41,7 +41,7 @@ void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
         // process has died and the Workload Manager has already
         // removed the cgroup directory for the process, but the
         // Resource Policicy Manager has not yet received the
-        // corresponding RemoveProcEvent from the WorkloadManager
+        // corresponding RemoveEvent from the WorkloadManager
         log4cpp::Category::getRoot().error("RANDPOLICY addApp PID %ld: EXCEPTION %s",
                                            (long)pid, e.what());
     }
@@ -62,7 +62,7 @@ void RandPolicy::monitor(rmcommon::MonitorEvent *ev)
     // no action required
 }
 
-void RandPolicy::feedback(rmcommon::ProcFeedbackEvent *ev)
+void RandPolicy::feedback(rmcommon::FeedbackEvent *ev)
 {
     // no action required
 }

@@ -4,11 +4,11 @@
 #include "baseeventreceiver.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
-#include "addprocevent.h"
-#include "removeprocevent.h"
+#include "addevent.h"
+#include "removeevent.h"
 #include "timerevent.h"
 #include "monitorevent.h"
-#include "procfeedbackevent.h"
+#include "feedbackevent.h"
 #include "appmapping.h"
 #include "policies/ibasepolicy.h"
 #include "platformdescription.h"
@@ -65,16 +65,16 @@ private:
     bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
 
     /*!
-     * Processes an AddProcEvent.
+     * Processes an AddEvent.
      * \param event the event to process
      */
-    void processAddProcEvent(rmcommon::AddProcEvent *ev);
+    void processAddEvent(rmcommon::AddEvent *ev);
 
     /*!
-     * Processes a RemoveProcEvent.
+     * Processes a RemoveEvent.
      * \param event the event to process
      */
-    void processRemoveProcEvent(rmcommon::RemoveProcEvent *ev);
+    void processRemoveEvent(rmcommon::RemoveEvent *ev);
 
     /*!
      * Processes a TimerEvent
@@ -89,10 +89,10 @@ private:
     void processMonitorEvent(rmcommon::MonitorEvent *ev);
 
     /*!
-     * Processes a ProcFeedbackEvent
+     * Processes a FeedbackEvent
      * \param ev the event to process
      */
-    void processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev);
+    void processFeedbackEvent(rmcommon::FeedbackEvent *ev);
 
     /* for debugging */
     void dumpApps() const;

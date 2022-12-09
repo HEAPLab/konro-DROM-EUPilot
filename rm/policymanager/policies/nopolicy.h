@@ -31,7 +31,7 @@ public:
         // do nothing
     }
 
-    virtual void feedback(rmcommon::ProcFeedbackEvent *ev) override {
+    virtual void feedback(rmcommon::FeedbackEvent *ev) override {
         // do nothing
     }
 };

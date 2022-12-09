@@ -1,10 +1,10 @@
 #include "workloadmanager.h"
-#include "addprocevent.h"
-#include "removeprocevent.h"
-#include "proclistenerforkevent.h"
-#include "proclistenerexecevent.h"
-#include "proclistenerexitevent.h"
-#include "procfeedbackevent.h"
+#include "addevent.h"
+#include "removeevent.h"
+#include "forkevent.h"
+#include "execevent.h"
+#include "exitevent.h"
+#include "feedbackevent.h"
 #include "eventbus.h"
 #include <iostream>
 #include <sstream>
@@ -66,9 +66,9 @@ void WorkloadManager::subscribeToEvents()
     using namespace rmcommon;
     auto handlerFunc = &WorkloadManager::addEvent;
 
-    bus_.subscribe<WorkloadManager, ProcListenerForkEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, ProcListenerExecEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, ProcListenerExitEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ForkEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ExecEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ExitEvent, BaseEvent>(this, handlerFunc);
     bus_.subscribe<WorkloadManager, AddRequestEvent, BaseEvent>(this, handlerFunc);
     bus_.subscribe<WorkloadManager, FeedbackRequestEvent, BaseEvent>(this, handlerFunc);
 }
@@ -77,7 +77,7 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
     apps_.insert(app);
     platformControl_.addApplication(app);
-    bus_.publish(new rmcommon::AddProcEvent(app));
+    bus_.publish(new rmcommon::AddEvent(app));
 }
 
 shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
@@ -92,7 +92,7 @@ void WorkloadManager::remove(pid_t pid)
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     auto it = apps_.find(key);
     if (it != end(apps_)) {
-        bus_.publish(new rmcommon::RemoveProcEvent(*it));
+        bus_.publish(new rmcommon::RemoveEvent(*it));
         platformControl_.removeApplication(*it);
         apps_.erase(it);
     }
@@ -108,11 +108,11 @@ bool WorkloadManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
 {
     using namespace rmcommon;
 
-    if (ProcListenerForkEvent *ev = dynamic_cast<ProcListenerForkEvent *>(event.get())) {
+    if (ForkEvent *ev = dynamic_cast<ForkEvent *>(event.get())) {
         processForkEvent(&ev->data_[0]);
-    } else if (ProcListenerExecEvent *ev = dynamic_cast<ProcListenerExecEvent *>(event.get())) {
+    } else if (ExecEvent *ev = dynamic_cast<ExecEvent *>(event.get())) {
         processExecEvent(&ev->data_[0]);
-    } else if (ProcListenerExitEvent *ev = dynamic_cast<ProcListenerExitEvent *>(event.get())) {
+    } else if (ExitEvent *ev = dynamic_cast<ExitEvent *>(event.get())) {
         processExitEvent(&ev->data_[0]);
     } else if (AddRequestEvent *ev = dynamic_cast<AddRequestEvent *>(event.get())) {
         processAddRequestEvent(ev);
@@ -213,7 +213,7 @@ void WorkloadManager::processAddRequestEvent(rmcommon::AddRequestEvent *ev)
 void WorkloadManager::processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev)
 {
     if(isInKonro(ev->getPid())) {
-        bus_.publish(new rmcommon::ProcFeedbackEvent(ev->getPid(), ev->getFeedback()));
+        bus_.publish(new rmcommon::FeedbackEvent(ev->getPid(), ev->getFeedback()));
 
         ostringstream os;
         os << "WORKLOADMANAGER FeedbackRequest {"

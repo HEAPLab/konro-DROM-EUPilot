@@ -57,7 +57,10 @@ struct KonroHttp::KonroHttpImpl {
         if (isInJson(j, "pid") && isInJson(j, "type")) {
             long pid = j["pid"];
             string type = j["type"];
-            string name = j["name"];
+            // optional "name"
+            string name;
+            if (j.contains("name"))
+                name = j["name"];
             rmcommon::App::AppType appType = rmcommon::App::getTypeByName(type);
             if (appType == rmcommon::App::AppType::UNKNOWN) {
                 cat_.error("KONROHTTP invalid application type %s", type.c_str());

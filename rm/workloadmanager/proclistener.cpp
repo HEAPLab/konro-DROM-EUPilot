@@ -1,7 +1,7 @@
 #include "proclistener.h"
-#include "proclistenerforkevent.h"
-#include "proclistenerexecevent.h"
-#include "proclistenerexitevent.h"
+#include "forkevent.h"
+#include "execevent.h"
+#include "exitevent.h"
 #include <iostream>
 #include <sstream>
 #include <cstdio>
@@ -202,13 +202,13 @@ void ProcListener::forwardEvent(uint8_t *data, size_t len)
 
     switch (ev->what) {
     case proc_event::PROC_EVENT_FORK:
-        bus_.publish(new ProcListenerForkEvent(data, len));
+        bus_.publish(new ForkEvent(data, len));
         break;
     case proc_event::PROC_EVENT_EXEC:
-        bus_.publish(new ProcListenerExecEvent(data, len));
+        bus_.publish(new ExecEvent(data, len));
         break;
     case proc_event::PROC_EVENT_EXIT:
-        bus_.publish(new ProcListenerExitEvent(data, len));
+        bus_.publish(new ExitEvent(data, len));
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
            PROC_EVENT_SID, PROC_EVENT_PTRACE, PROC_EVENT_COREDUMP */

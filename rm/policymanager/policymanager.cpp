@@ -84,10 +84,10 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
 
 void PolicyManager::subscribeToEvents()
 {
-    bus_.subscribe<PolicyManager, rmcommon::AddProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
-    bus_.subscribe<PolicyManager, rmcommon::RemoveProcEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::AddEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::RemoveEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
     bus_.subscribe<PolicyManager, rmcommon::TimerEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
-    bus_.subscribe<PolicyManager, rmcommon::ProcFeedbackEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
+    bus_.subscribe<PolicyManager, rmcommon::FeedbackEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
     bus_.subscribe<PolicyManager, rmcommon::MonitorEvent, rmcommon::BaseEvent>(this, &PolicyManager::addEvent);
 }
 
@@ -116,30 +116,30 @@ bool PolicyManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
     cat_.debug(os.str());
 #endif
 
-    if (rmcommon::AddProcEvent *e = dynamic_cast<rmcommon::AddProcEvent *>(event.get())) {
-        processAddProcEvent(e);
-    } else if (rmcommon::RemoveProcEvent *e = dynamic_cast<rmcommon::RemoveProcEvent *>(event.get())) {
-        processRemoveProcEvent(e);
+    if (rmcommon::AddEvent *e = dynamic_cast<rmcommon::AddEvent *>(event.get())) {
+        processAddEvent(e);
+    } else if (rmcommon::RemoveEvent *e = dynamic_cast<rmcommon::RemoveEvent *>(event.get())) {
+        processRemoveEvent(e);
     } else if (rmcommon::TimerEvent *e = dynamic_cast<rmcommon::TimerEvent *>(event.get())) {
         processTimerEvent(e);
     } else if (rmcommon::MonitorEvent *e = dynamic_cast<rmcommon::MonitorEvent *>(event.get())) {
         processMonitorEvent(e);
-    } else if (rmcommon::ProcFeedbackEvent *e = dynamic_cast<rmcommon::ProcFeedbackEvent *>(event.get())) {
-        processProcFeedbackEvent(e);
+    } else if (rmcommon::FeedbackEvent *e = dynamic_cast<rmcommon::FeedbackEvent *>(event.get())) {
+        processFeedbackEvent(e);
     }
     return true;        // continue processing
 }
 
-void PolicyManager::processAddProcEvent(rmcommon::AddProcEvent *ev)
+void PolicyManager::processAddEvent(rmcommon::AddEvent *ev)
 {
-    cat_.debug("POLICYMANAGER AddProc event received");
+    cat_.debug("POLICYMANAGER AddEvent received");
     shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(ev->getApp());
     apps_.insert(appMapping);
     dumpApps();
     policy_->addApp(appMapping);
 }
 
-void PolicyManager::processRemoveProcEvent(rmcommon::RemoveProcEvent *ev)
+void PolicyManager::processRemoveEvent(rmcommon::RemoveEvent *ev)
 {
     cat_.debug("POLICYMANAGER RemoveProc event received");
     // search target
@@ -164,7 +164,7 @@ void PolicyManager::processMonitorEvent(rmcommon::MonitorEvent *ev)
     policy_->monitor(ev);
 }
 
-void PolicyManager::processProcFeedbackEvent(rmcommon::ProcFeedbackEvent *ev)
+void PolicyManager::processFeedbackEvent(rmcommon::FeedbackEvent *ev)
 {
     cat_.debug("POLICYMANAGER feedback event received");
     policy_->feedback(ev);

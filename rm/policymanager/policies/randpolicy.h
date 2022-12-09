@@ -22,7 +22,7 @@ public:
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void timer() override;
     virtual void monitor(rmcommon::MonitorEvent *ev) override;
-    virtual void feedback(rmcommon::ProcFeedbackEvent *ev) override;
+    virtual void feedback(rmcommon::FeedbackEvent *ev) override;
 };
 
 }   // namespace rp
