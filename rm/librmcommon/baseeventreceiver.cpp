@@ -11,7 +11,7 @@ BaseEventReceiver::BaseEventReceiver(const char *threadName) :
 {
 }
 
-void BaseEventReceiver::addEvent(std::shared_ptr<BaseEvent> event)
+void BaseEventReceiver::addEvent(std::shared_ptr<const BaseEvent> event)
 {
     queue_.push(event);
 }
@@ -23,7 +23,7 @@ void BaseEventReceiver::run()
     using Logger = log4cpp::Category;
     Logger::getRoot().info("%s starts", getThreadName().c_str());
     while (!stopped()) {
-        shared_ptr<rmcommon::BaseEvent> event;
+        shared_ptr<const rmcommon::BaseEvent> event;
         if (queue_.waitAndPop(event, WAIT_POP_TIMEOUT_MILLIS)) {
 //            Logger::getRoot().info("BASEEEVENTRECEIVER received event %s",
 //                                   event->getName().c_str());

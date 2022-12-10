@@ -41,11 +41,8 @@ public:
 private:
     log4cpp::Category &cat_;
     rmcommon::EventBus &bus_;
-    std::thread timerThread_;
     std::unique_ptr<IBasePolicy> policy_;
     PlatformDescription platformDescription_;
-    int timerSeconds_;
-    std::atomic_bool stopTimer_;
 
     /*! Comparison function for the set */
     using AppComparator = bool (*)(const std::shared_ptr<AppMapping> &lhs,
@@ -55,44 +52,41 @@ private:
 
     void subscribeToEvents();
 
-    /*! Encapsulates the timer thread logic */
-    void timer();
-
     /*!
      * Processes a generic event by calling the appropriate handler function.
      * \param event the event to process
      */
-    bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
+    bool processEvent(std::shared_ptr<const rmcommon::BaseEvent> event) override;
 
     /*!
      * Processes an AddEvent.
      * \param event the event to process
      */
-    void processAddEvent(rmcommon::AddEvent *ev);
+    void processAddEvent(std::shared_ptr<const rmcommon::AddEvent> event);
 
     /*!
      * Processes a RemoveEvent.
      * \param event the event to process
      */
-    void processRemoveEvent(rmcommon::RemoveEvent *ev);
+    void processRemoveEvent(std::shared_ptr<const rmcommon::RemoveEvent> event);
 
     /*!
      * Processes a TimerEvent
      * \param ev the event to process
      */
-    void processTimerEvent(rmcommon::TimerEvent *ev);
+    void processTimerEvent(std::shared_ptr<const rmcommon::TimerEvent> event);
 
     /*!
      * Processes a MonitorEvent
      * \param ev the event to process
      */
-    void processMonitorEvent(rmcommon::MonitorEvent *ev);
+    void processMonitorEvent(std::shared_ptr<const rmcommon::MonitorEvent> event);
 
     /*!
      * Processes a FeedbackEvent
      * \param ev the event to process
      */
-    void processFeedbackEvent(rmcommon::FeedbackEvent *ev);
+    void processFeedbackEvent(std::shared_ptr<const rmcommon::FeedbackEvent> event);
 
     /* for debugging */
     void dumpApps() const;
@@ -101,19 +95,8 @@ private:
     std::unique_ptr<IBasePolicy> makePolicy(Policy policy);
 public:
 
-    /*!
-     * \param timerSeconds if 0, then the internal timer thread is not started
-     */
-    PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy, int timerSeconds = 30);
+    PolicyManager(rmcommon::EventBus &bus, PlatformDescription pd, Policy policy = Policy::NoPolicy);
     virtual ~PolicyManager() = default;
-
-    /*!
-     * Starts the run() function in a new thread
-     * and the timer() function in a new thread
-     */
-    void start() override;
-
-    void stop() override;
 
     /*!
      * Return the policy with the specified name.

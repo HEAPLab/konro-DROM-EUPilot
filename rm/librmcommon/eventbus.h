@@ -33,6 +33,7 @@
 #include <map>
 #include <typeinfo>
 #include <typeindex>
+#include <type_traits>
 #include <memory>
 #include <iostream>
 #include <mutex>
@@ -57,7 +58,7 @@ private:
 template<class T, class EventType>
 class MemberFunctionHandler : public IHandlerFunctionBase {
 public:
-    typedef void (T::*MemberFunction)(std::shared_ptr<EventType>);
+    typedef void (T::*MemberFunction)(std::shared_ptr<const EventType>);
 
     MemberFunctionHandler(T *instance, MemberFunction memberFunction) :
         instance{ instance },
@@ -66,7 +67,7 @@ public:
 
     void call(void *p) override {
         // here we really know what p points to
-        std::shared_ptr<EventType> event = *reinterpret_cast<std::shared_ptr<EventType> *>(p);
+        std::shared_ptr<const EventType> event = *reinterpret_cast<std::shared_ptr<const EventType> *>(p);
         (instance->*memberFunction)(event);
     }
 private:
@@ -141,7 +142,7 @@ public:
      *                       EventType is called
      */
     template<typename T, typename EventType, typename BaseEvent = EventType>
-    void subscribe(T *instance, void (T::*memberFunction)(std::shared_ptr<BaseEvent>)) {
+    void subscribe(T *instance, void (T::*memberFunction)(std::shared_ptr<const BaseEvent>)) {
         std::unique_lock<std::mutex> lck(global_mutex);
         HandlerList *handlers = subscribers[typeid(EventType)];
 
@@ -150,7 +151,7 @@ public:
             handlers = new HandlerList();
             subscribers[typeid(EventType)] = handlers;
         }
-        IHandlerFunctionBase *ptr = new MemberFunctionHandler<T, BaseEvent>(instance, memberFunction);
+        IHandlerFunctionBase *ptr = new MemberFunctionHandler<T, const BaseEvent>(instance, memberFunction);
         handlers->push_back(ptr);
     }
 
@@ -171,7 +172,7 @@ public:
         }
         // create the shared_ptr of the event that will be passed
         // to the receivers
-        std::shared_ptr<EventType> p = std::shared_ptr<EventType>(event);
+        std::shared_ptr<const EventType> p = std::shared_ptr<EventType>(event);
         for (auto handler : *handlers) {
             if (handler != nullptr) {
                 handler->exec(&p);

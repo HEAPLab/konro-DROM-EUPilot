@@ -1,10 +1,4 @@
 #include "workloadmanager.h"
-#include "addevent.h"
-#include "removeevent.h"
-#include "forkevent.h"
-#include "execevent.h"
-#include "exitevent.h"
-#include "feedbackevent.h"
 #include "eventbus.h"
 #include <iostream>
 #include <sstream>
@@ -64,13 +58,12 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
 void WorkloadManager::subscribeToEvents()
 {
     using namespace rmcommon;
-    auto handlerFunc = &WorkloadManager::addEvent;
 
-    bus_.subscribe<WorkloadManager, ForkEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, ExecEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, ExitEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, AddRequestEvent, BaseEvent>(this, handlerFunc);
-    bus_.subscribe<WorkloadManager, FeedbackRequestEvent, BaseEvent>(this, handlerFunc);
+    bus_.subscribe<WorkloadManager, ForkEvent, BaseEvent>(this, &WorkloadManager::addEvent);
+    bus_.subscribe<WorkloadManager, ExecEvent, BaseEvent>(this, &WorkloadManager::addEvent);
+    bus_.subscribe<WorkloadManager, ExitEvent, BaseEvent>(this, &WorkloadManager::addEvent);
+    bus_.subscribe<WorkloadManager, AddRequestEvent, BaseEvent>(this, &WorkloadManager::addEvent);
+    bus_.subscribe<WorkloadManager, FeedbackRequestEvent, BaseEvent>(this, &WorkloadManager::addEvent);
 }
 
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
@@ -104,29 +97,29 @@ bool WorkloadManager::isInKonro(pid_t pid)
     return apps_.find(key) != end(apps_);
 }
 
-bool WorkloadManager::processEvent(std::shared_ptr<rmcommon::BaseEvent> event)
+bool WorkloadManager::processEvent(std::shared_ptr<const rmcommon::BaseEvent> event)
 {
     using namespace rmcommon;
 
-    if (ForkEvent *ev = dynamic_cast<ForkEvent *>(event.get())) {
-        processForkEvent(&ev->data_[0]);
-    } else if (ExecEvent *ev = dynamic_cast<ExecEvent *>(event.get())) {
-        processExecEvent(&ev->data_[0]);
-    } else if (ExitEvent *ev = dynamic_cast<ExitEvent *>(event.get())) {
-        processExitEvent(&ev->data_[0]);
-    } else if (AddRequestEvent *ev = dynamic_cast<AddRequestEvent *>(event.get())) {
-        processAddRequestEvent(ev);
-    } else if (FeedbackRequestEvent *ev = dynamic_cast<FeedbackRequestEvent *>(event.get())) {
-        processFeedbackRequestEvent(ev);
+    if (const ForkEvent *ev = dynamic_cast<const ForkEvent *>(event.get())) {
+        processForkEvent(static_pointer_cast<const ForkEvent>(event));
+    } else if (const ExecEvent *ev = dynamic_cast<const ExecEvent *>(event.get())) {
+        processExecEvent(static_pointer_cast<const ExecEvent>(event));
+    } else if (const ExitEvent *ev = dynamic_cast<const ExitEvent *>(event.get())) {
+        processExitEvent(static_pointer_cast<const ExitEvent>(event));
+    } else if (const AddRequestEvent *ev = dynamic_cast<const AddRequestEvent *>(event.get())) {
+        processAddRequestEvent(static_pointer_cast<const AddRequestEvent>(event));
+    } else if (const FeedbackRequestEvent *ev = dynamic_cast<const FeedbackRequestEvent *>(event.get())) {
+        processFeedbackRequestEvent(static_pointer_cast<const FeedbackRequestEvent>(event));
     } else {
         cat_.error("WORKLOADMANAGER received wrong event: %s", event->getName().c_str());
     }
     return true;
 }
 
-void WorkloadManager::processForkEvent(uint8_t *data)
+void WorkloadManager::processForkEvent(std::shared_ptr<const rmcommon::ForkEvent> event)
 {
-    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
+    const struct proc_event *ev = reinterpret_cast<const struct proc_event *>(&event->data_[0]);
 
     // Note: parent_pid and parent_tgid refer to the new process’ current parent
     //       which isn’t necessarily the process which called fork and birthed a
@@ -154,9 +147,9 @@ void WorkloadManager::processForkEvent(uint8_t *data)
     }
 }
 
-void WorkloadManager::processExecEvent(uint8_t *data)
+void WorkloadManager::processExecEvent(std::shared_ptr<const rmcommon::ExecEvent> event)
 {
-    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
+    const struct proc_event *ev = reinterpret_cast<const struct proc_event *>(&event->data_[0]);
     pid_t pid = ev->event_data.exec.process_pid;
     if (isInKonro(pid)) {
         shared_ptr<rmcommon::App> app = getApp(pid);
@@ -175,9 +168,9 @@ void WorkloadManager::processExecEvent(uint8_t *data)
     }
 }
 
-void WorkloadManager::processExitEvent(uint8_t *data)
+void WorkloadManager::processExitEvent(std::shared_ptr<const rmcommon::ExitEvent> event)
 {
-    struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
+    const struct proc_event *ev = reinterpret_cast<const struct proc_event *>(&event->data_[0]);
 
     pid_t pid = ev->event_data.exit.process_pid;
     if (isInKonro(pid)) {
@@ -196,38 +189,38 @@ void WorkloadManager::processExitEvent(uint8_t *data)
     }
 }
 
-void WorkloadManager::processAddRequestEvent(rmcommon::AddRequestEvent *ev)
+void WorkloadManager::processAddRequestEvent(std::shared_ptr<const rmcommon::AddRequestEvent> event)
 {
-    add(ev->getApp());
+    add(event->getApp());
 
     ostringstream os;
     os << "WORKLOADMANAGER AddRequest {"
        << "\"process_pid\":"
-       << ev->getApp()->getPid()
-       << ",\"process_name\":" << '\'' << ev->getApp()->getPid() << '\''
+       << event->getApp()->getPid()
+       << ",\"process_name\":" << '\'' << event->getApp()->getPid() << '\''
        << "}";
     cat_.info(os.str());
     dumpMonitoredApps();
 }
 
-void WorkloadManager::processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev)
+void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon::FeedbackRequestEvent> event)
 {
-    if(isInKonro(ev->getPid())) {
-        bus_.publish(new rmcommon::FeedbackEvent(ev->getPid(), ev->getFeedback()));
+    if(isInKonro(event->getPid())) {
+        bus_.publish(new rmcommon::FeedbackEvent(event->getPid(), event->getFeedback()));
 
         ostringstream os;
         os << "WORKLOADMANAGER FeedbackRequest {"
            << "\"process_pid\":"
-           << ev->getPid()
-           << ",\"feedback_value\":" << '\'' << ev->getFeedback() << '\''
+           << event->getPid()
+           << ",\"feedback_value\":" << '\'' << event->getFeedback() << '\''
            << "}";
         cat_.info(os.str());
     } else {
         ostringstream os;
         os << "WORKLOADMANAGER FeedbackRequest received from process not in Konro {"
            << "\"process_pid\":"
-           << ev->getPid()
-           << ",\"feedback_value\":" << '\'' << ev->getFeedback() << '\''
+           << event->getPid()
+           << ",\"feedback_value\":" << '\'' << event->getFeedback() << '\''
            << "}";
         cat_.error(os.str());
     }

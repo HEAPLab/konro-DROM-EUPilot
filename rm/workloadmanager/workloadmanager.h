@@ -5,6 +5,13 @@
 #include "iplatformcontrol.h"
 #include "baseeventreceiver.h"
 #include "baseevent.h"
+#include "forkevent.h"
+#include "execevent.h"
+#include "exitevent.h"
+#include "addevent.h"
+#include "removeevent.h"
+#include "feedbackevent.h"
+
 #include "addrequestevent.h"
 #include "feedbackrequestevent.h"
 #include <log4cpp/Category.hh>
@@ -38,7 +45,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * If a new process was forked by another process already handled by Konro,
      * the forked process is added to Konro.
      */
-    void processForkEvent(std::uint8_t *data);
+    void processForkEvent(std::shared_ptr<const rmcommon::ForkEvent> event);
 
     /*!
      * Processes an exec event.
@@ -46,7 +53,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * When a process handled by Konro performs an exec (often following a fork),
      * the application name is substituted with the name of the new program.
      */
-    void processExecEvent(std::uint8_t *data);
+    void processExecEvent(std::shared_ptr<const rmcommon::ExecEvent> event);
 
     /*!
      * Processes an exit event.
@@ -54,7 +61,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * If the exiting process was handled by Konro, the process is removed
      * from Konro's management.
      */
-    void processExitEvent(std::uint8_t *data);
+    void processExitEvent(std::shared_ptr<const rmcommon::ExitEvent> event);
 
     /*!
      * Processes a request to add a new event to Konro.
@@ -63,7 +70,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * performed in the Platfrom Control layer and a new event is published
      * to the Event Bus to notify the Polcy Manager.
      */
-    void processAddRequestEvent(rmcommon::AddRequestEvent *ev);
+    void processAddRequestEvent(std::shared_ptr<const rmcommon::AddRequestEvent> event);
 
     /*!
      * Processes a feedback message received from an integrated application.
@@ -73,7 +80,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * handled by Konro. If so, a new event is published to the Event Bus
      * to notify the Polcy Manager.
      */
-    void processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev);
+    void processFeedbackRequestEvent(std::shared_ptr<const rmcommon::FeedbackRequestEvent> event);
 
     void dumpMonitoredApps();
 
@@ -114,7 +121,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
 public:
     WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid);
 
-    virtual bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) override;
+    virtual bool processEvent(std::shared_ptr<const rmcommon::BaseEvent> event) override;
 };
 
 }   // namespace wm

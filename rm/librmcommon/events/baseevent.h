@@ -15,7 +15,7 @@ public:
     BaseEvent(const char *name) : name_(name) {
     }
 
-    std::string getName() {
+    std::string getName() const {
         return name_;
     }
 

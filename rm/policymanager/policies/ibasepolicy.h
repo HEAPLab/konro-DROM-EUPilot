@@ -40,12 +40,12 @@ public:
     /*!
      * Handles a platform monitor event.
      */
-    virtual void monitor(rmcommon::MonitorEvent *ev) = 0;
+    virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) = 0;
 
     /*!
      * Handles a platform monitor event.
      */
-    virtual void feedback(rmcommon::FeedbackEvent *ev) = 0;
+    virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) = 0;
 };
 
 }   // namespace rp

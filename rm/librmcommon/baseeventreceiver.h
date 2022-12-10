@@ -28,7 +28,7 @@ namespace rmcommon {
  * \endcode
  */
 class BaseEventReceiver : public rmcommon::BaseThread {
-    rmcommon::ThreadsafeQueue<std::shared_ptr<rmcommon::BaseEvent>> queue_;
+    rmcommon::ThreadsafeQueue<std::shared_ptr<const rmcommon::BaseEvent>> queue_;
     const std::chrono::milliseconds WAIT_POP_TIMEOUT_MILLIS = std::chrono::milliseconds(5000);
     std::string threadName_;
 
@@ -44,13 +44,13 @@ public:
      * \brief Adds an event to the tread safe queue
      * \param event the event to add
      */
-    virtual void addEvent(std::shared_ptr<BaseEvent> event);
+    virtual void addEvent(std::shared_ptr<const BaseEvent> event);
 
     /*!
      * Processes a generic event by calling the appropriate handler function.
      * \param event the event to process
      */
-    virtual bool processEvent(std::shared_ptr<rmcommon::BaseEvent> event) = 0;
+    virtual bool processEvent(std::shared_ptr<const rmcommon::BaseEvent> event) = 0;
 };
 
 }   // namespace rmcommon

@@ -27,11 +27,11 @@ public:
         // do nothing
     }
 
-    virtual void monitor(rmcommon::MonitorEvent *ev) override {
+    virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) override {
         // do nothing
     }
 
-    virtual void feedback(rmcommon::FeedbackEvent *ev) override {
+    virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) override {
         // do nothing
     }
 };

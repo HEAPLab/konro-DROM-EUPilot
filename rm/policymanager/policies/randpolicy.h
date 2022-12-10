@@ -21,8 +21,8 @@ public:
     virtual void addApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
     virtual void timer() override;
-    virtual void monitor(rmcommon::MonitorEvent *ev) override;
-    virtual void feedback(rmcommon::FeedbackEvent *ev) override;
+    virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) override;
+    virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) override;
 };
 
 }   // namespace rp

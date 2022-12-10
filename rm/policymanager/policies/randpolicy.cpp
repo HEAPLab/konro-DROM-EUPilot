@@ -57,12 +57,12 @@ void RandPolicy::timer()
     // no action required
 }
 
-void RandPolicy::monitor(rmcommon::MonitorEvent *ev)
+void RandPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
 {
     // no action required
 }
 
-void RandPolicy::feedback(rmcommon::FeedbackEvent *ev)
+void RandPolicy::feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event)
 {
     // no action required
 }
