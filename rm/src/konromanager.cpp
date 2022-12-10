@@ -24,7 +24,7 @@
 struct KonroManager::KonroManagerImpl {
     rmcommon::EventBus eventBus;
     pc::CGroupControl cgc;
-    PlatformDescription pd;
+    PlatformDescription platformDescription;
     wm::ProcListener *procListener;
     wm::WorkloadManager *workloadManager;
     http::KonroHttp *http;
@@ -154,12 +154,12 @@ void KonroManager::run(long pidToMonitor)
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
     pimpl_->http = new http::KonroHttp(pimpl_->eventBus);
-    pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->pd, policy, cfgTimerSeconds_);
+    pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy, cfgTimerSeconds_);
     pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);
     pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
     pimpl_->platformMonitor =new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
 
-    pimpl_->pd.logTopology();
+    pimpl_->platformDescription.logTopology();
     pimpl_->platformMonitor->setCpuModuleNames(cfgCpuModuleNames_);
     pimpl_->platformMonitor->setBatteryModuleNames(cfgBatteryModuleNames_);
 

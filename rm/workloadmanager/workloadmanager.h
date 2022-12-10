@@ -65,6 +65,14 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      */
     void processAddRequestEvent(rmcommon::AddRequestEvent *ev);
 
+    /*!
+     * Processes a feedback message received from an integrated application.
+     *
+     * When a new feedback message is received by an integrated application,
+     * the WorkloadManger checks if the pid in the message belongs to an app
+     * handled by Konro. If so, a new event is published to the Event Bus
+     * to notify the Polcy Manager.
+     */
     void processFeedbackRequestEvent(rmcommon::FeedbackRequestEvent *ev);
 
     void dumpMonitoredApps();
