@@ -21,6 +21,20 @@
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
 
+/*!
+ * Helper function to read from configuration file
+ *
+ * \return the value read from the configuration file
+ */
+template<typename T>
+T configRead(konro::Config config, const char *section, const char *key, const T &&defaultValue) {
+    try {
+        return config.read<T>(section, key);
+    } catch (std::logic_error &e) {
+        log4cpp::Category::getRoot().info("MAIN could not read key %s from Konro configuration file", key);
+        return defaultValue;
+    }
+}
 
 struct KonroManager::KonroManagerImpl {
     rmcommon::EventBus eventBus;
@@ -32,7 +46,6 @@ struct KonroManager::KonroManagerImpl {
     rp::PolicyManager *policyManager;
     rp::PolicyTimer *policyTimer;
     PlatformMonitor *platformMonitor;
-
 
     KonroManagerImpl() {
         procListener = nullptr;
@@ -57,13 +70,6 @@ KonroManager::KonroManager() :
     pimpl_(new KonroManagerImpl()),
     cat_(log4cpp::Category::getRoot())
 {
-    // set some default values
-
-    cfgCpuModuleNames_ = "coretemp,k10temp,k8temp,cputemp";
-    cfgBatteryModuleNames_ = "BAT";
-    cfgTimerSeconds_ = 30;
-    cfgMonitorPeriod_ = 20;
-
     setupLogging();
     loadConfiguration();
 }
@@ -116,40 +122,20 @@ void KonroManager::loadConfiguration()
 
     const konro::Config &config = konro::Config::get(konroConfigFile);
 
-    try {
-        cfgPolicyName_ = config.read<std::string>("policy", "policy");
-        cat_.info("MAIN policy = %s", cfgPolicyName_.c_str());
-    } catch (std::logic_error &e) {
-        cat_.info("MAIN could not read policy from Konro configuration %s", konroConfigFile.c_str());
-    }
+    cfgPolicyName_ = configRead(config, "policy", "policy", std::string("NoPolicy"));
+    cfgTimerSeconds_ = configRead(config, "policytimer", "timerseconds", 30);
+    cfgMonitorPeriod_ = configRead(config, "platformmonitor", "monitorperiod", 20);
+    cfgCpuModuleNames_ = configRead(config, "platformmonitor", "kernelcpumodulenames", std::string("coretemp,k10temp,k8temp,cputemp"));
+    cfgBatteryModuleNames_ = configRead(config, "platformmonitor", "kernelbatterymodulenames", std::string("BAT"));
+    httpListenHost_ = configRead(config, "http", "listenhost", std::string("localhost"));
+    httpListenPort_ = configRead(config, "http", "listenport", 8080);
 
-    try {
-        cfgTimerSeconds_ = config.read<int>("policymanager", "timerseconds");
-        cat_.info("MAIN timer seconds = %d", cfgTimerSeconds_);
-    } catch (std::logic_error &e) {
-        cat_.info("MAIN could not read timerseconds from Konro configuration %s", konroConfigFile.c_str());
-    }
-
-    try {
-        cfgMonitorPeriod_ = config.read<int>("platformmonitor", "monitorperiod");
-        cat_.info("MAIN monitor period = %d", cfgMonitorPeriod_);
-    } catch (std::logic_error &e) {
-        cat_.info("MAIN could not read monitorperiod from Konro configuration %s", konroConfigFile.c_str());
-    }
-
-    try {
-        cfgCpuModuleNames_ = config.read<std::string>("platformmonitor", "kernelcpumodulenames");
-        cat_.info("MAIN cpuModuleNames = %s", cfgCpuModuleNames_.c_str());
-    } catch (std::logic_error &e) {
-        cat_.info("MAIN could not read kernelcpumodulenames from Konro configuration %s", konroConfigFile.c_str());
-    }
-
-    try {
-        cfgBatteryModuleNames_ = config.read<std::string>("platformmonitor", "kernelbatterymodulenames");
-        cat_.info("MAIN batteryModuleNames = %s", cfgBatteryModuleNames_.c_str());
-    } catch (std::logic_error &e) {
-        cat_.info("MAIN could not read kernelbatterymodulenames from Konro configuration %s", konroConfigFile.c_str());
-    }
+    cat_.info("MAIN configuration: policy = %s", cfgPolicyName_.c_str());
+    cat_.info("MAIN configuration: policy timer seconds = %d", cfgTimerSeconds_);
+    cat_.info("MAIN configuration: monitor period seconds = %d", cfgMonitorPeriod_);
+    cat_.info("MAIN configuration: CPU module names = %s", cfgCpuModuleNames_.c_str());
+    cat_.info("MAIN configuration: battery module names = %s", cfgBatteryModuleNames_.c_str());
+    cat_.info("MAIN configuration: HTTP listen on %s:%d", httpListenHost_.c_str(), httpListenPort_);
 }
 
 void KonroManager::run(long pidToMonitor)
@@ -158,7 +144,7 @@ void KonroManager::run(long pidToMonitor)
 
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
-    pimpl_->http = new http::KonroHttp(pimpl_->eventBus);
+    pimpl_->http = new http::KonroHttp(pimpl_->eventBus, httpListenHost_.c_str(), httpListenPort_);
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
     pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);
     pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
@@ -176,6 +162,7 @@ void KonroManager::run(long pidToMonitor)
     // 3. PolicyManager runs in a separate thread
     // 4. PlatformMonitor runs in a separate thread
     // 5. KonroHttp runs in a separate thread
+    // 6. PolicyTimer runs in a separate thread
 
     cat_.info("MAIN starting WorkloadManager thread");
     pimpl_->workloadManager->start();
@@ -183,8 +170,12 @@ void KonroManager::run(long pidToMonitor)
     cat_.info("MAIN starting PolicyManager thread");
     pimpl_->policyManager->start();
 
-    cat_.info("MAIN starting PolicyTimer thread");
-    pimpl_->policyTimer->start();
+    if (cfgTimerSeconds_ > 0)  {
+        cat_.info("MAIN starting PolicyTimer thread");
+        pimpl_->policyTimer->start();
+    } else {
+        cat_.info("MAIN PolicyTimer thread not started (timerseconds is %d)", cfgTimerSeconds_);
+    }
 
     cat_.info("MAIN starting PlatformMonitor thread");
     pimpl_->platformMonitor->start();
@@ -200,7 +191,9 @@ void KonroManager::run(long pidToMonitor)
     cat_.info("KONROMANAGER stopping threads");
 
     pimpl_->http->stop();
-    pimpl_->policyTimer->stop();
+    if (cfgTimerSeconds_ > 0)  {
+        pimpl_->policyTimer->stop();
+    }
     pimpl_->platformMonitor->stop();
     pimpl_->workloadManager->stop();
     pimpl_->policyManager->stop();
@@ -210,7 +203,9 @@ void KonroManager::run(long pidToMonitor)
     cat_.info("KONROMANAGER joining threads");
 
     pimpl_->http->join();
-    pimpl_->policyTimer->join();
+    if (cfgTimerSeconds_ > 0)  {
+        pimpl_->policyTimer->join();
+    }
     pimpl_->platformMonitor->join();
     pimpl_->workloadManager->join();
     pimpl_->policyManager->join();

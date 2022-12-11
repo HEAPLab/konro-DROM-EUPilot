@@ -15,6 +15,8 @@ class KonroManager {
     int cfgMonitorPeriod_;
     std::string cfgCpuModuleNames_;
     std::string cfgBatteryModuleNames_;
+    std::string httpListenHost_;
+    int httpListenPort_;
 
     std::string configFilePath();
     void setupLogging();

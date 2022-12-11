@@ -6,6 +6,10 @@
 
 namespace rp {
 
+/*!
+ * \brief a timer that periodically generates a TimerEvent to wake up the
+ * resource policy at fixed temporal intervals.
+ */
 class PolicyTimer : public rmcommon::BaseThread {
     rmcommon::EventBus &bus_;
     int seconds_;

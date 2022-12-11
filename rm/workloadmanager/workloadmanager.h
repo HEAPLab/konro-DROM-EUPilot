@@ -109,6 +109,9 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      */
     bool isInKonro(pid_t pid);
 
+    /*!
+     * Subscribes to the relevant events from the EventBus.
+     */
     void subscribeToEvents();
 
     /*!

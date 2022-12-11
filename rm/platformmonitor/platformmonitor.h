@@ -11,8 +11,8 @@
 
 /*!
  * \class periodically samples information about the platform status.
- * This information is then encapsulated in a MonitorEvent and pushed to
- * the thread safe queue.
+ * This information is then encapsulated in a MonitorEvent and published
+ * to the EventBus.
  * PlatformMonitor runs in a dedicated thread.
  */
 class PlatformMonitor : public rmcommon::BaseThread {
@@ -28,14 +28,14 @@ public:
     ~PlatformMonitor();
 
     /*!
-     * \brief setCpuModuleNames
-     * \param names Comma separated list of module names
+     * \brief Sets the vector of possible CPU chip names.
+     * \param names the comma separated list of module names
      */
     void setCpuModuleNames(const std::string &names);
 
     /*!
-     * \brief setBatteryModuleNames
-     * \param names Comma separated list of module names
+     * \brief Sets the vector of possible battery module names.
+     * \param names the comma separated list of module names
      */
     void setBatteryModuleNames(const std::string &names);
 };

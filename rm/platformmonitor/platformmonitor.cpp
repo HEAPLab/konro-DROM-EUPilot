@@ -219,13 +219,12 @@ void PlatformMonitor::run()
         for (int i = 0; i < monitorPeriod_ && !stopped() ; ++i) {
             this_thread::sleep_for(chrono::seconds(1));
         }
-        if (stopped()) {
-            break;
+        if (!stopped()) {
+            rmcommon::PlatformTemperature platTemp;
+            rmcommon::PlatformPower platPower;
+            pimpl_->handleSensors(platTemp, platPower);
+            bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
         }
-        rmcommon::PlatformTemperature platTemp;
-        rmcommon::PlatformPower platPower;
-        pimpl_->handleSensors(platTemp, platPower);
-        bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
     }
     cat_.info("PLATFORMMONITOR exiting");
 }

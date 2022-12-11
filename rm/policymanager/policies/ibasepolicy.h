@@ -43,7 +43,7 @@ public:
     virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) = 0;
 
     /*!
-     * Handles a platform monitor event.
+     * Handles an application feedback event.
      */
     virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) = 0;
 };

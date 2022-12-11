@@ -23,10 +23,9 @@ void PolicyTimer::run()
         for (int i = 0; i < seconds_ && !stopped() ; ++i) {
             this_thread::sleep_for(chrono::seconds(1));
         }
-        if (stopped()) {
-            break;
+        if (!stopped()) {
+            bus_.publish(new rmcommon::TimerEvent());
         }
-        bus_.publish(new rmcommon::TimerEvent());
     }
     log4cpp::Category::getRoot().info("POLICYTIMER exiting");
 }

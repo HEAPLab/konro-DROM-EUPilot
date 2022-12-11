@@ -26,8 +26,7 @@ struct KonroHttp::KonroHttpImpl {
             cat_.error("KONROHTTP missing \"%s\" in feedback message", param);
             return false;
         }
-        else
-            return true;
+        return true;
     }
 
     /*!
@@ -69,15 +68,12 @@ struct KonroHttp::KonroHttpImpl {
             cat_.info("KONROHTTP publishing AddRequestEvent for pid %ld", pid);
             bus_.publish(new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name)));
         }
-   }
+    }
 
     void handleGet(const httplib::Request &req, httplib::Response &res) {
         cat_.info("HTTP GET received");
-        if (req.has_param("op")) {
-            res.set_content("You have requested operation " + req.get_param_value("op") + "\r\n", "text/plain");
-        } else {
-            res.set_content("Hello World from Konro: please specify an operation", "text/plain");
-        }
+        res.status = 200;
+        res.set_content("200 - OK\r\n", "text/html");
     }
 
     /*!
@@ -109,9 +105,11 @@ struct KonroHttp::KonroHttpImpl {
     }
 };
 
-KonroHttp::KonroHttp(rmcommon::EventBus &eventBus) :
+KonroHttp::KonroHttp(rmcommon::EventBus &eventBus, const char *listen_host, int listen_port) :
     pimpl_(new KonroHttpImpl(eventBus)),
-    cat_(log4cpp::Category::getRoot())
+    cat_(log4cpp::Category::getRoot()),
+    listen_host_(listen_host),
+    listen_port_(listen_port)
 {
 }
 
@@ -131,7 +129,8 @@ void KonroHttp::run()
     setThreadName("KONROHTTP");
     cat_.info("KONROHTTP thread starting");
 
-    pimpl_->srv.Get("/konro", [this](const httplib::Request &req, httplib::Response &res) {
+    /* Test if server is running */
+    pimpl_->srv.Get("/status", [this](const httplib::Request &req, httplib::Response &res) {
         this->pimpl_->handleGet(req, res);
     });
 
@@ -147,7 +146,7 @@ void KonroHttp::run()
 
     cat_.info("KONROHTTP server starting");
 
-    pimpl_->srv.listen("localhost", 8080);
+    pimpl_->srv.listen(listen_host_.c_str(), listen_port_);
 
     cat_.info("KONROHTTP thread exiting");
 }
