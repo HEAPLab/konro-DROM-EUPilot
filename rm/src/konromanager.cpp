@@ -33,6 +33,9 @@ T configRead(konro::Config config, const char *section, const char *key, const T
     } catch (std::logic_error &e) {
         log4cpp::Category::getRoot().info("MAIN could not read key %s from Konro configuration file", key);
         return defaultValue;
+    } catch (...) {
+        log4cpp::Category::getRoot().info("MAIN error reading key %s from Konro configuration file", key);
+        return defaultValue;
     }
 }
 
@@ -148,7 +151,7 @@ void KonroManager::run(long pidToMonitor)
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
     pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);
     pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
-    pimpl_->platformMonitor =new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
+    pimpl_->platformMonitor = new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
     pimpl_->policyTimer = new rp::PolicyTimer(pimpl_->eventBus, cfgTimerSeconds_);
 
     pimpl_->platformDescription.logTopology();
@@ -170,6 +173,7 @@ void KonroManager::run(long pidToMonitor)
     cat_.info("MAIN starting PolicyManager thread");
     pimpl_->policyManager->start();
 
+    /* PolicyTimer is an optional thread */
     if (cfgTimerSeconds_ > 0)  {
         cat_.info("MAIN starting PolicyTimer thread");
         pimpl_->policyTimer->start();

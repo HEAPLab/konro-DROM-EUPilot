@@ -39,7 +39,7 @@ struct KonroHttp::KonroHttpImpl {
         basic_json<> j = json::parse(data);
         if (isInJson(j, "pid") && isInJson(j, "feedback")) {
             long pid = j["pid"];
-            bool feedback = j["feedback"];
+            int feedback = j["feedback"];
             cat_.info("KONROHTTP publishing FeedbackRequestEvent from pid %ld", pid);
             bus_.publish(new rmcommon::FeedbackRequestEvent(pid, feedback));
         }

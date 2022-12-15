@@ -33,8 +33,8 @@ void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
 {
     pid_t pid = appMapping->getPid();
     try {
-        log4cpp::Category::getRoot().debug("RANDPOLICY addApp PID %ld", (long)pid);
         short puNum = getRandNumber(platformDescription_.getNumProcessingUnits());
+        log4cpp::Category::getRoot().debug("RANDPOLICY addApp PID %ld to PU %d", (long)pid, puNum);
         appMapping->setPuVector({{puNum, puNum}});
     } catch (exception &e) {
         // An exception can happen for a short lived process; the

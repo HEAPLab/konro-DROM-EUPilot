@@ -26,7 +26,7 @@ class EventBus;
 namespace rp {
 
 /*!
- * Using a queue, PolicyManager receives events from multiple
+ * Using the EventBus, PolicyManager receives events from multiple
  * threads, adds/removes managed applications to
  * a set and forwards the events to the chosen resource
  * policy.

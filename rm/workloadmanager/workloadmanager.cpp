@@ -47,12 +47,13 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
     bus_(bus),
     platformControl_(pc),
     cat_(log4cpp::Category::getRoot()),
-    pid_(0),
+    pid_(pid),
     apps_(appComp)
 {
     subscribeToEvents();
-
-    add(rmcommon::App::makeApp(pid, rmcommon::App::AppType::STANDALONE));
+    if (pid > 0) {
+        add(rmcommon::App::makeApp(pid, rmcommon::App::AppType::STANDALONE));
+    }
 }
 
 void WorkloadManager::subscribeToEvents()
@@ -191,16 +192,26 @@ void WorkloadManager::processExitEvent(std::shared_ptr<const rmcommon::ExitEvent
 
 void WorkloadManager::processAddRequestEvent(std::shared_ptr<const rmcommon::AddRequestEvent> event)
 {
-    add(event->getApp());
+    if(!isInKonro(event->getApp()->getPid())) {
+        add(event->getApp());
 
-    ostringstream os;
-    os << "WORKLOADMANAGER AddRequest {"
-       << "\"process_pid\":"
-       << event->getApp()->getPid()
-       << ",\"process_name\":" << '\'' << event->getApp()->getPid() << '\''
-       << "}";
-    cat_.info(os.str());
-    dumpMonitoredApps();
+        ostringstream os;
+        os << "WORKLOADMANAGER AddRequest {"
+           << "\"process_pid\":"
+           << event->getApp()->getPid()
+           << ",\"process_name\":" << '\'' << event->getApp()->getName() << '\''
+           << "}";
+        cat_.info(os.str());
+        dumpMonitoredApps();
+    } else {
+        ostringstream os;
+        os << "WORKLOADMANAGER AddRequest from process already in Konro {"
+           << "\"process_pid\":"
+           << event->getApp()->getPid()
+           << ",\"process_name\":" << '\'' << event->getApp()->getName() << '\''
+           << "}";
+        cat_.info(os.str());
+    }
 }
 
 void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon::FeedbackRequestEvent> event)
