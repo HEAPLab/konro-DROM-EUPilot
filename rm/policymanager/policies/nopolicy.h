@@ -31,7 +31,7 @@ public:
         // do nothing
     }
 
-    virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) override {
+    virtual void feedback(std::shared_ptr<AppMapping> appMapping, int feedback) override {
         // do nothing
     }
 };

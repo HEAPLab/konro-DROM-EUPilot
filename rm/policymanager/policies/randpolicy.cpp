@@ -62,7 +62,7 @@ void RandPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
     // no action required
 }
 
-void RandPolicy::feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event)
+void RandPolicy::feedback(std::shared_ptr<AppMapping> appMapping, int feedback)
 {
     // no action required
 }

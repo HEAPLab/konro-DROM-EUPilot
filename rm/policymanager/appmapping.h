@@ -32,6 +32,8 @@ class AppMapping {
     int minMemory_;
     /*! memory usage hard limit for the app */
     int maxMemory_;
+    /*! last feedback value received from the app */
+    int lastFeedback_;
 
 public:
     typedef std::shared_ptr<AppMapping> AppMappingPtr;
@@ -39,7 +41,8 @@ public:
     AppMapping(std::shared_ptr<rmcommon::App> app) :
         app_(app),
         minMemory_(-1),
-        maxMemory_(-1)
+        maxMemory_(-1),
+        lastFeedback_(-1)
     {
     }
     ~AppMapping() = default;
@@ -105,18 +108,28 @@ public:
     }
 
     void setMinMemory(int minMemory) {
+        pc::MemoryControl::instance().setMin(minMemory, app_);
         minMemory_ = minMemory;
     }
 
-    int getMaxMemory() {
+    rmcommon::NumericValue getMaxMemory() {
         if (maxMemory_ == -1) {
             maxMemory_ = pc::MemoryControl::instance().getMax(app_);
         }
         return maxMemory_;
     }
 
-    void setMaxMemory(int maxMemory) {
+    void setMaxMemory(rmcommon::NumericValue maxMemory) {
+        pc::MemoryControl::instance().setMax(maxMemory, app_);
         maxMemory_ = maxMemory;
+    }
+
+    int getLastFeedback() {
+        return lastFeedback_;
+    }
+
+    void setLastFeedback(int feedback) {
+        lastFeedback_ = feedback;
     }
 };
 

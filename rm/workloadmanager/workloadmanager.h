@@ -37,7 +37,18 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
     using AppComparator = bool (*)(const std::shared_ptr<rmcommon::App> &lhs,
                                    const std::shared_ptr<rmcommon::App> &rhs);
 
-    std::set<std::shared_ptr<rmcommon::App>, AppComparator> apps_;
+    using AppSet = std::set<std::shared_ptr<rmcommon::App>, AppComparator>;
+    AppSet apps_;
+
+    /*!
+     * Returns an iterator to the app with the specified pid from the set
+     * of Konro's applications. If iter == apps_.end(), the app with the
+     * desired PID is not present
+     *
+     * \param pid the pid of the application of interest
+     * \return AppSet::iterator
+     */
+    AppSet::iterator findAppByPid(int pid);
 
     /*!
      * Processes a fork event.
@@ -113,13 +124,6 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * Subscribes to the relevant events from the EventBus.
      */
     void subscribeToEvents();
-
-    /*!
-     * Gets the app with the specified pid from the set of Konro's applications.
-     * \param pid the pid of the application of interest
-     * \return a shared ptr to the app with the specified pid
-     */
-    std::shared_ptr<rmcommon::App> getApp(pid_t pid);
 
 public:
     WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid);

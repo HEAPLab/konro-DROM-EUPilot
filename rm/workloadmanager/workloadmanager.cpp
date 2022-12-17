@@ -56,6 +56,13 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
     }
 }
 
+WorkloadManager::AppSet::iterator WorkloadManager::findAppByPid(int pid)
+{
+    // create a temporary App for the search
+    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
+    return apps_.find(key);
+}
+
 void WorkloadManager::subscribeToEvents()
 {
     using namespace rmcommon;
@@ -74,17 +81,9 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
     bus_.publish(new rmcommon::AddEvent(app));
 }
 
-shared_ptr<rmcommon::App> WorkloadManager::getApp(pid_t pid)
-{
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
-    auto it = apps_.find(key);
-    return *it;
-}
-
 void WorkloadManager::remove(pid_t pid)
 {
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
-    auto it = apps_.find(key);
+    WorkloadManager::AppSet::iterator it = findAppByPid(pid);
     if (it != end(apps_)) {
         bus_.publish(new rmcommon::RemoveEvent(*it));
         platformControl_.removeApplication(*it);
@@ -94,8 +93,7 @@ void WorkloadManager::remove(pid_t pid)
 
 bool WorkloadManager::isInKonro(pid_t pid)
 {
-    shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
-    return apps_.find(key) != end(apps_);
+    return findAppByPid(pid) != end(apps_);
 }
 
 bool WorkloadManager::processEvent(std::shared_ptr<const rmcommon::BaseEvent> event)
@@ -152,8 +150,9 @@ void WorkloadManager::processExecEvent(std::shared_ptr<const rmcommon::ExecEvent
 {
     const struct proc_event *ev = reinterpret_cast<const struct proc_event *>(&event->data_[0]);
     pid_t pid = ev->event_data.exec.process_pid;
-    if (isInKonro(pid)) {
-        shared_ptr<rmcommon::App> app = getApp(pid);
+    AppSet::iterator it = findAppByPid(pid);
+    if (it != apps_.end()) {
+        shared_ptr<rmcommon::App> app = *it;
         app->setName(getProcessNameByPid(pid));
 
         ostringstream os;
@@ -216,8 +215,9 @@ void WorkloadManager::processAddRequestEvent(std::shared_ptr<const rmcommon::Add
 
 void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon::FeedbackRequestEvent> event)
 {
-    if(isInKonro(event->getPid())) {
-        bus_.publish(new rmcommon::FeedbackEvent(event->getPid(), event->getFeedback()));
+    AppSet::iterator it = findAppByPid(event->getPid());
+    if (it != end(apps_)) {
+        bus_.publish(new rmcommon::FeedbackEvent(*it, event->getFeedback()));
 
         ostringstream os;
         os << "WORKLOADMANAGER FeedbackRequest {"

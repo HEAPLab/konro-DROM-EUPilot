@@ -2,9 +2,11 @@
 #define FEEDBACKEVENT_H
 
 #include "baseevent.h"
+#include "../app.h"
 #include <iomanip>
 #include <sys/types.h>
 #include <unistd.h>
+#include <memory>
 
 using namespace std;
 
@@ -17,19 +19,19 @@ namespace rmcommon {
 class FeedbackEvent : public BaseEvent {
 
     /*! The application sending the feedback */
-    pid_t pid_;
+    std::shared_ptr<rmcommon::App> app_;
 
     int feedback_;
 
 public:
-    FeedbackEvent(pid_t pid, int feedback) :
+    FeedbackEvent(std::shared_ptr<rmcommon::App> app, int feedback) :
         BaseEvent("FeedbackEvent"),
-        pid_(pid),
+        app_(app),
         feedback_(feedback)
     {}
 
-    pid_t getPid() const noexcept {
-        return pid_;
+    std::shared_ptr<rmcommon::App> getApp() const noexcept {
+        return app_;
     }
 
     int getFeedback() const noexcept {
@@ -40,7 +42,7 @@ public:
         ios_base::fmtflags f = os.flags();
         os.flags(f | ios_base::boolalpha);
         os << "{"
-           << "\"pid\":" << pid_
+           << "\"pid\":" << app_->getPid()
            << ",\"feedback\":" << feedback_
            << "}";
         os.flags(f);

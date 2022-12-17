@@ -45,7 +45,7 @@ public:
     /*!
      * Handles an application feedback event.
      */
-    virtual void feedback(std::shared_ptr<const rmcommon::FeedbackEvent> event) = 0;
+    virtual void feedback(std::shared_ptr<AppMapping> appMapping, int feedback) = 0;
 };
 
 }   // namespace rp

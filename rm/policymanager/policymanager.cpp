@@ -127,7 +127,14 @@ void PolicyManager::processMonitorEvent(std::shared_ptr<const rmcommon::MonitorE
 void PolicyManager::processFeedbackEvent(std::shared_ptr<const rmcommon::FeedbackEvent> event)
 {
     cat_.debug("POLICYMANAGER feedback event received");
-    policy_->feedback(event);
+    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(event->getApp());
+    auto it = apps_.find(appMapping);
+    if (it != end(apps_)) {
+        policy_->feedback(*it, event->getFeedback());
+    } else {
+        cat_.error("POLICYMANAGER feedback event: AppMapping not found for pid %d",
+                   event->getApp()->getPid());
+    }
 }
 
 void PolicyManager::dumpApps() const
