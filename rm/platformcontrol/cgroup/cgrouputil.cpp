@@ -19,18 +19,18 @@ std::string getCgroupBaseDir()
 
 std::string getCgroupKonroBaseDir()
 {
-    return "/sys/fs/cgroup/konro.slice/";
+    return "/sys/fs/cgroup/konro.slice";
 }
 
 string getCgroupKonroAppDir(pid_t pid)
 {
     string cgroupBasePath = util::getCgroupKonroBaseDir();
     ostringstream os;
-    os << cgroupBasePath << "app-" << pid << ".scope";
-    return os.str();
+    os << "app-" << pid << ".scope";
+    return rmcommon::make_path(cgroupBasePath, os.str());
 }
 
-void throwCouldNotOpenFile(const string &funcName, const string &fileName)
+void throwCouldNotOpenFile(const char *funcName, const string &fileName)
 {
     ostringstream os;
     os << funcName << ": could not open file " << fileName << ": " << strerror(errno);

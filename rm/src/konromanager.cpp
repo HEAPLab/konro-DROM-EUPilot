@@ -73,13 +73,11 @@ KonroManager::KonroManager() :
     pimpl_(new KonroManagerImpl()),
     cat_(log4cpp::Category::getRoot())
 {
-    setupLogging();
     loadConfiguration();
 }
 
 KonroManager::~KonroManager()
 {
-    cat_.debug("KonroManager destructor called");
 }
 
 std::string KonroManager::configFilePath()
@@ -90,28 +88,6 @@ std::string KonroManager::configFilePath()
     else
         return rmcommon::make_path(home, CONFIG_PATH);
 }
-
-void KonroManager::setupLogging()
-{
-    // Log4CPP configuration
-
-    log4cpp::Appender *appender1 = new log4cpp::OstreamAppender("console", &std::cout);
-    log4cpp::PatternLayout *layout1 = new log4cpp::PatternLayout();
-    layout1->setConversionPattern("%d [%p] %m%n");
-    appender1->setLayout(layout1);
-
-    log4cpp::Appender *appender2 = new log4cpp::FileAppender("logfile", "konro.log");
-    log4cpp::PatternLayout *layout2 = new log4cpp::PatternLayout();
-    layout2->setConversionPattern("%d [%p] %m%n");
-    appender2->setLayout(layout2);
-
-    cat_.setPriority(log4cpp::Priority::DEBUG);
-    cat_.addAppender(appender1);
-    cat_.addAppender(appender2);
-
-    cat_.info("KONRO starting");
-}
-
 
 void KonroManager::loadConfiguration()
 {
@@ -147,6 +123,7 @@ void KonroManager::run(long pidToMonitor)
 
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
+    pimpl_->cgc.cleanup();
     pimpl_->http = new http::KonroHttp(pimpl_->eventBus, httpListenHost_.c_str(), httpListenPort_);
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
     pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);

@@ -73,8 +73,7 @@ Dir Dir::localdir(const char *path)
 {
 	DIR *dir = opendir(path);
 	if (dir == nullptr) {
-		cerr << "Could not open path " << path << endl;
-		exit(EXIT_FAILURE); 
+        throw runtime_error(string("Dir::localdir: could not open path ") + path);
 	}
     Dir directory(path);
 	struct dirent *d;

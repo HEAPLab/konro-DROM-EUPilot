@@ -43,12 +43,7 @@ private:
     rmcommon::EventBus &bus_;
     std::unique_ptr<IBasePolicy> policy_;
     PlatformDescription platformDescription_;
-
-    /*! Comparison function for the set */
-    using AppComparator = bool (*)(const std::shared_ptr<AppMapping> &lhs,
-                                   const std::shared_ptr<AppMapping> &rhs);
-
-    std::set<std::shared_ptr<AppMapping>, AppComparator> apps_;
+    AppMappingSet apps_;
 
     void subscribeToEvents();
 

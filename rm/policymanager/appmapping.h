@@ -3,6 +3,7 @@
 
 #include <app.h>
 #include <memory>
+#include <set>
 #include "cpucontrol.h"
 #include "cpusetcontrol.h"
 #include "numericvalue.h"
@@ -36,8 +37,6 @@ class AppMapping {
     int lastFeedback_;
 
 public:
-    typedef std::shared_ptr<AppMapping> AppMappingPtr;
-
     AppMapping(std::shared_ptr<rmcommon::App> app) :
         app_(app),
         minMemory_(-1),
@@ -132,6 +131,14 @@ public:
         lastFeedback_ = feedback;
     }
 };
+
+using AppMappingPtr = std::shared_ptr<AppMapping>;
+
+/*! Comparison function for the set */
+using AppMappingComparator = bool (*)(const AppMappingPtr &lhs,
+                                      const AppMappingPtr &rhs);
+
+using AppMappingSet = std::set<AppMappingPtr, AppMappingComparator>;
 
 }   // namespace rp
 

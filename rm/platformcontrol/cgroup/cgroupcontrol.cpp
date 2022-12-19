@@ -1,6 +1,7 @@
 ﻿#include "cgroupcontrol.h"
 #include "tsplit.h"
 #include "pcexception.h"
+#include "dir.h"
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -17,6 +18,42 @@ CGroupControl::CGroupControl() :
 
 CGroupControl::~CGroupControl()
 {
+}
+
+void CGroupControl::cleanup()
+{
+    using namespace rmcommon;
+
+    try {
+        string konroBaseDir = util::getCgroupKonroBaseDir();
+        /* If the Konro base folder doesn't exist, there's nothing to cleanup */
+        if (!Dir::dir_exists(konroBaseDir.c_str())) {
+            cat_.info("CGROUPCONTROL cleanup: %s does not exist", konroBaseDir.c_str());
+            return;
+        }
+        string cgroupBaseDir = util::getCgroupBaseDir();
+        {
+            Dir dir = Dir::localdir(konroBaseDir.c_str());
+            for (Dir::DirIterator it = dir.begin(); it != dir.end(); ++it) {
+                if (!it->is_dir())
+                    continue;
+                string pathName = make_path(konroBaseDir, it->name());
+                string pidStr = util::getLine("cgroup.procs", pathName);
+                /* If the folder contains a live process, migrate it to the root */
+                if (!pidStr.empty()) {
+                    int pid = atoi(pidStr.c_str());
+                    cat_.info("CGROUPCONTROL moving pid %d to %s", pid, cgroupBaseDir.c_str());
+                    util::moveToCgroup(cgroupBaseDir, pid);
+                }
+                cat_.info("CGROUPCONTROL removing directory %s", pathName.c_str());
+                Dir::rmdir(pathName.c_str());
+            }
+        }
+        cat_.info("CGROUPCONTROL removing directory %s", konroBaseDir.c_str());
+        Dir::rmdir(konroBaseDir.c_str());
+    } catch (runtime_error &e) {
+        cat_.error(e.what());
+    }
 }
 
 void CGroupControl::checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const

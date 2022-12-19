@@ -12,7 +12,7 @@ namespace util {
 /*!
  * \brief Throws a PcException
  */
-void throwCouldNotOpenFile(const std::string &funcName, const std::string &fileName);
+void throwCouldNotOpenFile(const char *funcName, const std::string &fileName);
 
 /*!
  * Gets the path of the root folder of the cgroup hierarchy

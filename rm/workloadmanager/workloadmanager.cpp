@@ -58,7 +58,7 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
 
 WorkloadManager::AppSet::iterator WorkloadManager::findAppByPid(int pid)
 {
-    // create a temporary App for the search
+    // create a temporary App as key for the search
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     return apps_.find(key);
 }

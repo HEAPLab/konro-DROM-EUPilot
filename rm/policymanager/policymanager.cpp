@@ -19,7 +19,7 @@ namespace rp {
  * \param rhs the second app to compare
  * \return true if pid of lsh is < than pid of rhs
  */
-static bool appMappingComp(const shared_ptr<AppMapping> &lhs, const shared_ptr<AppMapping> &rhs)
+static bool appMappingComp(const AppMappingPtr &lhs, const AppMappingPtr &rhs)
 {
     return lhs->getPid() < rhs->getPid();
 }
@@ -39,7 +39,7 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
 {
     switch (policy) {
     case Policy::RandPolicy:
-        return make_unique<RandPolicy>(platformDescription_);
+        return make_unique<RandPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
     default:
         return make_unique<NoPolicy>();
@@ -93,7 +93,7 @@ bool PolicyManager::processEvent(std::shared_ptr<const rmcommon::BaseEvent> even
 void PolicyManager::processAddEvent(std::shared_ptr<const rmcommon::AddEvent> event)
 {
     cat_.debug("POLICYMANAGER AddEvent received");
-    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(event->getApp());
+    AppMappingPtr appMapping = make_shared<AppMapping>(event->getApp());
     apps_.insert(appMapping);
     dumpApps();
     policy_->addApp(appMapping);
@@ -103,7 +103,7 @@ void PolicyManager::processRemoveEvent(std::shared_ptr<const rmcommon::RemoveEve
 {
     cat_.debug("POLICYMANAGER RemoveProc event received");
     // search target
-    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(event->getApp());
+    AppMappingPtr appMapping = make_shared<AppMapping>(event->getApp());
     auto it = apps_.find(appMapping);
     if (it != end(apps_)) {
         policy_->removeApp(*it);
@@ -127,7 +127,7 @@ void PolicyManager::processMonitorEvent(std::shared_ptr<const rmcommon::MonitorE
 void PolicyManager::processFeedbackEvent(std::shared_ptr<const rmcommon::FeedbackEvent> event)
 {
     cat_.debug("POLICYMANAGER feedback event received");
-    shared_ptr<AppMapping> appMapping = make_shared<AppMapping>(event->getApp());
+    AppMappingPtr appMapping = make_shared<AppMapping>(event->getApp());
     auto it = apps_.find(appMapping);
     if (it != end(apps_)) {
         policy_->feedback(*it, event->getFeedback());

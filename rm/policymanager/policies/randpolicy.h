@@ -11,18 +11,20 @@ namespace rp {
  * Assigns each new process to a random CPU core.
  */
 class RandPolicy : public IBasePolicy {
+    const AppMappingSet &apps_;
     PlatformDescription platformDescription_;
 public:
-    explicit RandPolicy(PlatformDescription pd);
+    explicit RandPolicy(const AppMappingSet &apps, PlatformDescription pd);
+
+    // IBasePolicy interface
     virtual const char *name() override {
         return "RandPolicy";
     }
-    // IBasePolicy interface
-    virtual void addApp(std::shared_ptr<AppMapping> appMapping) override;
-    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override;
+    virtual void addApp(AppMappingPtr appMapping) override;
+    virtual void removeApp(AppMappingPtr appMapping) override;
     virtual void timer() override;
     virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) override;
-    virtual void feedback(std::shared_ptr<AppMapping> appMapping, int feedback) override;
+    virtual void feedback(AppMappingPtr appMapping, int feedback) override;
 };
 
 }   // namespace rp

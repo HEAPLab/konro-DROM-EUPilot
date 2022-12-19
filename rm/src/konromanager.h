@@ -25,6 +25,11 @@ public:
     KonroManager();
     ~KonroManager();
 
+    KonroManager(const KonroManager &) = delete;
+    KonroManager &operator=(const KonroManager &) = delete;
+    KonroManager(KonroManager &&) noexcept = delete;
+    KonroManager &operator=(KonroManager &&) noexcept = delete;
+
     /*!
      * Configures and starts the ProcListener in the main thread
      * and all the other Konro application threads

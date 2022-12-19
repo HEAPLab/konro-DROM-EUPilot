@@ -36,6 +36,15 @@ public:
     virtual ~CGroupControl();
 
     /*!
+     * Cleans up the cgroup hierarchy from all Konro related CGroup files.
+     * All active processes under the konro.slice directory are migrated to
+     * the CGroup root directory.
+     * This method is called during Konro's startup to clean the hierarchy
+     * from files created during previous executions of the program.
+     */
+    void cleanup();
+
+    /*!
      * \brief Enforces a resource constraint on the specified application.
      *
      * This is done by writing a value to the specified

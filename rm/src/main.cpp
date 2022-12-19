@@ -7,7 +7,14 @@
 #include <signal.h>
 #include <unistd.h>
 #include <memory>
-#include <log4cpp/Category.hh>
+#include <log4cpp/Appender.hh>
+#include <log4cpp/FileAppender.hh>
+#include <log4cpp/OstreamAppender.hh>
+#include <log4cpp/Layout.hh>
+#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/SimpleLayout.hh>
+#include <log4cpp/PatternLayout.hh>
+#include <log4cpp/Priority.hh>
 
 static void trapCtrlC();
 
@@ -15,15 +22,39 @@ static void trapCtrlC();
 // to be usable from ctrlCHandler
 static KonroManager *konroManager;
 
+static void setupLogging()
+{
+    // Log4CPP configuration
+
+    log4cpp::Appender *appender1 = new log4cpp::OstreamAppender("console", &std::cout);
+    log4cpp::PatternLayout *layout1 = new log4cpp::PatternLayout();
+    layout1->setConversionPattern("%d [%p] %m%n");
+    appender1->setLayout(layout1);
+
+    log4cpp::Appender *appender2 = new log4cpp::FileAppender("logfile", "konro.log");
+    log4cpp::PatternLayout *layout2 = new log4cpp::PatternLayout();
+    layout2->setConversionPattern("%d [%p] %m%n");
+    appender2->setLayout(layout2);
+
+    log4cpp::Category &cat = log4cpp::Category::getRoot();
+    cat.setPriority(log4cpp::Priority::DEBUG);
+    cat.addAppender(appender1);
+    cat.addAppender(appender2);
+
+    cat.info("KONRO starting");
+}
+
 int main(int argc, char *argv[])
 {
     rmcommon::setThreadName("MAIN");
+    setupLogging();
 
     long pidToMonitor = 0;
     if (argc >= 2) {
         pidToMonitor = strtol(argv[1], nullptr, 10);
     }
     trapCtrlC();
+    log4cpp::Category::getRoot().info("MAIN creating KonroManager");
     konroManager = new KonroManager();
     konroManager->run(pidToMonitor);
 

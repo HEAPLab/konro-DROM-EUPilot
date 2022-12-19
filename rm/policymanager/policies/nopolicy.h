@@ -17,10 +17,10 @@ public:
     virtual const char *name() override {
         return "NoPolicy";
     }
-    virtual void addApp(std::shared_ptr<AppMapping> appMapping) override {
+    virtual void addApp(AppMappingPtr appMapping) override {
         // do nothing
     }
-    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) override {
+    virtual void removeApp(AppMappingPtr appMapping) override {
         // do nothing
     }
     virtual void timer() override {
@@ -31,7 +31,7 @@ public:
         // do nothing
     }
 
-    virtual void feedback(std::shared_ptr<AppMapping> appMapping, int feedback) override {
+    virtual void feedback(AppMappingPtr appMapping, int feedback) override {
         // do nothing
     }
 };

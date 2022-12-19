@@ -25,12 +25,12 @@ public:
     /*!
      * Handles the addition of a new app to the system.
      */
-    virtual void addApp(std::shared_ptr<AppMapping> appMapping) = 0;
+    virtual void addApp(AppMappingPtr appMapping) = 0;
 
     /*!
      * Handles the removal of an app from the system.
      */
-    virtual void removeApp(std::shared_ptr<AppMapping> appMapping) = 0;
+    virtual void removeApp(AppMappingPtr appMapping) = 0;
 
     /*!
      * Handles a timer event.
@@ -44,8 +44,11 @@ public:
 
     /*!
      * Handles an application feedback event.
+     *
+     * If useful for the policy, the current feedback can be saved
+     * in the AppMapping class.
      */
-    virtual void feedback(std::shared_ptr<AppMapping> appMapping, int feedback) = 0;
+    virtual void feedback(AppMappingPtr appMapping, int feedback) = 0;
 };
 
 }   // namespace rp

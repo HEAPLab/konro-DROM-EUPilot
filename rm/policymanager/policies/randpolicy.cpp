@@ -24,12 +24,13 @@ int getRandNumber(int cpusNum)
     return uni(rng);
 }
 
-RandPolicy::RandPolicy(PlatformDescription pd) :
+RandPolicy::RandPolicy(const AppMappingSet &apps, PlatformDescription pd) :
+    apps_(apps),
     platformDescription_(pd)
 {
 }
 
-void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
+void RandPolicy::addApp(AppMappingPtr appMapping)
 {
     pid_t pid = appMapping->getPid();
     try {
@@ -47,7 +48,7 @@ void RandPolicy::addApp(shared_ptr<AppMapping> appMapping)
     }
 }
 
-void RandPolicy::removeApp(shared_ptr<AppMapping> appMapping)
+void RandPolicy::removeApp(AppMappingPtr appMapping)
 {
     // no action required
 }
@@ -62,8 +63,10 @@ void RandPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
     // no action required
 }
 
-void RandPolicy::feedback(std::shared_ptr<AppMapping> appMapping, int feedback)
+void RandPolicy::feedback(AppMappingPtr appMapping, int feedback)
 {
+    appMapping->setLastFeedback(feedback);
+
     // no action required
 }
 
