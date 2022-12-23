@@ -36,7 +36,7 @@ public:
      *
      * \param pidToMonitor
      */
-    void run(long pidToMonitor);
+    void run();
 
     /*!
      * Stops the ProcListener and all the threads

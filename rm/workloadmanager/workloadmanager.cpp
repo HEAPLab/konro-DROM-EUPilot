@@ -42,18 +42,14 @@ static bool appComp(const shared_ptr<rmcommon::App> &lhs, const shared_ptr<rmcom
     return lhs->getPid() < rhs->getPid();
 }
 
-WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid) :
+WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc) :
     rmcommon::BaseEventReceiver("WORKLOADMANAGER"),
     bus_(bus),
     platformControl_(pc),
     cat_(log4cpp::Category::getRoot()),
-    pid_(pid),
     apps_(appComp)
 {
     subscribeToEvents();
-    if (pid > 0) {
-        add(rmcommon::App::makeApp(pid, rmcommon::App::AppType::STANDALONE));
-    }
 }
 
 WorkloadManager::AppSet::iterator WorkloadManager::findAppByPid(int pid)

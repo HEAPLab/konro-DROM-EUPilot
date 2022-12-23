@@ -22,6 +22,9 @@ static void trapCtrlC();
 // to be usable from ctrlCHandler
 static KonroManager *konroManager;
 
+/*!
+ * Configures log4cpp
+ */
 static void setupLogging()
 {
     // Log4CPP configuration
@@ -48,15 +51,10 @@ int main(int argc, char *argv[])
 {
     rmcommon::setThreadName("MAIN");
     setupLogging();
-
-    long pidToMonitor = 0;
-    if (argc >= 2) {
-        pidToMonitor = strtol(argv[1], nullptr, 10);
-    }
     trapCtrlC();
     log4cpp::Category::getRoot().info("MAIN creating KonroManager");
     konroManager = new KonroManager();
-    konroManager->run(pidToMonitor);
+    konroManager->run();
 
     // KonroManager must be deleted before exiting from main
     // or a segmentation fault occurs in log4cpp
@@ -75,7 +73,9 @@ static void ctrlCHandler(int s)
 
 static void trapCtrlC()
 {
-#if 0
+#if 1
+    signal(SIGINT, ctrlCHandler);
+#else
     struct sigaction sig_action;
 
     memset(&sig_action,0, sizeof(sig_action));
@@ -85,7 +85,5 @@ static void trapCtrlC()
     sig_action.sa_restorer = nullptr;
 
     sigaction(SIGINT, &sig_action, nullptr);
-#else
-    signal(SIGINT, ctrlCHandler);
 #endif
 }

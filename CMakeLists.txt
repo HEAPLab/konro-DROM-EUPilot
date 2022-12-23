@@ -3,14 +3,14 @@ project (konro)
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
-add_subdirectory (applib)
 add_subdirectory (common)
 add_subdirectory (lib)
 add_subdirectory (rm)
-add_subdirectory (konrofeedback)
+add_subdirectory (konrolib)
 
 add_subdirectory (testplatformcontrol)
 add_subdirectory (testthreadsafequeue)
 add_subdirectory (testsensors)
 add_subdirectory (testhwloc)
-add_subdirectory (testfeedback)
+add_subdirectory (testkonrolib)
+add_subdirectory (peopledetect)

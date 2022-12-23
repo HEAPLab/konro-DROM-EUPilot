@@ -117,16 +117,14 @@ void KonroManager::loadConfiguration()
     cat_.info("MAIN configuration: HTTP listen on %s:%d", httpListenHost_.c_str(), httpListenPort_);
 }
 
-void KonroManager::run(long pidToMonitor)
+void KonroManager::run()
 {
-    pid_t pid = static_cast<pid_t>(pidToMonitor);
-
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
     pimpl_->cgc.cleanup();
     pimpl_->http = new http::KonroHttp(pimpl_->eventBus, httpListenHost_.c_str(), httpListenPort_);
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
-    pimpl_->workloadManager = new wm::WorkloadManager (pimpl_->eventBus, pimpl_->cgc, pid);
+    pimpl_->workloadManager = new wm::WorkloadManager(pimpl_->eventBus, pimpl_->cgc);
     pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
     pimpl_->platformMonitor = new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
     pimpl_->policyTimer = new rp::PolicyTimer(pimpl_->eventBus, cfgTimerSeconds_);
@@ -137,7 +135,7 @@ void KonroManager::run(long pidToMonitor)
 
     // Note on threads:
     //
-    // 1. ProcListener runs in the current (main) thread
+    // 1. ProcListener runs in the current (main/KonroManager) thread
     // 2. WorkloadManager runs in a separate thread
     // 3. PolicyManager runs in a separate thread
     // 4. PlatformMonitor runs in a separate thread

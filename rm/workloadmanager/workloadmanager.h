@@ -30,8 +30,6 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
     rmcommon::EventBus &bus_;
     pc::IPlatformControl &platformControl_;
     log4cpp::Category &cat_;
-    /*! pid to monitor */
-    int pid_;
 
     /*! Comparison function for the set */
     using AppComparator = bool (*)(const std::shared_ptr<rmcommon::App> &lhs,
@@ -126,7 +124,7 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
     void subscribeToEvents();
 
 public:
-    WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc, int pid);
+    WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &pc);
 
     virtual bool processEvent(std::shared_ptr<const rmcommon::BaseEvent> event) override;
 };
