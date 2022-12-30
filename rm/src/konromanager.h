@@ -18,11 +18,11 @@ class KonroManager {
     std::string httpListenHost_;
     int httpListenPort_;
 
-    std::string configFilePath();
+    std::string defaultConfigFilePath();
     void setupLogging();
-    void loadConfiguration();
+    void loadConfiguration(std::string configFile);
 public:
-    KonroManager();
+    KonroManager(std::string configFile = "");
     ~KonroManager();
 
     KonroManager(const KonroManager &) = delete;

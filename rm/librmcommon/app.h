@@ -28,6 +28,7 @@ private:
 public:
     typedef std::shared_ptr<App> AppPtr;
 
+    // Disable copy, assign and move
     App(const App &rhs) = delete;
     App &operator = (const App &rhs) = delete;
     App(App &&rhs) noexcept = delete;
@@ -50,7 +51,7 @@ public:
      * Return the app type with the specified name.
      * If no app type exists with that name, UNKNOWN is returned.
      */
-    static AppType getTypeByName(const std::string &appType) {
+    static AppType getTypeByName(const std::string &appType) noexcept {
         if (appType == "STANDALONE")
             return AppType::STANDALONE;
         else if (appType == "INTEGRATED")
@@ -63,7 +64,7 @@ public:
      * \brief Gets the pid of the application
      * \returns the pid of the application
      */
-    pid_t getPid() const {
+    pid_t getPid() const noexcept {
         return pid_;
     }
 
@@ -71,7 +72,7 @@ public:
      * \brief Gets the type of the application
      * \returns the type of the application
      */
-    AppType getAppType() const {
+    AppType getAppType() const noexcept {
         return appType_;
     }
 
@@ -79,7 +80,7 @@ public:
      * \brief Gets the name of the application
      * \return the application's name
      */
-    const std::string &getName() const {
+    const std::string &getName() const noexcept {
         return name_;
     }
 
@@ -91,7 +92,6 @@ public:
         name_ = appName;
     }
 };
-
 
 }
 #endif // APP_H

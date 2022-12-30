@@ -1,5 +1,6 @@
 #include "workloadmanager.h"
 #include "eventbus.h"
+#include "timer.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -11,6 +12,11 @@ using namespace std;
 
 namespace wm {
 
+/*!
+ * Returns the name of a process, given the process PID
+ * The name is read from /proc/<pid>/cmdline.
+ * If the nameis not found, an empty string is returned,
+ */
 static string getProcessNameByPid(int pid)
 {
     ostringstream os;
@@ -20,17 +26,14 @@ static string getProcessNameByPid(int pid)
     if (fs.is_open()) {
         if (getline(fs, cmdline)) {
             // get rid of embedded '\0'
-            for (size_t i = 0; i < cmdline.size(); ++i) {
-                if (cmdline[i] == '\0')
-                    cmdline[i] = ' ';
-            }
+            replace(cmdline.begin(), cmdline.end(), '\0', ' ');
         }
     }
     return cmdline;
 }
 
 /*!
- * Compares two App ("less" function) handled
+ * Compares by PID two App ("less" function) handled
  * by shared pointers
  *
  * \param lhs the first app to compare
@@ -72,14 +75,39 @@ void WorkloadManager::subscribeToEvents()
 
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
+#ifdef TIMING
+    rmcommon::Timer<chrono::microseconds> timer(true);
+#endif
+
+    if (!platformControl_.addApplication(app)) {
+        cat_.error("WORKLOADMANAGER could not add application (pid=%d)", (int)app->getPid());
+        return;
+    }
+
+#ifdef TIMING
+    chrono::microseconds us1 = timer.Elapsed();
+#endif
+
     apps_.insert(app);
-    platformControl_.addApplication(app);
+
+#ifdef TIMING
+    timer.Reset();
+#endif
+
     bus_.publish(new rmcommon::AddEvent(app));
+
+#ifdef TIMING
+    chrono::microseconds us2 = timer.Elapsed();
+    cat_.debug("WORKLOADMANAGER timing: addApplication(pid=%d) = %ld microseconds\n",
+               (int)app->getPid(), (long)us1.count());
+    cat_.debug("WORKLOADMANAGER timing: publish(pid=%d) = %ld microseconds\n",
+               (int)app->getPid(), (long)us2.count());
+#endif
 }
 
 void WorkloadManager::remove(pid_t pid)
 {
-    WorkloadManager::AppSet::iterator it = findAppByPid(pid);
+    AppSet::iterator it = findAppByPid(pid);
     if (it != end(apps_)) {
         bus_.publish(new rmcommon::RemoveEvent(*it));
         platformControl_.removeApplication(*it);

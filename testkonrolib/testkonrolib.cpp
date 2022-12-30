@@ -12,7 +12,11 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 10; ++i) {
         cout << "Sending message" << endl;
         string reply = konro::sendFeedbackMessage(static_cast<int>(val));
-        cout << "Received reply: " << reply << endl;
+        if (reply.empty()) {
+            cout << "Received empty reply (invalid server address?)" << endl;
+        } else {
+            cout << "Received reply: " << reply << endl;
+        }
         cout << "Sleeping" << endl;
         this_thread::sleep_for(chrono::seconds(6));
         val= !val;

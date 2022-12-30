@@ -6,6 +6,7 @@
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <memory>
 #include <log4cpp/Appender.hh>
 #include <log4cpp/FileAppender.hh>
@@ -49,11 +50,34 @@ static void setupLogging()
 
 int main(int argc, char *argv[])
 {
+    std::string configFile;
+    int c, optionIndex;
+    static struct option longOptions[] = {
+        {"config", required_argument, 0, 'c' },
+        {0,        0,                 0, 0 }
+    };
+
+    while (true) {
+        c = getopt_long(argc, argv, "c:", longOptions, &optionIndex);
+        if (c == -1)
+            break;      // all options parsed)
+        switch (c) {
+        case 'c':
+            configFile = optarg;
+            break;
+        default:
+            std::cout << "Unknown option\n"
+                      << "Usage: konro [--config,-c  CONFIG_FILE]\n";
+            exit(EXIT_FAILURE);
+        }
+    }
+    // ignore remaining (non option) arguments
+
     rmcommon::setThreadName("MAIN");
     setupLogging();
     trapCtrlC();
     log4cpp::Category::getRoot().info("MAIN creating KonroManager");
-    konroManager = new KonroManager();
+    konroManager = new KonroManager(configFile);
     konroManager->run();
 
     // KonroManager must be deleted before exiting from main

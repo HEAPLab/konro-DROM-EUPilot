@@ -3,6 +3,9 @@ project (konro)
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
+# enable low level timing of (some parts of the) code
+add_definitions(-DTIMING)
+
 add_subdirectory (common)
 add_subdirectory (lib)
 add_subdirectory (rm)

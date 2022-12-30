@@ -69,18 +69,18 @@ struct KonroManager::KonroManagerImpl {
     }
 };
 
-KonroManager::KonroManager() :
+KonroManager::KonroManager(std::string configFile) :
     pimpl_(new KonroManagerImpl()),
     cat_(log4cpp::Category::getRoot())
 {
-    loadConfiguration();
+    loadConfiguration(configFile);
 }
 
 KonroManager::~KonroManager()
 {
 }
 
-std::string KonroManager::configFilePath()
+std::string KonroManager::defaultConfigFilePath()
 {
     std::string home = rmcommon::Dir::home();
     if (home.empty())
@@ -89,17 +89,19 @@ std::string KonroManager::configFilePath()
         return rmcommon::make_path(home, CONFIG_PATH);
 }
 
-void KonroManager::loadConfiguration()
+void KonroManager::loadConfiguration(std::string configFile)
 {
-    std::string konroConfigFile = configFilePath();
-    cat_.info("MAIN Konro configuration file is %s", konroConfigFile.c_str());
+    if (configFile.empty())
+        configFile = defaultConfigFilePath();
 
-    if (!rmcommon::Dir::file_exists(konroConfigFile.c_str())) {
-        cat_.error("MAIN Konro configuration %s not found", konroConfigFile.c_str());
+    cat_.info("MAIN Konro configuration file is %s", configFile.c_str());
+
+    if (!rmcommon::Dir::file_exists(configFile.c_str())) {
+        cat_.error("MAIN Konro configuration %s not found", configFile.c_str());
         return;
     }
 
-    const konro::Config &config = konro::Config::get(konroConfigFile);
+    const konro::Config &config = konro::Config::get(configFile);
 
     cfgPolicyName_ = configRead(config, "policy", "policy", std::string("NoPolicy"));
     cfgTimerSeconds_ = configRead(config, "policytimer", "timerseconds", 30);

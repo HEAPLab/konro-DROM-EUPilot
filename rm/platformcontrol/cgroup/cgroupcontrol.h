@@ -131,9 +131,8 @@ public:
      * /sys/fs/cgroup/konro.slice.
      *
      * \param app the application to manage
-     * \throws PcException in case of error
      */
-    void addApplication(std::shared_ptr<rmcommon::App> app) override;
+    bool addApplication(std::shared_ptr<rmcommon::App> app) override;
 
     /*!
      * \brief Removes an application from the management of Konro.
@@ -143,9 +142,8 @@ public:
      * this function.
      *
      * \param app the application to remove from Konro's management
-     * \throws runtime_error
      */
-    void removeApplication(std::shared_ptr<rmcommon::App> app) override;
+    bool removeApplication(std::shared_ptr<rmcommon::App> app) override;
 };
 
 }

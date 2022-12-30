@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
@@ -117,12 +118,48 @@ void Dir::mkdir(const char *path)
     create_dir(path, create_mode);
 }
 
-
 void Dir::mkdir_r(const char *path)
 {
 	if (path == nullptr || path[0] == '\0')
         return;
+#if 1
+    // ensure that memory is deleted
+    std::unique_ptr<char[]> upath(new char[strlen(path)+1]);
+    char *path2 = upath.get();
+    if (path2 == nullptr)
+        return;
+    strcpy(path2, path);
+    char *p = path2;
+    bool first = true;
+    bool last = false;
+    mode_t numask, oumask = 0;
+    cout << ">>> Creating path '" << path2 << '\'' << endl;
+    if (*p == '/')
+        ++p;        // skip initial '\'
+    for(; !last; ++p) {
+        if (*p == '\0')
+            last = true;
+        else if (*p != '/')
+            continue;
+        else
+            *p = '\0';
+        if (!last && p[1] == '\0')
+            last = true;
+        if (first) {
+            oumask = umask(0);
+            numask = oumask & ~(S_IWUSR | S_IXUSR);
+            umask(numask);
+            first = false;
+        }
+        if (last)
+            umask(oumask);
+        cout << ">>> Creating directory '" << path2 << '\'' << endl;
+        create_dir(path2, S_IRWXU|S_IRWXG|S_IRWXO);
+        if (!last)
+            *p = '/';
+    }
 
+#else
     vector<string> directories = rmcommon::tsplit(string(path), "/");
 
 	if (directories.size() == 0)
@@ -139,6 +176,7 @@ void Dir::mkdir_r(const char *path)
         curdir += SEPARATOR + directories[i];
         create_dir(curdir.c_str(), create_mode);
     }
+#endif
 }
 
 void Dir::rmdir(const char *path)

@@ -2,10 +2,12 @@
 #include "tsplit.h"
 #include "pcexception.h"
 #include "dir.h"
+#include "timer.h"
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 using namespace std;
 
@@ -114,21 +116,71 @@ std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controller
     return tags;
 }
 
-void CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
+bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
-    rmcommon::Dir::mkdir_r(cgroupAppBaseDir.c_str());
+
+#ifdef TIMING
+    rmcommon::Timer<chrono::microseconds> timer(true);
+#endif
+    try {
+        rmcommon::Dir::mkdir_r(cgroupAppBaseDir.c_str());
+    } catch (runtime_error &e) {
+        cat_.error("CGROUPCONTROL addApplication: could not create directory %s: %s",
+                   cgroupAppBaseDir.c_str(),
+                   e.what());
+        return false;
+    }
+
+#ifdef TIMING
+    chrono::microseconds u1 = timer.Elapsed(true);
+#endif
+
+#ifndef TIMING
     cat_.info("CGROUPCONTROL addApplication: move PID %ld to cgroup directory %s",
               (long)app->getPid(), cgroupAppBaseDir.c_str());
-    util::moveToCgroup(cgroupAppBaseDir, app->getPid());
+#endif
+
+    try {
+        util::moveToCgroup(cgroupAppBaseDir, app->getPid());
+    } catch (runtime_error &e) {
+        cat_.error("CGROUPCONTROL addApplication: could not move to cgroup %s: %s",
+                   cgroupAppBaseDir.c_str(),
+                   e.what());
+        return false;
+    }
+
+#ifdef TIMING
+    chrono::microseconds u2 = timer.Elapsed();
+    cat_.debug("CGROUPCONTROL timing mkdir_r = %ld microseconds", (long)u1.count());
+    cat_.debug("CGROUPCONTROL timing moveToCgroup = %ld microseconds", (long)u2.count());
+#endif
+    return true;
 }
 
-void CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
+bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 {
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
     cat_.info("CGROUPCONTROL removeApplication PID %ld: remove cgroup directory %s",
               (long)app->getPid(), cgroupAppBaseDir.c_str());
-    rmcommon::Dir::rmdir(cgroupAppBaseDir.c_str());
+
+#ifdef TIMING
+    rmcommon::Timer<chrono::microseconds> timer(true);
+#endif
+
+    try {
+        rmcommon::Dir::rmdir(cgroupAppBaseDir.c_str());
+    } catch (runtime_error &e) {
+        cat_.error("CGROUPCONTROL removeApplication PID %ld: could not remove cgroup directory %s",
+                  (long)app->getPid(), cgroupAppBaseDir.c_str());
+        return false;
+    }
+
+#ifdef TIMING
+    chrono::microseconds u1 = timer.Elapsed(true);
+    cat_.debug("CGROUPCONTROL timing rmdir = %ld microseconds", (long)u1.count());
+#endif
+    return true;
 }
 
 }
