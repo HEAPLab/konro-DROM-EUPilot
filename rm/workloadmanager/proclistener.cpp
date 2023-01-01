@@ -15,6 +15,12 @@
 #include <linux/connector.h>
 #include <linux/cn_proc.h>
 
+// fix missing gettid() function in glibc
+#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
+#endif
+
 using namespace std;
 
 namespace wm {

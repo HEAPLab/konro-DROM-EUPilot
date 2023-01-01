@@ -12,9 +12,11 @@ static void initTopology()
     // Allocate and initialize topology object
     hwloc_topology_init(&topology);
 
+#if HWLOC_API_VERSION >= 0x00020500
     // For NUMA nodes see:
     // https://www.open-mpi.org/projects/hwloc/doc/v2.3.0/a00360.php
     hwloc_topology_set_all_types_filter(topology, HWLOC_TYPE_FILTER_KEEP_ALL);
+#endif
 
     // Perform the topology detection
     hwloc_topology_load(topology);
@@ -107,6 +109,7 @@ static void testHwloc2()
  */
 static void testHwloc3()
 {
+#if HWLOC_API_VERSION >= 0x00020500
     struct hwloc_distances_s *distances;
     unsigned int nr = 1;
 
@@ -123,6 +126,7 @@ static void testHwloc3()
     } else {
         cout << "No distance to release" << endl;
     }
+#endif
 }
 
 int main()

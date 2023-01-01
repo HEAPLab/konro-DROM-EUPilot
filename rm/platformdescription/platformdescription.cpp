@@ -29,9 +29,11 @@ struct PlatformDescription::PlatformDescriptionImpl {
         // Allocate and initialize topology object
         hwloc_topology_init(&this->topology);
 
+#if HWLOC_API_VERSION > 0x00010b06
         // For NUMA nodes see:
         // https://www.open-mpi.org/projects/hwloc/doc/v2.3.0/a00360.php
         hwloc_topology_set_all_types_filter(this->topology, HWLOC_TYPE_FILTER_KEEP_ALL);
+#endif
 
         // Perform the topology detection
         hwloc_topology_load(this->topology);
@@ -71,6 +73,7 @@ struct PlatformDescription::PlatformDescriptionImpl {
                 case HWLOC_OBJ_CORE:
                     puMapping.setCore(parent->os_index);
                     break;
+#if HWLOC_API_VERSION >= 0x00020500
                 case HWLOC_OBJ_L1CACHE:
                     puMapping.setCache(1, parent->os_index);
                     break;
@@ -86,6 +89,11 @@ struct PlatformDescription::PlatformDescriptionImpl {
                 case HWLOC_OBJ_L5CACHE:
                     puMapping.setCache(5, parent->os_index);
                     break;
+#else
+                case HWLOC_OBJ_CACHE:
+                    puMapping.setCache(parent->attr->cache.depth, parent->os_index);
+                    break;
+#endif
                 default:
                     break;
                 }
