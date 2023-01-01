@@ -7,6 +7,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef TIMING
+#include <chrono>
+#include <iostream>
+#endif
+
 namespace konro {
 
 namespace {
@@ -50,10 +55,26 @@ std::string sendFeedbackMessage(int feedback)
 
 std::string sendAddMessage()
 {
+#ifdef TIMING
+    using namespace std::chrono;
+    high_resolution_clock::time_point _start_ = high_resolution_clock::now();
+    microseconds us;
+#endif
+
     nlohmann::json j;
     j["pid"] = getpid();
     j["type"] = "INTEGRATED";
-    return sendPost("add", j.dump());
+    std::string out = sendPost("add", j.dump());
+
+#ifdef TIMING
+    high_resolution_clock::time_point _end_ = high_resolution_clock::now();
+    microseconds elapsed = std::chrono::duration_cast<microseconds>(_end_ - _start_);
+    std::cout << "KONROLIB timing: sendAddMessage = "
+              << elapsed.count()
+              << " microseconds"
+              << std::endl;
+#endif
+    return out;
 }
 
 }   // namespace feedback

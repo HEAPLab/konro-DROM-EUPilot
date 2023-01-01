@@ -9,6 +9,11 @@
 
 using namespace std;
 
+#ifdef TIMING
+#include "timer.h"
+using MicrosecondsTimer = rmcommon::Timer<std::chrono::microseconds>;
+#endif
+
 namespace pc {
 namespace util {
 
@@ -50,7 +55,8 @@ string findCgroupPath(pid_t pid)
     if (!(in >> cgroupPath))
         throw PcException("findCgroupPath: could not read cgroup path for pid");
     vector<string> parts = rmcommon::tsplit(cgroupPath, ":");
-    return getCgroupBaseDir() + parts[2];
+    string result = getCgroupBaseDir() + parts[2];
+    return result;
 }
 
 
@@ -72,19 +78,38 @@ void activateController(const char *controllerName, const string &cgroupPath)
     // [4] : "konro.slice"
     log4cpp::Category &cat = log4cpp::Category::getRoot();
 
+#ifdef TIMING
+    MicrosecondsTimer timerDetail;
+    MicrosecondsTimer timer;
+#endif
+
     vector<string> subPath = rmcommon::tsplit(cgroupPath, "/");
     string currentFolder = rmcommon::make_path("/" + subPath[1], subPath[2]);
     for (int i = 3; i < subPath.size()-1; ++i) {
         currentFolder += "/" + subPath[i];
         string currentFile = rmcommon::make_path(currentFolder, "cgroup.subtree_control");
+#ifdef TIMING
+        timerDetail.Restart();
+#endif
         ofstream fileStream(currentFile.c_str());
         if (!fileStream.is_open()) {
             throwCouldNotOpenFile(__func__, currentFile);
         }
+#ifndef TIMING
         cat.debug("activateController: adding %s to %s", controllerName, currentFile.c_str());
+#endif
         fileStream << (string("+") + controllerName);
         fileStream.close();
+#ifdef TIMING
+        chrono::microseconds usd = timerDetail.Elapsed();
+        cat.debug("CGROUPUTIL timing: activateController write in cgroup.subtree_control = %d microseconds",
+                  (int)usd.count());
+#endif
     }
+#ifdef TIMING
+    chrono::microseconds us = timer.Elapsed();
+    cat.debug("CGROUPUTIL timing: activateController = %d microseconds", (int)us.count());
+#endif
 }
 
 std::string getLine(const char *fileName, const string &cgroupPath)
@@ -115,13 +140,27 @@ std::vector<string> getContent(const char *fileName, const std::string &cgroupPa
 
 string createCgroup(string cgroupPath, const std::string &name)
 {
+#ifdef TIMING
+    MicrosecondsTimer timer;
+#endif
+
     string newPath = rmcommon::make_path(cgroupPath, name);
     rmcommon::Dir::mkdir(newPath.c_str());
+
+#ifdef TIMING
+    chrono::microseconds us = timer.Elapsed();
+    log4cpp::Category::getRoot().debug("CGROUPUTIL timing: createCgroup = %d microseconds", (int)us.count());
+#endif
+
     return newPath;
 }
 
 void moveToCgroup(const string &cgroupPath, pid_t pid)
 {
+#ifdef TIMING
+    MicrosecondsTimer timer;
+#endif
+
     string filePath = rmcommon::make_path(cgroupPath, "cgroup.procs");
     ofstream fileStream(filePath.c_str());
     if (!fileStream.is_open()) {
@@ -129,6 +168,11 @@ void moveToCgroup(const string &cgroupPath, pid_t pid)
     }
     fileStream << pid;
     fileStream.close();
+
+#ifdef TIMING
+    chrono::microseconds us = timer.Elapsed();
+    log4cpp::Category::getRoot().debug("CGROUPUTIL timing: moveToCgroup = %d microseconds", (int)us.count());
+#endif
 }
 
 }   // namespace util

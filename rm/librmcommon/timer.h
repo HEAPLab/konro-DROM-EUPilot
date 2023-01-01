@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <ctime>
 
 namespace rmcommon {
 
@@ -23,15 +24,20 @@ namespace rmcommon {
 template<typename T>
 class Timer {
 public:
-    explicit Timer(bool reset = false) {
-        if (reset)
-            Reset();
+    enum TimerMode {
+        TIMER_CONTINUE,     // continue with the same initial time point
+        TIMER_RESTART       // reset initial time point ot "now"
+    };
+
+    explicit Timer() {
+        Restart();
     }
 
     /*!
-     * Stores the current time point
+     * Stores the current time point as starting point for
+     * elapsed time measurement
      */
-    void Reset() {
+    void Restart() {
         start_ = std::chrono::high_resolution_clock::now();
     }
 
@@ -39,14 +45,15 @@ public:
      * Returns the duration between the current time point and the
      * time point stored by the last Reset() call.
      *
-     * \param reset if true, the current time point becomes the new
-     *              starting point for duration calculation
+     * \param mode if TIMER_RESET, the current time point becomes the new
+     *             starting point for duration calculation (i.e. a new
+     *             measurement starts
      */
-    T Elapsed(bool reset = false) {
+    T Elapsed(TimerMode mode = TIMER_CONTINUE) {
         std::chrono::high_resolution_clock::time_point cur = std::chrono::high_resolution_clock::now();
         T val = std::chrono::duration_cast<T>(cur - start_);
-        if (reset)
-            Reset();
+        if (mode == TIMER_RESTART)
+            Restart();
         return val;
     }
 
@@ -56,6 +63,11 @@ public:
         return out << timer.Elapsed().count();
     }
 
+    static long getSystemMicroseconds() {
+        struct timespec ts = {};
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000L + ts.tv_nsec / 1000L;
+    }
 private:
     std::chrono::high_resolution_clock::time_point start_;
 };

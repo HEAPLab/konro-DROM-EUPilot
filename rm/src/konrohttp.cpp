@@ -7,6 +7,10 @@
 #include "app.h"
 #include <chrono>
 
+#ifdef TIMING
+#include "timer.h"
+#endif
+
 using namespace std;
 
 namespace http {
@@ -80,7 +84,11 @@ struct KonroHttp::KonroHttpImpl {
      * \brief handles the addition of a new process to Konro
      */
     void handleAddPost(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader){
-        cat_.info("HTTP ADD POST received");
+        cat_.info("KONROHTTP ADD POST received");
+#ifdef TIMING
+        cat_.debug("KONROHTTP timing: ADD POST received at %ld system microseconds",
+                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
+#endif
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
                 body.append(data, data_length);
@@ -94,7 +102,11 @@ struct KonroHttp::KonroHttpImpl {
      * \brief handles a feedback message sent by an integrated application
      */
     void handleFeedbackPost(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader){
-        cat_.info("HTTP FEEDBACK POST received");
+        cat_.info("KONROHTTP FEEDBACK POST received");
+#ifdef TIMING
+        cat_.debug("KONROHTTP timing: FEEDBACK POST received at %ld system microseconds",
+                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
+#endif
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
                 body.append(data, data_length);

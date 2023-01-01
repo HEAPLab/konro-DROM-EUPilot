@@ -1,10 +1,16 @@
+# To enable timing:  cmake -DTIMING=ON
+
 cmake_minimum_required (VERSION 3.0.0)
 project (konro)
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
-# enable low level timing of (some parts of the) code
-add_definitions(-DTIMING)
+option(TIMING "Enable low level timing" OFF)
+
+if (TIMING)
+    # enable low level timing of (some parts of the) code
+    add_definitions(-DTIMING)
+endif()
 
 add_subdirectory (common)
 add_subdirectory (lib)

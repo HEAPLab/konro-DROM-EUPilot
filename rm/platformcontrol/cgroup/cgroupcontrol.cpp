@@ -2,12 +2,16 @@
 #include "tsplit.h"
 #include "pcexception.h"
 #include "dir.h"
-#include "timer.h"
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <vector>
 #include <chrono>
+
+#ifdef TIMING
+#include "timer.h"
+using MicrosecondsTimer = rmcommon::Timer<std::chrono::microseconds>;
+#endif
 
 using namespace std;
 
@@ -118,13 +122,23 @@ std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controller
 
 bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 {
+#ifdef TIMING
+    MicrosecondsTimer detailTimer;
+    MicrosecondsTimer timer;
+#endif
+
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
 
-#ifdef TIMING
-    rmcommon::Timer<chrono::microseconds> timer(true);
-#endif
     try {
+#ifdef TIMING
+        detailTimer.Restart();
+#endif
         rmcommon::Dir::mkdir_r(cgroupAppBaseDir.c_str());
+#ifdef TIMING
+        cat_.debug("CGROUPCONTROL timing: addApplication mkdir_r = %ld microseconds",
+                   (long)detailTimer.Elapsed().count());
+#endif
+
     } catch (runtime_error &e) {
         cat_.error("CGROUPCONTROL addApplication: could not create directory %s: %s",
                    cgroupAppBaseDir.c_str(),
@@ -132,17 +146,21 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
         return false;
     }
 
-#ifdef TIMING
-    chrono::microseconds u1 = timer.Elapsed(true);
-#endif
-
 #ifndef TIMING
     cat_.info("CGROUPCONTROL addApplication: move PID %ld to cgroup directory %s",
               (long)app->getPid(), cgroupAppBaseDir.c_str());
 #endif
 
     try {
+#ifdef TIMING
+        detailTimer.Restart();
+#endif
         util::moveToCgroup(cgroupAppBaseDir, app->getPid());
+#ifdef TIMING
+        cat_.debug("CGROUPCONTROL timing: addApplication moveToCgroup = %ld microseconds",
+                   (long)detailTimer.Elapsed().count());
+#endif
+
     } catch (runtime_error &e) {
         cat_.error("CGROUPCONTROL addApplication: could not move to cgroup %s: %s",
                    cgroupAppBaseDir.c_str(),
@@ -151,22 +169,23 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-    chrono::microseconds u2 = timer.Elapsed();
-    cat_.debug("CGROUPCONTROL timing mkdir_r = %ld microseconds", (long)u1.count());
-    cat_.debug("CGROUPCONTROL timing moveToCgroup = %ld microseconds", (long)u2.count());
+        chrono::microseconds u1 = timer.Elapsed();
+        cat_.debug("CGROUPCONTROL timing: addApplication = %ld microseconds", (long)u1.count());
 #endif
     return true;
 }
 
 bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 {
+#ifdef TIMING
+    using MicrosecondsTimer = rmcommon::Timer<chrono::microseconds>;
+    MicrosecondsTimer timer;
+#endif
+
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
     cat_.info("CGROUPCONTROL removeApplication PID %ld: remove cgroup directory %s",
               (long)app->getPid(), cgroupAppBaseDir.c_str());
 
-#ifdef TIMING
-    rmcommon::Timer<chrono::microseconds> timer(true);
-#endif
 
     try {
         rmcommon::Dir::rmdir(cgroupAppBaseDir.c_str());
@@ -177,8 +196,8 @@ bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-    chrono::microseconds u1 = timer.Elapsed(true);
-    cat_.debug("CGROUPCONTROL timing rmdir = %ld microseconds", (long)u1.count());
+    chrono::microseconds u1 = timer.Elapsed(MicrosecondsTimer::TIMER_RESTART);
+    cat_.debug("CGROUPCONTROL timing: removeApplication = %ld microseconds", (long)u1.count());
 #endif
     return true;
 }

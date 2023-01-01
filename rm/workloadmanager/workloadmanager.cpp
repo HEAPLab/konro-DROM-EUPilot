@@ -14,8 +14,9 @@ namespace wm {
 
 /*!
  * Returns the name of a process, given the process PID
+ *
  * The name is read from /proc/<pid>/cmdline.
- * If the nameis not found, an empty string is returned,
+ * If the name is not found, an empty string is returned,
  */
 static string getProcessNameByPid(int pid)
 {
@@ -76,7 +77,8 @@ void WorkloadManager::subscribeToEvents()
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
 #ifdef TIMING
-    rmcommon::Timer<chrono::microseconds> timer(true);
+    using MicrosecondsTimer = rmcommon::Timer<chrono::microseconds>;
+    MicrosecondsTimer timer;
 #endif
 
     if (!platformControl_.addApplication(app)) {
@@ -86,21 +88,21 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 
 #ifdef TIMING
     chrono::microseconds us1 = timer.Elapsed();
+    cat_.debug("WORKLOADMANAGER add timing: addApplication(pid=%d) = %ld microseconds\n",
+               (int)app->getPid(), (long)us1.count());
 #endif
 
     apps_.insert(app);
 
 #ifdef TIMING
-    timer.Reset();
+    timer.Restart();
 #endif
 
     bus_.publish(new rmcommon::AddEvent(app));
 
 #ifdef TIMING
     chrono::microseconds us2 = timer.Elapsed();
-    cat_.debug("WORKLOADMANAGER timing: addApplication(pid=%d) = %ld microseconds\n",
-               (int)app->getPid(), (long)us1.count());
-    cat_.debug("WORKLOADMANAGER timing: publish(pid=%d) = %ld microseconds\n",
+    cat_.debug("WORKLOADMANAGER add timing: publish(pid=%d) = %ld microseconds\n",
                (int)app->getPid(), (long)us2.count());
 #endif
 }

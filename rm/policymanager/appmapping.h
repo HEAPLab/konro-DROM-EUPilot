@@ -9,6 +9,12 @@
 #include "numericvalue.h"
 #include "memorycontrol.h"
 
+#ifdef TIMING
+#include <log4cpp/Category.hh>
+#include "timer.h"
+using MicrosecondsTimer = rmcommon::Timer<std::chrono::microseconds>;
+#endif
+
 namespace rp {
 
 /*!
@@ -66,7 +72,17 @@ public:
     }
 
     void setPuVector(rmcommon::CpusetVector puVec) {
+#ifdef TIMING
+        MicrosecondsTimer timer;
+#endif
+
         pc::CpusetControl::instance().setCpus(puVec, app_);
+
+#ifdef TIMING
+        std::chrono::microseconds us = timer.Elapsed();
+        log4cpp::Category::getRoot().debug("APPMAPPING setPuVector timing: setCpus = %d microseconds",
+                                           us.count());
+#endif
         puVec_ = puVec;
     }
 
