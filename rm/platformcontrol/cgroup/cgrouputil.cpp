@@ -70,25 +70,53 @@ string findCgroupPath(pid_t pid)
  */
 void activateController(const char *controllerName, const string &cgroupPath)
 {
-    // For example: cgroupPath = "/sys/fs/cgroup/konro.slice"
+    // For example: cgroupPath = "/sys/fs/cgroup/konro.slice/app-420186.scope/"
     // After split with separator "/":
     // [0] : ""
     // [1] : "sys"
     // [2] : "fs"
     // [3] : "cgroup"
     // [4] : "konro.slice"
+    // [5] : "app-420186.scope"
     log4cpp::Category &cat = log4cpp::Category::getRoot();
 
+    cat.debug("CGROUPUTIL activateController: cgroupPath='%s'", cgroupPath.c_str());
 #ifdef TIMING
     MicrosecondsTimer timerDetail;
     MicrosecondsTimer timer;
 #endif
 
-    vector<string> subPath = rmcommon::tsplit(cgroupPath, "/");
-    string currentFolder = rmcommon::make_path("/" + subPath[1], subPath[2]);
-    for (int i = 3; i < subPath.size()-1; ++i) {
-        currentFolder += "/" + subPath[i];
+    // Check that the supplied "cgroupPath" starts with "cgroupBaseDir",
+    // usually "/sys/fs/cgroup"
+    string cgroupBaseDir = getCgroupBaseDir();
+    if (cgroupPath.rfind(cgroupBaseDir, 0) != 0) {
+        // cgroupPath does not start with cgroupBaseDir
+        cat.error("CGROUPUTIL activateController: %s does not start with %s",
+                  cgroupPath.c_str(), cgroupBaseDir.c_str());
+    }
+
+    // remove the initial cgroup base path (for example "/sys/fs/cgroup")
+    string path = cgroupPath.substr(cgroupBaseDir.size());
+
+    // Now: path = "/konro.slice/app-420186.scope/"
+    // After split with separator "/":
+    // [0] : ""
+    // [1] : "konro.slice"
+    // [2] : "app-420186.scope"
+
+    vector<string> subPath = rmcommon::tsplit(path, "/");
+    string currentFolder = cgroupBaseDir;
+    for (int i = 0; i < subPath.size()-1; ++i) {
+        cat.debug("CGROUPUTIL activateController: subPath[%d]='%s'", i, subPath[i].c_str());
+        if (subPath[i].empty()) {
+            if (i > 0)
+                continue;       // empty dir allowed only as first element
+        } else {
+            currentFolder += "/" + subPath[i];
+        }
+        cat.debug("CGROUPUTIL activateController: currentFolder='%s'", currentFolder.c_str());
         string currentFile = rmcommon::make_path(currentFolder, "cgroup.subtree_control");
+        cat.debug("CGROUPUTIL activateController: currentFile='%s'", currentFile.c_str());
 #ifdef TIMING
         timerDetail.Restart();
 #endif
