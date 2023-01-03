@@ -43,6 +43,13 @@ void throwCouldNotOpenFile(const char *funcName, const string &fileName)
     throw PcException(os.str());
 }
 
+void throwCouldNotWriteToFile(const char *funcName, const string &fileName)
+{
+    ostringstream os;
+    os << funcName << ": could not write to file " << fileName << ": " << strerror(errno);
+    throw PcException(os.str());
+}
+
 string findCgroupPath(pid_t pid)
 {
     ostringstream os;
@@ -128,6 +135,9 @@ void activateController(const char *controllerName, const string &cgroupPath)
         cat.debug("activateController: adding %s to %s", controllerName, currentFile.c_str());
 #endif
         fileStream << (string("+") + controllerName);
+        if (!fileStream.good()) {
+            throwCouldNotWriteToFile(__func__, currentFile);
+        }
         fileStream.close();
 #ifdef TIMING
         chrono::microseconds usd = timerDetail.Elapsed();
