@@ -1,4 +1,8 @@
-# To enable timing:  cmake -DTIMING=ON
+# To enable timing:
+#       cmake -DTIMING=ON
+
+# To override cgroup base directory:
+#       cmake -DCGROUPBASEDIR:STRING=/sys/fs/cgroup/unified
 
 cmake_minimum_required (VERSION 3.0.0)
 project (konro)
@@ -6,6 +10,12 @@ project (konro)
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
 option(TIMING "Enable low level timing" OFF)
+
+if (NOT DEFINED CGROUPBASEDIR)
+set(CGROUPBASEDIR "/sys/fs/cgroup" CACHE STRING "The cgroup base directory")
+endif()
+
+add_definitions(-DCGROUPBASEDIR="${CGROUPBASEDIR}")
 
 if (TIMING)
     # enable low level timing of (some parts of the) code

@@ -19,12 +19,13 @@ namespace util {
 
 std::string getCgroupBaseDir()
 {
-    return "/sys/fs/cgroup";
+    //return "/sys/fs/cgroup";
+    return CGROUPBASEDIR;
 }
 
 std::string getCgroupKonroBaseDir()
 {
-    return "/sys/fs/cgroup/konro.slice";
+    return getCgroupBaseDir() + "/konro.slice";
 }
 
 string getCgroupKonroAppDir(pid_t pid)
