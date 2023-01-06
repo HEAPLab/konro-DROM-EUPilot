@@ -11,7 +11,6 @@ using namespace std;
 
 #ifdef TIMING
 #include "timer.h"
-using MicrosecondsTimer = rmcommon::Timer<std::chrono::microseconds>;
 #endif
 
 namespace pc {
@@ -89,8 +88,8 @@ void activateController(const char *controllerName, const string &cgroupPath)
 
     cat.debug("CGROUPUTIL activateController: cgroupPath='%s'", cgroupPath.c_str());
 #ifdef TIMING
-    MicrosecondsTimer timerDetail;
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer timerDetail;
+    rmcommon::KonroTimer timer;
 #endif
 
     // Check that the supplied "cgroupPath" starts with "cgroupBaseDir",
@@ -134,19 +133,19 @@ void activateController(const char *controllerName, const string &cgroupPath)
 #ifndef TIMING
         cat.debug("activateController: adding %s to %s", controllerName, currentFile.c_str());
 #endif
-        fileStream << (string("+") + controllerName);
-        if (!fileStream.good()) {
+        string val = string("+") + controllerName;
+        if (!fileStream.write(&val[0], val.size())) {
             throwCouldNotWriteToFile(__func__, currentFile);
         }
         fileStream.close();
 #ifdef TIMING
-        chrono::microseconds usd = timerDetail.Elapsed();
+        rmcommon::KonroTimer::TimeUnit usd = timerDetail.Elapsed();
         cat.debug("CGROUPUTIL timing: activateController write in cgroup.subtree_control = %d microseconds",
                   (int)usd.count());
 #endif
     }
 #ifdef TIMING
-    chrono::microseconds us = timer.Elapsed();
+    rmcommon::KonroTimer::TimeUnit us = timer.Elapsed();
     cat.debug("CGROUPUTIL timing: activateController = %d microseconds", (int)us.count());
 #endif
 }
@@ -180,14 +179,14 @@ std::vector<string> getContent(const char *fileName, const std::string &cgroupPa
 string createCgroup(string cgroupPath, const std::string &name)
 {
 #ifdef TIMING
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer timer;
 #endif
 
     string newPath = rmcommon::make_path(cgroupPath, name);
     rmcommon::Dir::mkdir(newPath.c_str());
 
 #ifdef TIMING
-    chrono::microseconds us = timer.Elapsed();
+    rmcommon::KonroTimer::TimeUnit us = timer.Elapsed();
     log4cpp::Category::getRoot().debug("CGROUPUTIL timing: createCgroup = %d microseconds", (int)us.count());
 #endif
 
@@ -197,7 +196,7 @@ string createCgroup(string cgroupPath, const std::string &name)
 void moveToCgroup(const string &cgroupPath, pid_t pid)
 {
 #ifdef TIMING
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer timer;
 #endif
 
     string filePath = rmcommon::make_path(cgroupPath, "cgroup.procs");
@@ -209,7 +208,7 @@ void moveToCgroup(const string &cgroupPath, pid_t pid)
     fileStream.close();
 
 #ifdef TIMING
-    chrono::microseconds us = timer.Elapsed();
+    rmcommon::KonroTimer::TimeUnit us = timer.Elapsed();
     log4cpp::Category::getRoot().debug("CGROUPUTIL timing: moveToCgroup = %d microseconds", (int)us.count());
 #endif
 }

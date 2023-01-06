@@ -5,7 +5,6 @@
 #include "feedbackrequestevent.h"
 #include "addrequestevent.h"
 #include "app.h"
-#include <chrono>
 
 #ifdef TIMING
 #include "timer.h"
@@ -39,13 +38,18 @@ struct KonroHttp::KonroHttpImpl {
      * \param data the JSON in text format
      */
     void sendFeedbackEvent(const std::string &data) {
+        rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
+
         using namespace nlohmann;
+
         basic_json<> j = json::parse(data);
         if (isInJson(j, "pid") && isInJson(j, "feedback")) {
             long pid = j["pid"];
             int feedback = j["feedback"];
             cat_.info("KONROHTTP publishing FeedbackRequestEvent from pid %ld", pid);
-            bus_.publish(new rmcommon::FeedbackRequestEvent(pid, feedback));
+            rmcommon::FeedbackRequestEvent *event = new rmcommon::FeedbackRequestEvent(pid, feedback);
+            event->setTimePoint(tp);
+            bus_.publish(event);
         }
    }
 
@@ -56,6 +60,7 @@ struct KonroHttp::KonroHttpImpl {
      */
     void sendAddEvent(const std::string &data) {
         using namespace nlohmann;
+        rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
         basic_json<> j = json::parse(data);
         if (isInJson(j, "pid") && isInJson(j, "type")) {
             long pid = j["pid"];
@@ -70,7 +75,9 @@ struct KonroHttp::KonroHttpImpl {
                 return;
             }
             cat_.info("KONROHTTP publishing AddRequestEvent for pid %ld", pid);
-            bus_.publish(new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name)));
+            rmcommon::AddRequestEvent *event = new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name));
+            event->setTimePoint(tp);
+            bus_.publish(event);
         }
     }
 
@@ -87,7 +94,7 @@ struct KonroHttp::KonroHttpImpl {
         cat_.info("KONROHTTP ADD POST received");
 #ifdef TIMING
         cat_.debug("KONROHTTP timing: ADD POST received at %ld system microseconds",
-                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
+                   rmcommon::KonroTimer::getSystemMicroseconds());
 #endif
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
@@ -103,10 +110,6 @@ struct KonroHttp::KonroHttpImpl {
      */
     void handleFeedbackPost(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader){
         cat_.info("KONROHTTP FEEDBACK POST received");
-#ifdef TIMING
-        cat_.debug("KONROHTTP timing: FEEDBACK POST received at %ld system microseconds",
-                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
-#endif
         std::string body;
         content_reader([&](const char *data, size_t data_length) {
                 body.append(data, data_length);

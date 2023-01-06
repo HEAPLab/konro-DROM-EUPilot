@@ -33,11 +33,6 @@ RandPolicy::RandPolicy(const AppMappingSet &apps, PlatformDescription pd) :
 void RandPolicy::addApp(AppMappingPtr appMapping)
 {
     pid_t pid = appMapping->getPid();
-#ifdef TIMING
-        log4cpp::Category::getRoot().debug("RANDPOLICY timing: ADDAPP PID=%d received at %ld system microseconds",
-                   (int)pid,
-                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
-#endif
     try {
         short puNum = getRandNumber(platformDescription_.getNumProcessingUnits());
         log4cpp::Category::getRoot().debug("RANDPOLICY addApp PID %ld to PU %d", (long)pid, puNum);
@@ -70,11 +65,6 @@ void RandPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
 
 void RandPolicy::feedback(AppMappingPtr appMapping, int feedback)
 {
-#ifdef TIMING
-        log4cpp::Category::getRoot().debug("RANDPOLICY timing: FEEDBACK PID=%d received at %ld system microseconds",
-                   (int)appMapping->getPid(),
-                   rmcommon::Timer<std::chrono::microseconds>::getSystemMicroseconds());
-#endif
     appMapping->setLastFeedback(feedback);
 
     // no action required

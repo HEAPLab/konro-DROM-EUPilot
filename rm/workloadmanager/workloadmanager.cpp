@@ -77,8 +77,7 @@ void WorkloadManager::subscribeToEvents()
 void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 {
 #ifdef TIMING
-    using MicrosecondsTimer = rmcommon::Timer<chrono::microseconds>;
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer timer;
 #endif
 
     if (!platformControl_.addApplication(app)) {
@@ -87,9 +86,9 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-    chrono::microseconds us1 = timer.Elapsed();
+    rmcommon::KonroTimer::TimeUnit micros1 = timer.Elapsed();
     cat_.debug("WORKLOADMANAGER add timing: addApplication(pid=%d) = %ld microseconds\n",
-               (int)app->getPid(), (long)us1.count());
+               (int)app->getPid(), (long)micros1.count());
 #endif
 
     apps_.insert(app);
@@ -101,9 +100,9 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
     bus_.publish(new rmcommon::AddEvent(app));
 
 #ifdef TIMING
-    chrono::microseconds us2 = timer.Elapsed();
+    rmcommon::KonroTimer::TimeUnit micros2 = timer.Elapsed();
     cat_.debug("WORKLOADMANAGER add timing: publish(pid=%d) = %ld microseconds\n",
-               (int)app->getPid(), (long)us2.count());
+               (int)app->getPid(), (long)micros2.count());
 #endif
 }
 
@@ -243,7 +242,11 @@ void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon
 {
     AppSet::iterator it = findAppByPid(event->getPid());
     if (it != end(apps_)) {
-        bus_.publish(new rmcommon::FeedbackEvent(*it, event->getFeedback()));
+        rmcommon::FeedbackEvent *feedbackEvent = new rmcommon::FeedbackEvent(*it, event->getFeedback());
+        // propagate original event time point, in order to track how muche time if took
+        // to deliver the original message fron HTTP to PolicyManager
+        feedbackEvent->setTimePoint(event->getTimePoint());
+        bus_.publish(feedbackEvent);
 
         ostringstream os;
         os << "WORKLOADMANAGER FeedbackRequest {"

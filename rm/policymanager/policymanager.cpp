@@ -75,7 +75,6 @@ bool PolicyManager::processEvent(std::shared_ptr<const rmcommon::BaseEvent> even
     os << "POLICYMANAGER received message => " << *event;
     cat_.debug(os.str());
 #endif
-
     if (const AddEvent *e = dynamic_cast<const AddEvent *>(event.get())) {
         processAddEvent(static_pointer_cast<const AddEvent>(event));
     } else if (const RemoveEvent *e = dynamic_cast<const RemoveEvent *>(event.get())) {
@@ -126,7 +125,13 @@ void PolicyManager::processMonitorEvent(std::shared_ptr<const rmcommon::MonitorE
 
 void PolicyManager::processFeedbackEvent(std::shared_ptr<const rmcommon::FeedbackEvent> event)
 {
-    cat_.debug("POLICYMANAGER feedback event received");
+    using namespace rmcommon;
+
+    KonroTimer::TimeUnit micros = KonroTimer::ElapsedFrom(event->getTimePoint());
+    cat_.debug("POLICYMANAGER feedback event received for pid %d, delivered in %ld microseconds",
+               event->getApp()->getPid(),
+               (long)micros.count());
+
     AppMappingPtr appMapping = make_shared<AppMapping>(event->getApp());
     auto it = apps_.find(appMapping);
     if (it != end(apps_)) {

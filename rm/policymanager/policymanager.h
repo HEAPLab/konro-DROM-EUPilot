@@ -14,7 +14,6 @@
 #include "platformdescription.h"
 #include <log4cpp/Category.hh>
 #include <set>
-#include <chrono>
 #include <memory>
 #include <thread>
 #include <atomic>

@@ -172,7 +172,7 @@ public:
         }
         // create the shared_ptr of the event that will be passed
         // to the receivers
-        std::shared_ptr<const EventType> p = std::shared_ptr<EventType>(event);
+        std::shared_ptr<const EventType> p{event}; // = std::shared_ptr<EventType>(event);
         for (auto handler : *handlers) {
             if (handler != nullptr) {
                 handler->exec(&p);

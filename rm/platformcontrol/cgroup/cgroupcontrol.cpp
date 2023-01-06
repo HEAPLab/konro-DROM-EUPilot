@@ -6,11 +6,9 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <chrono>
 
 #ifdef TIMING
 #include "timer.h"
-using MicrosecondsTimer = rmcommon::Timer<std::chrono::microseconds>;
 #endif
 
 using namespace std;
@@ -123,8 +121,8 @@ std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controller
 bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 {
 #ifdef TIMING
-    MicrosecondsTimer detailTimer;
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer detailTimer;
+    rmcommon::KonroTimer timer;
 #endif
 
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
@@ -169,7 +167,7 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-        chrono::microseconds u1 = timer.Elapsed();
+        rmcommon::KonroTimer::TimeUnit u1 = timer.Elapsed();
         cat_.debug("CGROUPCONTROL timing: addApplication = %ld microseconds", (long)u1.count());
 #endif
     return true;
@@ -178,8 +176,7 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 {
 #ifdef TIMING
-    using MicrosecondsTimer = rmcommon::Timer<chrono::microseconds>;
-    MicrosecondsTimer timer;
+    rmcommon::KonroTimer timer;
 #endif
 
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
@@ -196,8 +193,8 @@ bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-    chrono::microseconds u1 = timer.Elapsed(MicrosecondsTimer::TIMER_RESTART);
-    cat_.debug("CGROUPCONTROL timing: removeApplication = %ld microseconds", (long)u1.count());
+    rmcommon::KonroTimer::TimeUnit micros = timer.Elapsed(rmcommon::KonroTimer::TIMER_RESTART);
+    cat_.debug("CGROUPCONTROL timing: removeApplication = %ld microseconds", (long)micros.count());
 #endif
     return true;
 }
