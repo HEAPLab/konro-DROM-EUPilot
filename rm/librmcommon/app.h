@@ -14,16 +14,27 @@ public:
     enum class AppType {
         UNKNOWN,
         STANDALONE,
-        INTEGRATED
+        INTEGRATED,
+        CONTAINER,
+        KUBERNETES
     };
 
 private:
+    /*! The pid of the application in Konro's namespace */
     pid_t pid_;
+    /*! The type of the application */
     AppType appType_;
+    /*! The name of the application */
     std::string name_;
+    /*! The PID of the application in its own PID namespace.
+        If 0, the app belongs to Konro's ns and this field should be ignored. */
+    pid_t nsPid_;
+    /*! The Linux PID namespace of the application.
+        If 0, the app belongs to Konro's namespace. */
+    unsigned long ns_;
 
-    App(pid_t pid, AppType appType, std::string appName) :
-        pid_(pid), appType_(appType), name_(appName) {}
+    App(pid_t pid, AppType appType, std::string appName, pid_t nsPid, unsigned long ns) :
+        pid_(pid), appType_(appType), name_(appName), nsPid_(nsPid), ns_(ns) {}
 
 public:
     typedef std::shared_ptr<App> AppPtr;
@@ -41,10 +52,11 @@ public:
      * \param appType the type of the app
      * \returns the shared_ptr to the App
      */
-    static std::shared_ptr<App> makeApp(pid_t pid, AppType appType, std::string appName = "") {
+    static std::shared_ptr<App> makeApp(pid_t pid, AppType appType, std::string appName = "",
+                                        pid_t nsPid = 0, unsigned long ns = 0) {
         // Note: to use std::make_shared, the constructor must be public;
         //       in this context it is better to use new App(...)
-        return std::shared_ptr<App>(new App(pid, appType, appName));
+        return std::shared_ptr<App>(new App(pid, appType, appName, nsPid, ns));
     }
 
     /*!
@@ -56,6 +68,10 @@ public:
             return AppType::STANDALONE;
         else if (appType == "INTEGRATED")
             return AppType::INTEGRATED;
+        else if (appType == "CONTAINER")
+            return AppType::CONTAINER;
+        else if (appType == "KUBERNETES")
+            return AppType::KUBERNETES;
         else
             return AppType::UNKNOWN;
     }
@@ -74,6 +90,38 @@ public:
      */
     AppType getAppType() const noexcept {
         return appType_;
+    }
+
+    /*!
+     * \brief Gets the PID of the application in its own namespace
+     * \returns the PID of the application in its own namespace
+     */
+    pid_t getNsPid() const noexcept {
+        return nsPid_;
+    }
+
+    /*!
+     * \brief Gets the PID namespace to which the application belongs
+     * \returns the PID namespace
+     */
+    unsigned long getPidNamespace() const noexcept {
+        return ns_;
+    }
+
+    /*!
+     * \brief Converts the specified app type into a string
+     * \returns the specified type as string
+     */
+    static std::string getAppTypeString(AppType type) {
+        switch (type)
+        {
+        case AppType::UNKNOWN: return "UNKNOWN";
+        case AppType::STANDALONE: return "STANDALONE";
+        case AppType::INTEGRATED: return "INTEGRATED";
+        case AppType::CONTAINER: return "CONTAINER";
+        case AppType::KUBERNETES: return "KUBERNETES";
+        default: return "";
+        }
     }
 
     /*!

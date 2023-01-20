@@ -56,11 +56,23 @@ WorkloadManager::WorkloadManager(rmcommon::EventBus &bus, pc::IPlatformControl &
     subscribeToEvents();
 }
 
-WorkloadManager::AppSet::iterator WorkloadManager::findAppByPid(int pid)
+WorkloadManager::AppSet::iterator WorkloadManager::findAppByPid(pid_t pid)
 {
     // create a temporary App as key for the search
     shared_ptr<rmcommon::App> key = rmcommon::App::makeApp(pid, rmcommon::App::AppType::UNKNOWN);
     return apps_.find(key);
+}
+
+WorkloadManager::AppSet::iterator WorkloadManager::findAppByNsPid(pid_t nspid, rmcommon::namespace_t ns)
+{
+    AppSet::iterator it;
+    for (it = apps_.begin(); it != apps_.end(); ++it) {
+        shared_ptr<rmcommon::App> app = *it;
+        if (app->getNsPid() == nspid && app->getPidNamespace() == ns) {
+            break;
+        }
+    }
+    return it;
 }
 
 void WorkloadManager::subscribeToEvents()
@@ -81,14 +93,15 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 #endif
 
     if (!platformControl_.addApplication(app)) {
-        cat_.error("WORKLOADMANAGER could not add application (pid=%d)", (int)app->getPid());
+        cat_.error("WORKLOADMANAGER could not add application (pid=%ld)", (long)app->getPid());
         return;
     }
 
 #ifdef TIMING
     rmcommon::KonroTimer::TimeUnit micros1 = timer.Elapsed();
-    cat_.debug("WORKLOADMANAGER add timing: addApplication(pid=%d) = %ld microseconds\n",
-               (int)app->getPid(), (long)micros1.count());
+    cat_.debug("WORKLOADMANAGER add timing: addApplication(pid=%ld) = %ld microseconds\n",
+               (long)app->getPid(),
+               (long)micros1.count());
 #endif
 
     apps_.insert(app);
@@ -101,8 +114,8 @@ void WorkloadManager::add(shared_ptr<rmcommon::App> app)
 
 #ifdef TIMING
     rmcommon::KonroTimer::TimeUnit micros2 = timer.Elapsed();
-    cat_.debug("WORKLOADMANAGER add timing: publish(pid=%d) = %ld microseconds\n",
-               (int)app->getPid(), (long)micros2.count());
+    cat_.debug("WORKLOADMANAGER add timing: publish(pid=%ld) = %ld microseconds\n",
+               (long)app->getPid(), (long)micros2.count());
 #endif
 }
 
@@ -240,10 +253,17 @@ void WorkloadManager::processAddRequestEvent(std::shared_ptr<const rmcommon::Add
 
 void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon::FeedbackRequestEvent> event)
 {
-    AppSet::iterator it = findAppByPid(event->getPid());
+    AppSet::iterator it;
+
+    if (event->getPidNamespace() == 0) {
+        // The process belongs to Konro's namespace
+        it = findAppByPid(event->getPid());
+    } else {
+        it = findAppByNsPid(event->getPid(), event->getPidNamespace());
+    }
     if (it != end(apps_)) {
         rmcommon::FeedbackEvent *feedbackEvent = new rmcommon::FeedbackEvent(*it, event->getFeedback());
-        // propagate original event time point, in order to track how muche time if took
+        // propagate original event time point, in order to track how much time if took
         // to deliver the original message fron HTTP to PolicyManager
         feedbackEvent->setTimePoint(event->getTimePoint());
         bus_.publish(feedbackEvent);
@@ -260,6 +280,8 @@ void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon
         os << "WORKLOADMANAGER FeedbackRequest received from process not in Konro {"
            << "\"process_pid\":"
            << event->getPid()
+           << ",\"namespace\":"
+           << event->getPidNamespace()
            << ",\"feedback_value\":" << '\'' << event->getFeedback() << '\''
            << "}";
         cat_.error(os.str());

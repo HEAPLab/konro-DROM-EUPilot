@@ -1,5 +1,6 @@
 #include "konrohttp.h"
 #include "threadname.h"
+#include "namespaces.h"
 #include "../../lib/httplib/httplib.h"
 #include "../../lib/json/json.hpp"
 #include "feedbackrequestevent.h"
@@ -38,19 +39,28 @@ struct KonroHttp::KonroHttpImpl {
      * \param data the JSON in text format
      */
     void sendFeedbackEvent(const std::string &data) {
-        rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
-
         using namespace nlohmann;
-
+        rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
         basic_json<> j = json::parse(data);
-        if (isInJson(j, "pid") && isInJson(j, "feedback")) {
-            long pid = j["pid"];
-            int feedback = j["feedback"];
-            cat_.info("KONROHTTP publishing FeedbackRequestEvent from pid %ld", pid);
-            rmcommon::FeedbackRequestEvent *event = new rmcommon::FeedbackRequestEvent(pid, feedback);
-            event->setTimePoint(tp);
-            bus_.publish(event);
+        unsigned long ns = 0;
+        /* PID and feedback value must always be present */
+        if (!j.contains("pid") || !j.contains("feedback")) {
+            cat_.error("KONROHTTP missing pid or feedback value in feedback message");
+            return;
         }
+        pid_t pid = j["pid"];
+        int feedback = j["feedback"];
+        /* If no namespace is present, the process belongs to Konro's ns */
+        if (j.contains("namespace")) {
+            ns = j["namespace"];
+        }
+        cat_.info("KONROHTTP publishing FeedbackRequestEvent with value %d from pid %ld in namespace %lu",
+                  feedback,
+                  static_cast<long>(pid),
+                  ns);
+        rmcommon::FeedbackRequestEvent *event = new rmcommon::FeedbackRequestEvent(pid, ns, feedback);
+        event->setTimePoint(tp);
+        bus_.publish(event);
    }
 
     /*!
@@ -62,23 +72,58 @@ struct KonroHttp::KonroHttpImpl {
         using namespace nlohmann;
         rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
         basic_json<> j = json::parse(data);
-        if (isInJson(j, "pid") && isInJson(j, "type")) {
-            long pid = j["pid"];
+        /* This is the PID of the process in its own namespace */
+        pid_t nsPid;
+        /* This is the PID of the process in Konro's namespace */
+        pid_t pid;
+        rmcommon::App::AppType appType = rmcommon::App::AppType::INTEGRATED;
+        string name = "";
+        unsigned long ns = 0;
+        /* PID must always be present */
+        if (!j.contains("pid")) {
+            cat_.error("KONROHTTP missing pid in add message");
+            return;
+        }
+        nsPid = j["pid"];
+        /* Application name is optional */
+        if (j.contains("name")) {
+            name = j["name"];
+        }
+        /* Type is only sent for standalone processes */
+        /* Integrated apps type must instead be inferred using their namespace */
+        /* If neither between type and namespace is present, message is invalid */
+        if (j.contains("type")) {
             string type = j["type"];
-            // optional "name"
-            string name;
-            if (j.contains("name"))
-                name = j["name"];
-            rmcommon::App::AppType appType = rmcommon::App::getTypeByName(type);
+            appType = rmcommon::App::getTypeByName(type);
             if (appType == rmcommon::App::AppType::UNKNOWN) {
                 cat_.error("KONROHTTP invalid application type %s", type.c_str());
                 return;
             }
-            cat_.info("KONROHTTP publishing AddRequestEvent for pid %ld", pid);
-            rmcommon::AddRequestEvent *event = new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name));
-            event->setTimePoint(tp);
-            bus_.publish(event);
+            // The received pid is the one inside Konro's namespace
+            pid = nsPid;
+        } else if (j.contains("namespace")) {
+            ns = j["namespace"];
+            // Map the PID we received to Konro's namespace
+            pid = rmcommon::mapPid(nsPid, ns);
+            // If true, the process is in a different PID ns from Konro
+            if (pid != nsPid) {
+                appType = (rmcommon::isKubPod(pid))
+                        ? rmcommon::App::AppType::KUBERNETES
+                        : rmcommon::App::AppType::CONTAINER;
+            }
+        } else {
+            cat_.error("KONROHTTP invalid message: no type or ns specified");
+            return;
         }
+        cat_.info("KONROHTTP publishing AddRequestEvent for pid %ld in ns %lu with name \"%s\" and type \"%s\"",
+                  static_cast<long>(nsPid),
+                  ns,
+                  name.c_str(),
+                  rmcommon::App::getAppTypeString(appType).c_str());
+        rmcommon::AddRequestEvent *event =
+                new rmcommon::AddRequestEvent(rmcommon::App::makeApp(pid, appType, name, nsPid, ns));
+        event->setTimePoint(tp);
+        bus_.publish(event);
     }
 
     void handleGet(const httplib::Request &req, httplib::Response &res) {

@@ -11,12 +11,13 @@
 #include "addevent.h"
 #include "removeevent.h"
 #include "feedbackevent.h"
-
 #include "addrequestevent.h"
 #include "feedbackrequestevent.h"
+#include "namespaces.h"
 #include <log4cpp/Category.hh>
 #include <set>
 #include <memory>
+#include <sys/types.h>
 
 namespace rmcommon {
     class EventBus;
@@ -46,7 +47,9 @@ class WorkloadManager : public rmcommon::BaseEventReceiver {
      * \param pid the pid of the application of interest
      * \return AppSet::iterator
      */
-    AppSet::iterator findAppByPid(int pid);
+    AppSet::iterator findAppByPid(pid_t pid);
+
+    AppSet::iterator findAppByNsPid(pid_t nspid, rmcommon::namespace_t ns);
 
     /*!
      * Processes a fork event.

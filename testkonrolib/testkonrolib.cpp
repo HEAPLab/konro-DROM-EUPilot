@@ -7,11 +7,17 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    konro::sendAddMessage();
+    string reply = konro::sendAddMessage();
+    if (reply.empty()) {
+        cout << "Received empty reply (invalid server address?)" << endl;
+    } else {
+        cout << "Received reply: " << reply << endl;
+    }
+
     bool val = true;
     for (int i = 0; i < 10; ++i) {
         cout << "Sending message" << endl;
-        string reply = konro::sendFeedbackMessage(static_cast<int>(val));
+        reply = konro::sendFeedbackMessage(static_cast<int>(val));
         if (reply.empty()) {
             cout << "Received empty reply (invalid server address?)" << endl;
         } else {
