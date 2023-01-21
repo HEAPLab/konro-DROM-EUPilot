@@ -10,9 +10,12 @@ typedef unsigned long namespace_t;
 /*!
  * Returns the pid namespace of the caller process
  */
-unsigned long getSelfPidNamespace();
+namespace_t getSelfPidNamespace();
 
-unsigned long getPidNamespace(pid_t pid);
+/*!
+ * Gets the pid namespace of the specified process
+ */
+namespace_t getPidNamespace(pid_t pid);
 
 /*!
  * Returns the PID in the current namespace of the pid

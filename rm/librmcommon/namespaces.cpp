@@ -51,7 +51,7 @@ namespace {
                     if (rootpid == -1) {
                         rootpid = last_pid;  // rootpid: first pid on the line
                     }
-                    tok =nullptr;
+                    tok = nullptr;
                 }
                 std::cout << std::endl;
                 break;

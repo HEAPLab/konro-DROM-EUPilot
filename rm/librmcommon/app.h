@@ -1,6 +1,7 @@
 #ifndef APP_H
 #define APP_H
 
+#include "namespaces.h"
 #include <memory>
 #include <string>
 #include <unistd.h>
@@ -31,9 +32,9 @@ private:
     pid_t nsPid_;
     /*! The Linux PID namespace of the application.
         If 0, the app belongs to Konro's namespace. */
-    unsigned long ns_;
+    namespace_t ns_;
 
-    App(pid_t pid, AppType appType, std::string appName, pid_t nsPid, unsigned long ns) :
+    App(pid_t pid, AppType appType, std::string appName, pid_t nsPid, namespace_t ns) :
         pid_(pid), appType_(appType), name_(appName), nsPid_(nsPid), ns_(ns) {}
 
 public:
@@ -53,7 +54,7 @@ public:
      * \returns the shared_ptr to the App
      */
     static std::shared_ptr<App> makeApp(pid_t pid, AppType appType, std::string appName = "",
-                                        pid_t nsPid = 0, unsigned long ns = 0) {
+                                        pid_t nsPid = 0, namespace_t ns = 0) {
         // Note: to use std::make_shared, the constructor must be public;
         //       in this context it is better to use new App(...)
         return std::shared_ptr<App>(new App(pid, appType, appName, nsPid, ns));
@@ -104,7 +105,7 @@ public:
      * \brief Gets the PID namespace to which the application belongs
      * \returns the PID namespace
      */
-    unsigned long getPidNamespace() const noexcept {
+    namespace_t getPidNamespace() const noexcept {
         return ns_;
     }
 

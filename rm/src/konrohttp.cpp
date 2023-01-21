@@ -25,14 +25,6 @@ struct KonroHttp::KonroHttpImpl {
         cat_(log4cpp::Category::getRoot()) {
     }
 
-    bool isInJson(nlohmann::basic_json<> j, const char *param) {
-        if (!j.contains(param)) {
-            cat_.error("KONROHTTP missing \"%s\" in feedback message", param);
-            return false;
-        }
-        return true;
-    }
-
     /*!
      * Extracts the data from the JSON and publishes a FeedbackRequestEvent
      *
@@ -42,7 +34,7 @@ struct KonroHttp::KonroHttpImpl {
         using namespace nlohmann;
         rmcommon::KonroTimer::TimePoint tp = rmcommon::KonroTimer::now();
         basic_json<> j = json::parse(data);
-        unsigned long ns = 0;
+        rmcommon::namespace_t ns = 0;
         /* PID and feedback value must always be present */
         if (!j.contains("pid") || !j.contains("feedback")) {
             cat_.error("KONROHTTP missing pid or feedback value in feedback message");
@@ -78,7 +70,7 @@ struct KonroHttp::KonroHttpImpl {
         pid_t pid;
         rmcommon::App::AppType appType = rmcommon::App::AppType::INTEGRATED;
         string name = "";
-        unsigned long ns = 0;
+        rmcommon::namespace_t ns = 0;
         /* PID must always be present */
         if (!j.contains("pid")) {
             cat_.error("KONROHTTP missing pid in add message");

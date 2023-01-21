@@ -2,6 +2,7 @@
 #define FEEDBACKREQUESTEVENT_H
 
 #include "baseevent.h"
+#include "../namespaces.h"
 #include <iomanip>
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,13 +25,13 @@ class FeedbackRequestEvent : public BaseEvent {
 
     /*! The PID namespace to which the application belongs.
         If 0, the application belongs to Konro's namespace. */
-    unsigned long ns_;
+    namespace_t ns_;
 
-    /*! The feddback value */
+    /*! The feedback value */
     int feedback_;
 
 public:
-    FeedbackRequestEvent(pid_t pid, unsigned long ns, int feedback) :
+    FeedbackRequestEvent(pid_t pid, namespace_t ns, int feedback) :
         BaseEvent("FeedbackRequestEvent"),
         pid_(pid),
         ns_(ns),
@@ -41,7 +42,7 @@ public:
         return pid_;
     }
 
-    unsigned long getPidNamespace() const noexcept {
+    namespace_t getPidNamespace() const noexcept {
         return ns_;
     }
 

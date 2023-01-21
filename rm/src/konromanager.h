@@ -33,8 +33,6 @@ public:
     /*!
      * Configures and starts the ProcListener in the main thread
      * and all the other Konro application threads
-     *
-     * \param pidToMonitor
      */
     void run();
 
