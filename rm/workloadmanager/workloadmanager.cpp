@@ -163,23 +163,22 @@ void WorkloadManager::processForkEvent(std::shared_ptr<const rmcommon::ForkEvent
     //       child
     // https://natanyellin.com/posts/understanding-netlink-process-connector-output/
 
-    if (isInKonro(ev->event_data.fork.parent_pid)) {
-        shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(ev->event_data.fork.child_pid, rmcommon::App::AppType::STANDALONE);
+    AppSet::iterator iter = findAppByPid(ev->event_data.fork.parent_pid);
+    bool isParentInKonro = iter != apps_.end();
+    if (isParentInKonro) {
+        // Child app inherits type from parent
+        rmcommon::App::AppType parentType = (*iter)->getAppType();
+        shared_ptr<rmcommon::App> app = rmcommon::App::makeApp(ev->event_data.fork.child_pid, parentType);
         app->setName(getProcessNameByPid(app->getPid()));
         add(app);
-
-        ostringstream os;
-        os << "WORKLOADMANAGER fork {"
-           << "\"parent_pid\":"
-           << ev->event_data.fork.parent_pid
-           << ",\"parent_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.parent_pid) << '\''
-           << ",\"child_pid\":"
-           << ev->event_data.fork.child_pid
-           << ",\"child_tgid\":"
-           << ev->event_data.fork.child_tgid
-           << ",\"child_name\":" << '\'' << getProcessNameByPid(ev->event_data.fork.child_pid) << '\''
-           << "}";
-        cat_.info(os.str());
+        cat_.info(
+            R"(WORKLOADMANAGER fork {"parent_pid":%ld,"parent_name":'%s',"child_pid":%ld,"child_tgid":%ld,"child_name":'%s'})",
+                (long)ev->event_data.fork.parent_pid,
+                getProcessNameByPid(ev->event_data.fork.parent_pid).c_str(),
+                (long)ev->event_data.fork.child_pid,
+                (long)ev->event_data.fork.child_tgid,
+                getProcessNameByPid(ev->event_data.fork.child_pid).c_str()
+            );
         dumpMonitoredApps();
     }
 }
@@ -193,15 +192,10 @@ void WorkloadManager::processExecEvent(std::shared_ptr<const rmcommon::ExecEvent
         shared_ptr<rmcommon::App> app = *it;
         app->setName(getProcessNameByPid(pid));
 
-        ostringstream os;
-        os << "WORKLOADMANAGER exec {"
-           << "\"process_pid\":"
-           << ev->event_data.exec.process_pid
-           << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exec.process_pid) << '\''
-           << ",\"process_tgid\":"
-           << ev->event_data.exec.process_pid
-           << "}";
-        cat_.info(os.str());
+        cat_.info(R"(WORKLOADMANAGER exec {"process_pid":%ld,"process_name":'%s',"process_tgid":%ld})",
+                  (long)ev->event_data.exec.process_pid,
+                  getProcessNameByPid(ev->event_data.exec.process_pid).c_str(),
+                  (long)ev->event_data.exec.process_pid);
         dumpMonitoredApps();
     }
 }
@@ -214,15 +208,10 @@ void WorkloadManager::processExitEvent(std::shared_ptr<const rmcommon::ExitEvent
     if (isInKonro(pid)) {
         remove(pid);
 
-        ostringstream os;
-        os << "WORKLOADMANAGER exit {"
-           << "\"process_pid\":"
-           << ev->event_data.exit.process_pid
-           << ",\"process_name\":" << '\'' << getProcessNameByPid(ev->event_data.exit.process_pid) << '\''
-           << ",\"process_tgid\":"
-           << ev->event_data.exit.process_tgid
-           << "}";
-        cat_.info(os.str());
+        cat_.info(R"(WORKLOADMANAGER exit {"process_pid":%ld,"process_name":%s,"process_tgid":%ld})",
+                  (long)ev->event_data.exit.process_pid,
+                  getProcessNameByPid(ev->event_data.exit.process_pid).c_str(),
+                  (long)ev->event_data.exit.process_tgid);
         dumpMonitoredApps();
     }
 }
@@ -232,22 +221,14 @@ void WorkloadManager::processAddRequestEvent(std::shared_ptr<const rmcommon::Add
     if(!isInKonro(event->getApp()->getPid())) {
         add(event->getApp());
 
-        ostringstream os;
-        os << "WORKLOADMANAGER AddRequest {"
-           << "\"process_pid\":"
-           << event->getApp()->getPid()
-           << ",\"process_name\":" << '\'' << event->getApp()->getName() << '\''
-           << "}";
-        cat_.info(os.str());
+        cat_.info(R"(WORKLOADMANAGER AddRequest {"process_pid":%ld,"process_name":'%s'})",
+                  (long)event->getApp()->getPid(),
+                  event->getApp()->getName().c_str());
         dumpMonitoredApps();
     } else {
-        ostringstream os;
-        os << "WORKLOADMANAGER AddRequest from process already in Konro {"
-           << "\"process_pid\":"
-           << event->getApp()->getPid()
-           << ",\"process_name\":" << '\'' << event->getApp()->getName() << '\''
-           << "}";
-        cat_.info(os.str());
+        cat_.error(R"(WORKLOADMANAGER AddRequest from process already in Konro {"process_pid":%ld,"process_name":'%s'})",
+                  (long)event->getApp()->getPid(),
+                  event->getApp()->getName().c_str());
     }
 }
 
@@ -268,23 +249,15 @@ void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon
         feedbackEvent->setTimePoint(event->getTimePoint());
         bus_.publish(feedbackEvent);
 
-        ostringstream os;
-        os << "WORKLOADMANAGER FeedbackRequest {"
-           << "\"process_pid\":"
-           << event->getPid()
-           << ",\"feedback_value\":" << '\'' << event->getFeedback() << '\''
-           << "}";
-        cat_.info(os.str());
+        cat_.info(R"(WORKLOADMANAGER FeedbackRequest received {"process_pid":%ld,"namespace":%ld,"feedback_value":%d})",
+                  (long)event->getPid(),
+                  (long)event->getPidNamespace(),
+                  event->getFeedback());
     } else {
-        ostringstream os;
-        os << "WORKLOADMANAGER FeedbackRequest received from process not in Konro {"
-           << "\"process_pid\":"
-           << event->getPid()
-           << ",\"namespace\":"
-           << event->getPidNamespace()
-           << ",\"feedback_value\":" << '\'' << event->getFeedback() << '\''
-           << "}";
-        cat_.error(os.str());
+        cat_.error(R"(WORKLOADMANAGER FeedbackRequest received from process not in Konro {"process_pid":%ld,"namespace":%ld,"feedback_value":%d})",
+                  (long)event->getPid(),
+                  (long)event->getPidNamespace(),
+                  event->getFeedback());
     }
 }
 

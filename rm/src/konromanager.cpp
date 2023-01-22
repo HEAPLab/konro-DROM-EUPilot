@@ -110,6 +110,8 @@ void KonroManager::loadConfiguration(std::string configFile)
     cfgBatteryModuleNames_ = configRead(config, "platformmonitor", "kernelbatterymodulenames", std::string("BAT"));
     httpListenHost_ = configRead(config, "http", "listenhost", std::string("localhost"));
     httpListenPort_ = configRead(config, "http", "listenport", 8080);
+    changeContainerCgroup_ = configRead(config, "container", "changecontainercgroup", 1);
+    changeKubernetesCgroup_ = configRead(config, "kubernetes", "changekubernetescgroup", 1);
 
     cat_.info("MAIN configuration: policy = %s", cfgPolicyName_.c_str());
     cat_.info("MAIN configuration: policy timer seconds = %d", cfgTimerSeconds_);
@@ -117,6 +119,10 @@ void KonroManager::loadConfiguration(std::string configFile)
     cat_.info("MAIN configuration: CPU module names = %s", cfgCpuModuleNames_.c_str());
     cat_.info("MAIN configuration: battery module names = %s", cfgBatteryModuleNames_.c_str());
     cat_.info("MAIN configuration: HTTP listen on %s:%d", httpListenHost_.c_str(), httpListenPort_);
+    cat_.info("MAIN configuration: change container cgroup = %s",
+              changeContainerCgroup_ ? "true" : "false");
+    cat_.info("MAIN configuration: change Kubernetes cgroup = %s",
+              changeKubernetesCgroup_ ? "true" : "false");
 }
 
 void KonroManager::run()
@@ -124,6 +130,8 @@ void KonroManager::run()
     rp::PolicyManager::Policy policy = rp::PolicyManager::getPolicyByName(cfgPolicyName_);
 
     pimpl_->cgc.cleanup();
+    pimpl_->cgc.setChangeContainerCgroup(changeContainerCgroup_);
+    pimpl_->cgc.setChangeKubernetesCgroup(changeKubernetesCgroup_);
     pimpl_->http = new http::KonroHttp(pimpl_->eventBus, httpListenHost_.c_str(), httpListenPort_);
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
     pimpl_->workloadManager = new wm::WorkloadManager(pimpl_->eventBus, pimpl_->cgc);

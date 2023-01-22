@@ -15,6 +15,9 @@ using namespace std;
 
 namespace pc {
 
+/*static*/ std::atomic_bool CGroupControl::changeContainerCgroup_(false);
+/*static*/ std::atomic_bool CGroupControl::changeKubernetesCgroup_(false);
+
 CGroupControl::CGroupControl() :
     cat_(log4cpp::Category::getRoot())
 {
@@ -68,10 +71,25 @@ void CGroupControl::checkActivateController(const char *controllerName, const ch
     }
 }
 
+bool CGroupControl::doNotMoveApp(std::shared_ptr<rmcommon::App> app) const
+{
+    return (app->getAppType() == rmcommon::App::AppType::CONTAINER && !changeContainerCgroup_)
+            || (app->getAppType() == rmcommon::App::AppType::KUBERNETES && !changeKubernetesCgroup_);
+}
+
+string CGroupControl::getCgroupAppDir(std::shared_ptr<rmcommon::App> app) const
+{
+    if (doNotMoveApp(app)) {
+        return util::findCgroupPath(app->getPid());
+    } else {
+        return util::getCgroupKonroAppDir(app->getPid());
+    }
+}
+
 std::string CGroupControl::getLine(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
+    string cgroupPath = getCgroupAppDir(app);
 
     // 2 - If the controller interface file doesn't exist, activate the controller
     checkActivateController(controllerName, fileName, cgroupPath);
@@ -83,7 +101,7 @@ std::string CGroupControl::getLine(const char *controllerName, const char *fileN
 std::vector<string> CGroupControl::getContent(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app) const
 {
     // 1 - Find cgroup path
-    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
+    string cgroupPath = getCgroupAppDir(app);
 
     // 2 - If the controller interface file doesn't exist, activate the controller
     checkActivateController(controllerName, fileName, cgroupPath);
@@ -101,7 +119,7 @@ int CGroupControl::getValueAsInt(const char *controllerName, const char *fileNam
 
 std::map<string, uint64_t> CGroupControl::getContentAsMap(const char *controllerName, const char *fileName, std::shared_ptr<rmcommon::App> app)
 {
-    string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
+    string cgroupPath = getCgroupAppDir(app);
     checkActivateController(controllerName, fileName, cgroupPath);
 
     std::map<std::string, uint64_t> tags;
@@ -124,6 +142,9 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
     rmcommon::KonroTimer detailTimer;
     rmcommon::KonroTimer timer;
 #endif
+    if (doNotMoveApp(app)) {
+        return true;
+    }
 
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
 
@@ -178,8 +199,12 @@ bool CGroupControl::removeApplication(std::shared_ptr<rmcommon::App> app)
 #ifdef TIMING
     rmcommon::KonroTimer timer;
 #endif
+    if (doNotMoveApp(app)) {
+        return true;
+    }
 
     string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
+
     cat_.info("CGROUPCONTROL removeApplication PID %ld: remove cgroup directory %s",
               (long)app->getPid(), cgroupAppBaseDir.c_str());
 

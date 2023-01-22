@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
 #include <unistd.h>
 #include <log4cpp/Category.hh>
 
@@ -21,6 +22,14 @@ class CGroupControl : public IPlatformControl {
 
     log4cpp::Category &cat_;
 
+    // The following flags are static because other classes derived
+    // from CGroupControl, such as CpusetControl, must see the same
+    // values.  They are also atomic because separate
+    // threads can use the methods of the derived classes
+
+    static std::atomic_bool changeContainerCgroup_;
+    static std::atomic_bool changeKubernetesCgroup_;
+
     /*!
      * Checks if the specified controller interface file exists in a folder.
      * If it doesn't, the function activates the proper cgroup controller in order
@@ -31,9 +40,20 @@ class CGroupControl : public IPlatformControl {
      */
     void checkActivateController(const char *controllerName, const char *fileName, const std::string &cgroupPath) const;
 
+    /*!
+     * Returns true if the app must not be moved to the Konro cgroup hierarchy
+     */
+    bool doNotMoveApp(std::shared_ptr<rmcommon::App> app) const;
+    std::string getCgroupAppDir(std::shared_ptr<rmcommon::App> app) const;
+
 public:
     CGroupControl();
     virtual ~CGroupControl();
+
+    CGroupControl(const CGroupControl &) = delete;
+    CGroupControl(CGroupControl &&) = delete;
+    CGroupControl &operator=(const CGroupControl &) = delete;
+    CGroupControl &operator=(const CGroupControl &&) = delete;
 
     /*!
      * Cleans up the cgroup hierarchy from all Konro related CGroup files.
@@ -43,6 +63,14 @@ public:
      * from files created during previous executions of the program.
      */
     void cleanup();
+
+    void setChangeContainerCgroup(bool val) {
+        changeContainerCgroup_ = val;
+    }
+
+    void setChangeKubernetesCgroup(bool val) {
+        changeKubernetesCgroup_ = val;
+    }
 
     /*!
      * \brief Enforces a resource constraint on the specified application.
@@ -62,7 +90,7 @@ public:
     template<typename T>
     void setValue(const char *controllerName, const char *fileName, T value, std::shared_ptr<rmcommon::App> app) const {
         // 1 - Find cgroup path
-        std::string cgroupPath = util::getCgroupKonroAppDir(app->getPid());
+        std::string cgroupPath = getCgroupAppDir(app);
 
         // 2 - If the controller interface file doesn't exist, activate the controller
         checkActivateController(controllerName, fileName, cgroupPath);

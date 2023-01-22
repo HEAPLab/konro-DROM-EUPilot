@@ -10,6 +10,7 @@ class KonroManager {
     std::unique_ptr<KonroManagerImpl> pimpl_;
     log4cpp::Category &cat_;
 
+    // values from configuration file
     std::string cfgPolicyName_;
     int cfgTimerSeconds_;       // 0 means "no timer"
     int cfgMonitorPeriod_;
@@ -17,6 +18,8 @@ class KonroManager {
     std::string cfgBatteryModuleNames_;
     std::string httpListenHost_;
     int httpListenPort_;
+    bool changeContainerCgroup_;
+    bool changeKubernetesCgroup_;
 
     std::string defaultConfigFilePath();
     void setupLogging();
