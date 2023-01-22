@@ -63,6 +63,10 @@ public:
         return app_;
     }
 
+    const std::string getCgroupDir() const noexcept {
+        return app_->getCgroupDir();
+    }
+
     rmcommon::CpusetVector getPuVector() {
         if (puVec_.empty()) {
             puVec_ = pc::CpusetControl::instance().getCpusEffective(app_);

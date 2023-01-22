@@ -34,6 +34,8 @@ private:
         If 0, the app belongs to Konro's namespace. */
     namespace_t ns_;
 
+    std::string cgroupDir_;
+
     App(pid_t pid, AppType appType, std::string appName, pid_t nsPid, namespace_t ns) :
         pid_(pid), appType_(appType), name_(appName), nsPid_(nsPid), ns_(ns) {}
 
@@ -139,6 +141,14 @@ public:
      */
     void setName(const std::string &appName) {
         name_ = appName;
+    }
+
+    const std::string getCgroupDir() const noexcept {
+        return cgroupDir_;
+    }
+
+    void setCgroupDir(const std::string &dir) {
+        cgroupDir_ = dir;
     }
 };
 

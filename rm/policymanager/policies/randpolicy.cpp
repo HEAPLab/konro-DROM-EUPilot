@@ -11,8 +11,23 @@ using namespace std;
 
 namespace rp {
 
+namespace rputil {
+
+    int countAppsWithSameCgroup(const AppMappingSet &apps, AppMappingPtr appMapping) {
+        int n = 0;
+        for (const auto &am: apps) {
+            if (am->getCgroupDir() == appMapping->getCgroupDir()) {
+                ++n;
+            }
+        }
+        return n;
+    }
+
+}   // namespace rputil
+
 /*!
  * Extracts a random CPU number
+ *
  * \param cpusNum the number of CPUs avaiable on the machine
  * \return a random CPU number
  */
@@ -32,6 +47,13 @@ RandPolicy::RandPolicy(const AppMappingSet &apps, PlatformDescription pd) :
 
 void RandPolicy::addApp(AppMappingPtr appMapping)
 {
+    // If there are already other Apps in the same cgroup folder,
+    // handle them as a group and do nothing here
+    if (rputil::countAppsWithSameCgroup(apps_, appMapping) > 1) {
+        log4cpp::Category::getRoot().debug("RANDPOLICY addApp to an already initialized cgroup");
+        return;
+    }
+
     pid_t pid = appMapping->getPid();
     try {
         short puNum = getRandNumber(platformDescription_.getNumProcessingUnits());

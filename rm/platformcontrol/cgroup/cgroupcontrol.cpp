@@ -142,11 +142,11 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
     rmcommon::KonroTimer detailTimer;
     rmcommon::KonroTimer timer;
 #endif
+    string cgroupAppBaseDir = getCgroupAppDir(app);
     if (doNotMoveApp(app)) {
+        app->setCgroupDir(cgroupAppBaseDir);
         return true;
     }
-
-    string cgroupAppBaseDir = util::getCgroupKonroAppDir(app->getPid());
 
     try {
 #ifdef TIMING
@@ -174,7 +174,9 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
 #ifdef TIMING
         detailTimer.Restart();
 #endif
+
         util::moveToCgroup(cgroupAppBaseDir, app->getPid());
+
 #ifdef TIMING
         cat_.debug("CGROUPCONTROL timing: addApplication moveToCgroup = %ld microseconds",
                    (long)detailTimer.Elapsed().count());
@@ -188,9 +190,11 @@ bool CGroupControl::addApplication(std::shared_ptr<rmcommon::App> app)
     }
 
 #ifdef TIMING
-        rmcommon::KonroTimer::TimeUnit u1 = timer.Elapsed();
-        cat_.debug("CGROUPCONTROL timing: addApplication = %ld microseconds", (long)u1.count());
+    rmcommon::KonroTimer::TimeUnit u1 = timer.Elapsed();
+    cat_.debug("CGROUPCONTROL timing: addApplication = %ld microseconds", (long)u1.count());
 #endif
+
+    app->setCgroupDir(cgroupAppBaseDir);
     return true;
 }
 
