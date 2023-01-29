@@ -2,6 +2,8 @@
 #include <chrono>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstring>
 #include <algorithm>
 #include <sensors.h>
@@ -14,13 +16,92 @@
 
 using namespace std;
 
-struct PlatformMonitor::PlatformMonitorImpl {
+/*!
+ * CPU times read from /proc/stat
+ */
+struct CPUTimeData {
+    string name;
+    // values read from /proc/stat
+    uint64_t usertime;
+    uint64_t nicetime;
+    uint64_t systemtime;
+    uint64_t idletime;
+    uint64_t ioWait;
+    uint64_t irq;
+    uint64_t softIrq;
+    uint64_t steal;
+    uint64_t guest;
+    uint64_t guestnice;
+    uint64_t totaltime;
 
+    CPUTimeData() {
+        usertime = 0;
+        nicetime = 0;
+        systemtime = 0;
+        idletime = 0;
+        ioWait = 0;
+        irq = 0;
+        softIrq = 0;
+        steal = 0;
+        guest = 0;
+        guestnice = 0;
+        totaltime = 0;
+    }
+
+    CPUTimeData(
+            string nameParam,
+            uint64_t usertimeParam,
+            uint64_t nicetimeParam,
+            uint64_t systemtimeParam,
+            uint64_t idletimeParam,
+            uint64_t ioWaitParam,
+            uint64_t irqParam,
+            uint64_t softIrqParam,
+            uint64_t stealParam,
+            uint64_t guestParam,
+            uint64_t guestniceParam) {
+
+        name = nameParam;
+        usertime = usertimeParam - guestParam;
+        nicetime = nicetimeParam - guestniceParam;
+        systemtime = systemtimeParam;
+        idletime = idletimeParam;
+        ioWait = ioWaitParam;
+        irq = irqParam;
+        softIrq = softIrqParam;
+        steal = stealParam;
+        guest = guestParam;
+        guestnice = guestniceParam;
+        totaltime = usertime + nicetime + systemtime + irq + softIrq + idletime + ioWait + steal + guest + guestnice;
+    }
+
+    friend std::ostream &operator <<(std::ostream &os, const CPUTimeData &ctd) {
+        os << '{'
+           << "\"name\":" << '"' << ctd.name << '"'
+           << ",\"usertime\":" << ctd.usertime
+           << ",\"nicetime\":" << ctd.nicetime
+           << ",\"systemtime\":" << ctd.systemtime
+           << ",\"idletime\":" << ctd.idletime
+           << ",\"ioWait\":" << ctd.ioWait
+           << ",\"irq\":" << ctd.irq
+           << ",\"steal\":" << ctd.steal
+           << ",\"guest\":" << ctd.guest
+           << ",\"guestnice\":" << ctd.guestnice
+           << ",\"totaltime\":" << ctd.totaltime
+           << '}';
+        return os;
+    }
+
+};
+
+struct PlatformMonitor::PlatformMonitorImpl {
+    PlatformDescription pd_;
     bool initialized = false;
     vector<string> cpuChips;
     vector<string> batteryChips;
+    vector<CPUTimeData> cpuTimeData;
 
-    PlatformMonitorImpl() {
+    PlatformMonitorImpl(PlatformDescription pd) : pd_(pd) {
         init();
     }
 
@@ -36,6 +117,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
         if (this->initialized)
             sensors_cleanup();
     }
+
     void setCpuModuleNames(const std::string &names) {
         cpuChips = rmcommon::tsplit(names, ",");
     }
@@ -187,13 +269,68 @@ struct PlatformMonitor::PlatformMonitorImpl {
             }
         }
     }
+
+    void handleCpuTimes() {
+        ifstream ifs("/proc/stat");
+        bool firstRead = cpuTimeData.empty();
+        int numPu = pd_.getNumProcessingUnits();
+        log4cpp::Category::getRoot().debug("PLATFORMMONITOR reading CPU time data for %d processing units", numPu);
+        for (int n = 0; n <= numPu; ++n) {
+            string line;
+            if (!getline(ifs, line)) {
+                log4cpp::Category::getRoot().error("PLATFORMMONITOR Could not read line");
+                break;
+            }
+            if (line.size() < 4) {
+                log4cpp::Category::getRoot().error("PLATFORMMONITOR Unexpected line: '%s'", line.c_str());
+                break;
+            }
+            if (line[0] != 'c' || line[1] !='p' || line[2] != 'u') {
+                log4cpp::Category::getRoot().error("PLATFORMMONITOR Unexpected line '%s' (expected \"cpu\")", line.c_str());
+                break;
+            }
+
+            {
+                istringstream is(line);
+                string name;
+                uint64_t usertime, nicetime, systemtime, idletime, ioWait, irq, softIrq, steal, guest, guestnice;
+                is >> name >> usertime >> nicetime >> systemtime >> idletime >> ioWait >> irq >> softIrq >> steal >> guest >> guestnice;
+                if (is.fail()) {
+                    log4cpp::Category::getRoot().error("PLATFORMMONITOR Could not parse line");
+                    break;
+                }
+
+                CPUTimeData ctd(name, usertime, nicetime, systemtime, idletime, ioWait, irq, softIrq, steal, guest, guestnice);
+                //log4cpp::Category::getRoot().debug("PLATFORMMONITOR read CPU times for %s", name.c_str());
+                if (firstRead) {
+                    // first time we read
+                    cpuTimeData.push_back(ctd);
+                } else {
+                    cpuTimeData[n] = ctd;
+                    // TODO - calc
+                }
+
+            }
+        }
+
+        ostringstream os;
+        os << "{\"cpu\":[";
+        for (int n = 0; n <= numPu; ++n) {
+            if (n > 0) {
+                os << ',';
+            }
+            os << cpuTimeData[n];
+        }
+        os << "]}";
+        log4cpp::Category::getRoot().debug("PLATFORMMONITOR read CPU times %s", os.str().c_str());
+    }
 };
 
-PlatformMonitor::PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod) :
-    pimpl_(new PlatformMonitorImpl()),
-    bus_(eventBus),
+PlatformMonitor::PlatformMonitor(rmcommon::EventBus &eventBus, PlatformDescription pd, int monitorPeriod) :
+    pimpl_(new PlatformMonitorImpl(pd)),
     cat_(log4cpp::Category::getRoot()),
-    monitorPeriod_(monitorPeriod)
+    monitorPeriod_(monitorPeriod),
+    bus_(eventBus)
 {
 }
 
@@ -223,6 +360,7 @@ void PlatformMonitor::run()
             rmcommon::PlatformTemperature platTemp;
             rmcommon::PlatformPower platPower;
             pimpl_->handleSensors(platTemp, platPower);
+            pimpl_->handleCpuTimes();
             bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
         }
     }

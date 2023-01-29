@@ -3,6 +3,7 @@
 
 #include "eventbus.h"
 #include "basethread.h"
+#include "platformdescription.h"
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -17,14 +18,14 @@
  */
 class PlatformMonitor : public rmcommon::BaseThread {
     struct PlatformMonitorImpl;
+    std::unique_ptr<PlatformMonitorImpl> pimpl_;
     log4cpp::Category &cat_;
     int monitorPeriod_;
-    std::unique_ptr<PlatformMonitorImpl> pimpl_;
     rmcommon::EventBus &bus_;
 
     virtual void run() override;
 public:
-    PlatformMonitor(rmcommon::EventBus &eventBus, int monitorPeriod);
+    PlatformMonitor(rmcommon::EventBus &eventBus, PlatformDescription pd, int monitorPeriod);
     ~PlatformMonitor();
 
     /*!

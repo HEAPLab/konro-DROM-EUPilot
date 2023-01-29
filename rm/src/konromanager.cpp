@@ -136,7 +136,7 @@ void KonroManager::run()
     pimpl_->policyManager = new rp::PolicyManager(pimpl_->eventBus, pimpl_->platformDescription, policy);
     pimpl_->workloadManager = new wm::WorkloadManager(pimpl_->eventBus, pimpl_->cgc);
     pimpl_->procListener = new wm::ProcListener(pimpl_->eventBus);
-    pimpl_->platformMonitor = new PlatformMonitor(pimpl_->eventBus, cfgMonitorPeriod_);
+    pimpl_->platformMonitor = new PlatformMonitor(pimpl_->eventBus, pimpl_->platformDescription, cfgMonitorPeriod_);
     pimpl_->policyTimer = new rp::PolicyTimer(pimpl_->eventBus, cfgTimerSeconds_);
 
     pimpl_->platformDescription.logTopology();
