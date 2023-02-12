@@ -249,7 +249,8 @@ void WorkloadManager::processFeedbackRequestEvent(std::shared_ptr<const rmcommon
         feedbackEvent->setTimePoint(event->getTimePoint());
         bus_.publish(feedbackEvent);
 
-        cat_.info(R"(WORKLOADMANAGER FeedbackRequest received {"process_pid":%ld,"namespace":%ld,"feedback_value":%d})",
+        cat_.info(R"(WORKLOADMANAGER FeedbackRequest received {"name":"%s","process_pid":%ld,"namespace":%ld,"feedback_value":%d})",
+                  (*it)->getName().c_str(),
                   (long)event->getPid(),
                   (long)event->getPidNamespace(),
                   event->getFeedback());

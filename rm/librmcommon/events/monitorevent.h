@@ -4,6 +4,7 @@
 #include "baseevent.h"
 #include "../platformpower.h"
 #include "../platformtemperature.h"
+#include "../platformload.h"
 #include <vector>
 #include <iostream>
 
@@ -15,26 +16,33 @@ namespace rmcommon {
 class MonitorEvent : public BaseEvent {
     PlatformTemperature platTemp_;
     PlatformPower platPower_;
+    PlatformLoad platLoad_;
 public:
-    MonitorEvent(PlatformTemperature temp, PlatformPower power) :
+    MonitorEvent(PlatformTemperature temp, PlatformPower power, PlatformLoad load) :
         BaseEvent("MonitorEvent"),
         platTemp_(temp),
-        platPower_(power)
+        platPower_(power),
+        platLoad_(load)
     {}
     virtual ~MonitorEvent() = default;
 
-    PlatformTemperature getPlatformTemperature() {
+    PlatformTemperature getPlatformTemperature() const {
         return platTemp_;
     }
 
-    PlatformPower getPlatformPower() {
+    PlatformPower getPlatformPower() const {
         return platPower_;
+    }
+
+    PlatformLoad getPlatformLoad() const {
+        return platLoad_;
     }
 
     virtual void printOnOstream(std::ostream &os) const {
         os << "{";
         os << "\"platTemp\":" << platTemp_;
         os << ",\"platPower\":" << platPower_;
+        os << ",\"platLoad\":" << platLoad_;
         os << "}";
     }
 };

@@ -1,6 +1,7 @@
 #include "policymanager.h"
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
+#include "policies/cpubasedpolicy.h"
 #include "threadname.h"
 #include "eventbus.h"
 #include <iostream>
@@ -40,6 +41,8 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
     switch (policy) {
     case Policy::RandPolicy:
         return make_unique<RandPolicy>(apps_, platformDescription_);
+    case Policy::CpuBasedPolicy:
+        return make_unique<CpuBasedPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
     default:
         return make_unique<NoPolicy>();
@@ -51,6 +54,8 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
 {
     if (policyName == "RandPolicy")
         return Policy::RandPolicy;
+    else if (policyName == "CpuBasedPolicy")
+        return Policy::CpuBasedPolicy;
     else
         return Policy::NoPolicy;
 }

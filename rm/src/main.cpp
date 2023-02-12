@@ -26,7 +26,7 @@ static KonroManager *konroManager;
 /*!
  * Configures log4cpp
  */
-static void setupLogging()
+static void setupLogging(const std::string &level)
 {
     // Log4CPP configuration
 
@@ -41,7 +41,29 @@ static void setupLogging()
     appender2->setLayout(layout2);
 
     log4cpp::Category &cat = log4cpp::Category::getRoot();
-    cat.setPriority(log4cpp::Priority::DEBUG);
+    log4cpp::Priority::PriorityLevel prio = log4cpp::Priority::INFO;
+    if (!level.empty()) {
+        if (level == "FATAL") {
+            prio = log4cpp::Priority::FATAL;
+        } else if (level == "ALERT") {
+            prio = log4cpp::Priority::ALERT;
+        } else if (level == "CRIT") {
+            prio = log4cpp::Priority::CRIT;
+        } else if (level == "ERROR") {
+            prio = log4cpp::Priority::ERROR;
+        } else if (level == "WARN") {
+            prio = log4cpp::Priority::WARN;
+        } else if (level == "NOTICE") {
+            prio = log4cpp::Priority::NOTICE;
+        } else if (level == "INFO") {
+            prio = log4cpp::Priority::INFO;
+        } else if (level == "DEBUG") {
+            prio = log4cpp::Priority::DEBUG;
+        } else if (level == "NOTSET") {
+            prio = log4cpp::Priority::NOTSET;
+        }
+    }
+    cat.setPriority(prio);
     cat.addAppender(appender1);
     cat.addAppender(appender2);
 
@@ -50,31 +72,37 @@ static void setupLogging()
 
 int main(int argc, char *argv[])
 {
-    std::string configFile;
+    std::string configFile, logLevel = "DEBUG";
     int c, optionIndex;
     static struct option longOptions[] = {
-        {"config", required_argument, 0, 'c' },
-        {0,        0,                 0, 0 }
+        {"config",   required_argument, 0, 'c' },
+        {"loglevel", optional_argument, 0, 'l' },
+        {0,          0,                 0,  0  }
     };
 
     while (true) {
-        c = getopt_long(argc, argv, "c:", longOptions, &optionIndex);
+        c = getopt_long(argc, argv, "c:l:", longOptions, &optionIndex);
         if (c == -1)
             break;      // all options parsed)
         switch (c) {
         case 'c':
             configFile = optarg;
             break;
+        case 'l':
+            logLevel = optarg;
+            break;
         default:
             std::cout << "Unknown option\n"
-                      << "Usage: konro [--config,-c  CONFIG_FILE]\n";
+                      << "Usage: konro [--config,-c  CONFIG_FILE] [--loglevel,-l LOGLEVEL]\n"
+                      << "       CONFIG_FILE is the name (with path) of the KONRO configuration file\n"
+                      << "       LOGLEVEL can be FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG, NOTSET\n";
             exit(EXIT_FAILURE);
         }
     }
     // ignore remaining (non option) arguments
 
     rmcommon::setThreadName("MAIN");
-    setupLogging();
+    setupLogging(logLevel);
     trapCtrlC();
     log4cpp::Category::getRoot().info("MAIN creating KonroManager");
     konroManager = new KonroManager(configFile);

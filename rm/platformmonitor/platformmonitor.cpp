@@ -11,88 +11,12 @@
 #include "monitorevent.h"
 #include "platformtemperature.h"
 #include "platformpower.h"
+#include "platformload.h"
 #include "threadname.h"
 #include "tsplit.h"
+#include "cputimedata.h"
 
 using namespace std;
-
-/*!
- * CPU times read from /proc/stat
- */
-struct CPUTimeData {
-    string name;
-    // values read from /proc/stat
-    uint64_t usertime;
-    uint64_t nicetime;
-    uint64_t systemtime;
-    uint64_t idletime;
-    uint64_t ioWait;
-    uint64_t irq;
-    uint64_t softIrq;
-    uint64_t steal;
-    uint64_t guest;
-    uint64_t guestnice;
-    uint64_t totaltime;
-
-    CPUTimeData() {
-        usertime = 0;
-        nicetime = 0;
-        systemtime = 0;
-        idletime = 0;
-        ioWait = 0;
-        irq = 0;
-        softIrq = 0;
-        steal = 0;
-        guest = 0;
-        guestnice = 0;
-        totaltime = 0;
-    }
-
-    CPUTimeData(
-            string nameParam,
-            uint64_t usertimeParam,
-            uint64_t nicetimeParam,
-            uint64_t systemtimeParam,
-            uint64_t idletimeParam,
-            uint64_t ioWaitParam,
-            uint64_t irqParam,
-            uint64_t softIrqParam,
-            uint64_t stealParam,
-            uint64_t guestParam,
-            uint64_t guestniceParam) {
-
-        name = nameParam;
-        usertime = usertimeParam - guestParam;
-        nicetime = nicetimeParam - guestniceParam;
-        systemtime = systemtimeParam;
-        idletime = idletimeParam;
-        ioWait = ioWaitParam;
-        irq = irqParam;
-        softIrq = softIrqParam;
-        steal = stealParam;
-        guest = guestParam;
-        guestnice = guestniceParam;
-        totaltime = usertime + nicetime + systemtime + irq + softIrq + idletime + ioWait + steal + guest + guestnice;
-    }
-
-    friend std::ostream &operator <<(std::ostream &os, const CPUTimeData &ctd) {
-        os << '{'
-           << "\"name\":" << '"' << ctd.name << '"'
-           << ",\"usertime\":" << ctd.usertime
-           << ",\"nicetime\":" << ctd.nicetime
-           << ",\"systemtime\":" << ctd.systemtime
-           << ",\"idletime\":" << ctd.idletime
-           << ",\"ioWait\":" << ctd.ioWait
-           << ",\"irq\":" << ctd.irq
-           << ",\"steal\":" << ctd.steal
-           << ",\"guest\":" << ctd.guest
-           << ",\"guestnice\":" << ctd.guestnice
-           << ",\"totaltime\":" << ctd.totaltime
-           << '}';
-        return os;
-    }
-
-};
 
 struct PlatformMonitor::PlatformMonitorImpl {
     PlatformDescription pd_;
@@ -270,7 +194,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
         }
     }
 
-    void handleCpuTimes() {
+    void handleCpuTimes(rmcommon::PlatformLoad &platLoad) {
         ifstream ifs("/proc/stat");
         bool firstRead = cpuTimeData.empty();
         int numPu = pd_.getNumProcessingUnits();
@@ -281,11 +205,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
                 log4cpp::Category::getRoot().error("PLATFORMMONITOR Could not read line");
                 break;
             }
-            if (line.size() < 4) {
-                log4cpp::Category::getRoot().error("PLATFORMMONITOR Unexpected line: '%s'", line.c_str());
-                break;
-            }
-            if (line[0] != 'c' || line[1] !='p' || line[2] != 'u') {
+            if (line.size() < 4 || line[0] != 'c' || line[1] !='p' || line[2] != 'u') {
                 log4cpp::Category::getRoot().error("PLATFORMMONITOR Unexpected line '%s' (expected \"cpu\")", line.c_str());
                 break;
             }
@@ -301,15 +221,24 @@ struct PlatformMonitor::PlatformMonitorImpl {
                 }
 
                 CPUTimeData ctd(name, usertime, nicetime, systemtime, idletime, ioWait, irq, softIrq, steal, guest, guestnice);
-                //log4cpp::Category::getRoot().debug("PLATFORMMONITOR read CPU times for %s", name.c_str());
                 if (firstRead) {
                     // first time we read
+                    // we only have one snapshot of the cpu status, so we can't compute usage yet
                     cpuTimeData.push_back(ctd);
                 } else {
+                    // time elapsed between the last two snapshots, measured in USER_HZ
+                    int delta = ctd.totaltime - cpuTimeData[n].totaltime;
+                    // time spent in idle between the last two snapshots, measured in USER_HZ
+                    int idletime = ctd.idletime - cpuTimeData[n].idletime;
+                    // percentage of use of the current processing unit
+                    int usage = ((delta - idletime) * 100) / delta;
+                    //log4cpp::Category::getRoot().debug("PLATFORMMONITOR result for %s is %d", ctd.name.c_str(), usage);
+                    if (n == 0)
+                        platLoad.addCpuLoad(usage);
+                    else
+                        platLoad.addPULoad(usage);
                     cpuTimeData[n] = ctd;
-                    // TODO - calc
                 }
-
             }
         }
 
@@ -322,7 +251,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
             os << cpuTimeData[n];
         }
         os << "]}";
-        log4cpp::Category::getRoot().debug("PLATFORMMONITOR read CPU times %s", os.str().c_str());
+        //log4cpp::Category::getRoot().debug("PLATFORMMONITOR read CPU times %s", os.str().c_str());
     }
 };
 
@@ -359,9 +288,10 @@ void PlatformMonitor::run()
         if (!stopped()) {
             rmcommon::PlatformTemperature platTemp;
             rmcommon::PlatformPower platPower;
+            rmcommon::PlatformLoad platLoad;
             pimpl_->handleSensors(platTemp, platPower);
-            pimpl_->handleCpuTimes();
-            bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower));
+            pimpl_->handleCpuTimes(platLoad);
+            bus_.publish(new rmcommon::MonitorEvent(platTemp, platPower, platLoad));
         }
     }
     cat_.info("PLATFORMMONITOR exiting");

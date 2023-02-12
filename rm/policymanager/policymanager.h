@@ -34,7 +34,8 @@ class PolicyManager : public rmcommon::BaseEventReceiver {
 public:
     enum class Policy {
         NoPolicy,
-        RandPolicy
+        RandPolicy,
+        CpuBasedPolicy
     };
 
 private:
