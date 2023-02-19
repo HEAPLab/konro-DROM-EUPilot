@@ -2,6 +2,7 @@
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
 #include "policies/cpubasedpolicy.h"
+#include "policies/mincorespolicy.h"
 #include "threadname.h"
 #include "eventbus.h"
 #include <iostream>
@@ -43,6 +44,8 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
         return make_unique<RandPolicy>(apps_, platformDescription_);
     case Policy::CpuBasedPolicy:
         return make_unique<CpuBasedPolicy>(apps_, platformDescription_);
+    case Policy::MinCoresPolicy:
+        return make_unique<MinCoresPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
     default:
         return make_unique<NoPolicy>();
@@ -56,6 +59,8 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
         return Policy::RandPolicy;
     else if (policyName == "CpuBasedPolicy")
         return Policy::CpuBasedPolicy;
+    else if (policyName == "MinCoresPolicy")
+        return Policy::MinCoresPolicy;
     else
         return Policy::NoPolicy;
 }
@@ -75,7 +80,7 @@ bool PolicyManager::processEvent(std::shared_ptr<const rmcommon::BaseEvent> even
 {
     using namespace rmcommon;
 
-#if 1
+#if 0
     ostringstream os;
     os << "POLICYMANAGER received message => " << *event;
     cat_.debug(os.str());
@@ -124,7 +129,9 @@ void PolicyManager::processTimerEvent(std::shared_ptr<const rmcommon::TimerEvent
 
 void PolicyManager::processMonitorEvent(std::shared_ptr<const rmcommon::MonitorEvent> event)
 {
-    cat_.debug("POLICYMANAGER monitor event received");
+    ostringstream os;
+    os << "POLICYMANAGER monitor event received => " << *event;
+    cat_.info(os.str());
     policy_->monitor(event);
 }
 

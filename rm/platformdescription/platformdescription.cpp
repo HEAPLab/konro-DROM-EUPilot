@@ -103,6 +103,36 @@ struct PlatformDescription::PlatformDescriptionImpl {
         }
         return vec;
     }
+
+    /*!
+     * Calculates the "distance" between two objects in the hwlock
+     * tree, i.e. the number of levels to traverse before finding
+     * a common ancestor object
+     *
+     * \param o1 first object
+     * \param o2 second object
+     * \return the distance between o1 and o2
+     */
+    int objDistance(hwloc_obj_t o1, hwloc_obj_t o2)
+    {
+        if (o1 == nullptr || o2 == nullptr) {
+            return 10;
+        }
+        int distance = 0;
+        while (o1 != o2 && o1 != nullptr && o2 != nullptr) {
+            o1 = o1->parent;
+            o2 = o2->parent;
+            ++distance;
+        }
+        return distance;
+    }
+
+    int puDistance(int osidx1, int osidx2)
+    {
+        hwloc_obj_t o1 = findObjByOsIndex(HWLOC_OBJ_PU, osidx1);
+        hwloc_obj_t o2 = findObjByOsIndex(HWLOC_OBJ_PU, osidx2);
+        return objDistance(o1, o2);
+    }
 };
 
 PlatformDescription::PlatformDescription() :
@@ -126,6 +156,20 @@ int PlatformDescription::getNumCores() const
 int PlatformDescription::getNumProcessingUnits() const
 {
     return hwloc_get_nbobjs_by_type(pimpl_->topology, HWLOC_OBJ_PU);
+}
+
+std::set<short> PlatformDescription::getPUSet() {
+    std::set<short> res;
+    int num = getNumProcessingUnits();
+    for (int i = 0; i < num; ++i) {
+        res.insert(i);
+    }
+    return res;
+}
+
+int PlatformDescription::getPUDistance(short pu1, short pu2)
+{
+    return pimpl_->puDistance(pu1, pu2);
 }
 
 std::vector<ProcessingUnitMapping> PlatformDescription::getTopology() const

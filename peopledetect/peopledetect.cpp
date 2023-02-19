@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 		imshow("People detector", frame);
 
         ++count;
-        if (count % 60 == 0) {
+        if (count % 90 == 0) {
             int frameRate = (int)(getTickFrequency() / (double)t);
             int feedback = konro::computeFeedback(frameRate, 30);
             konro::sendFeedbackMessage(feedback);

@@ -57,6 +57,20 @@ public:
      */
     std::vector<ProcessingUnitMapping> getTopology() const;
 
+    std::set<short> getPUSet();
+
+    /*!
+     * \li distance 0: pu1 and pu2 on the same L1 cache
+     * \li distance 1: pu1 and pu2 on the same L2 cache
+     * \li distance 2: pu1 and pu2 on the same L3 cache
+     * \li distance 4: otherwise
+     *
+     * \param pu1 Processing Unit number
+     * \param pu2 Processing Unit number
+     * \return the "distance" between the two PUs
+     */
+    int getPUDistance(short pu1, short pu2);
+
     /*!
      * \brief Gets the total amount of RAM on the machine in Kb
      * \return the amount of RAM

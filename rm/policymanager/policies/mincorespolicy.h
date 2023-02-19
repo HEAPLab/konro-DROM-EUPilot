@@ -1,27 +1,31 @@
-#ifndef CPUBASEDPOLICY_H
-#define CPUBASEDPOLICY_H
+#ifndef MINCORESPOLICY_H
+#define MINCORESPOLICY_H
 
 #include "ibasepolicy.h"
+#include <set>
 
 namespace rp {
 
-class CpuBasedPolicy : public IBasePolicy {
+class MinCoresPolicy : public IBasePolicy {
     const AppMappingSet &apps_;
     PlatformDescription platformDescription_;
     rmcommon::PlatformLoad lastPlatformLoad;
     bool hasLastPlatformLoad;
     // Acceptable performace slack for applications (in percentage)
-    float slack = 0.05;
+    float slack = 0.1;
 
     int getLowerUsagePU();
     int pickInitialCpu();
+    std::set<short> getAvailablePUs(const rmcommon::CpusetVector &vec);
+    short getNextPU(const rmcommon::CpusetVector &vec);
+    short pickWorstPU(const rmcommon::CpusetVector &vec);
 
 public:
-    CpuBasedPolicy(const AppMappingSet &apps, PlatformDescription pd);
+    MinCoresPolicy(const AppMappingSet &apps, PlatformDescription pd);
 
     // IBasePolicy interface
     virtual const char *name() override {
-        return "CpuBasedPolicy";
+        return "MinCoresPolicy";
     }
     virtual void addApp(AppMappingPtr appMapping) override;
     virtual void removeApp(AppMappingPtr appMapping) override;
@@ -32,4 +36,5 @@ public:
 
 }   // namespace rp
 
-#endif // CPUBASEDPOLICY_H
+#endif // MINCORESPOLICY_H
+

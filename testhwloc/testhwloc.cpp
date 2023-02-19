@@ -1,5 +1,6 @@
 #include <hwloc.h>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -110,10 +111,11 @@ static void testHwloc2()
 static void testHwloc3()
 {
 #if HWLOC_API_VERSION >= 0x00020500
-    struct hwloc_distances_s *distances;
+    struct hwloc_distances_s *distances[1];
     unsigned int nr = 1;
+    unsigned long kind = 0;     // all kinds
 
-    int rc = hwloc_distances_get(topology, &nr, &distances, 0, 0);
+    int rc = hwloc_distances_get(topology, &nr, distances, kind, 0);
     cout << "hwloc_distances_get returned " << rc << endl;
     if (rc == 0) {
         // no error
@@ -121,12 +123,61 @@ static void testHwloc3()
     } else {
         cout << "ERROR calling hwloc_distances_get" << endl;
     }
-    if (distances) {
-        hwloc_distances_release(topology, distances);
+    if (nr > 0) {
+        hwloc_distances_release(topology, distances[0]);
     } else {
         cout << "No distance to release" << endl;
     }
 #endif
+}
+
+int objDistance(hwloc_obj_t o1, hwloc_obj_t o2)
+{
+    if (o1 == nullptr || o2 == nullptr) {
+        return 10;
+    }
+    int distance = 0;
+    while (o1 != o2 && o1 != nullptr && o2 != nullptr) {
+        o1 = o1->parent;
+        o2 = o2->parent;
+        ++distance;
+    }
+    return distance;
+}
+
+int puDistance(int osidx1, int osidx2)
+{
+    hwloc_obj_t o1 = findObjByOsIndex(HWLOC_OBJ_PU, osidx1);
+    hwloc_obj_t o2 = findObjByOsIndex(HWLOC_OBJ_PU, osidx2);
+    return objDistance(o1, o2);
+}
+
+static void testDistance()
+{
+    vector<hwloc_obj_t> pu_objs;
+    int depth = hwloc_get_type_depth(topology, HWLOC_OBJ_PU);
+    int num_pu = hwloc_get_nbobjs_by_depth(topology, depth);
+    for (int i = 0; i < num_pu; ++i) {
+        hwloc_obj_t obj = hwloc_get_obj_by_depth(topology, depth, i);
+        pu_objs.push_back(obj);
+    }
+    cout << "TEST DISTANCE" << endl;
+    cout << "Found " << num_pu << " PU at level " << depth<< endl;
+    for (int i = 0; i < num_pu-1; ++i) {
+        for (int j = i; j < num_pu; ++j) {
+            int distance1 = objDistance(pu_objs[i], pu_objs[j]);
+            int distance2 = puDistance(pu_objs[i]->os_index, pu_objs[j]->os_index);
+            if (distance1 != distance2) {
+                cout << "ERROR\n";
+            }
+            cout << "Distance "
+                 << "pu" << pu_objs[i]->os_index
+                 << " : "
+                 << "pu" << pu_objs[j]->os_index
+                 << " = " << distance1 << endl;
+        }
+    }
+    cout << endl;
 }
 
 int main()
@@ -135,4 +186,5 @@ int main()
     testHwloc1();
     testHwloc2();
     testHwloc3();
+    testDistance();
 }

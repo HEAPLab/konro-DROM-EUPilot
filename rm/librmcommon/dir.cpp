@@ -133,7 +133,7 @@ void Dir::mkdir_r(const char *path)
     bool first = true;
     bool last = false;
     mode_t numask, oumask = 0;
-    cout << ">>> Creating path '" << path2 << '\'' << endl;
+    //cout << ">>> Creating path '" << path2 << '\'' << endl;
     if (*p == '/')
         ++p;        // skip initial '\'
     for(; !last; ++p) {
@@ -153,7 +153,7 @@ void Dir::mkdir_r(const char *path)
         }
         if (last)
             umask(oumask);
-        cout << ">>> Creating directory '" << path2 << '\'' << endl;
+        //cout << ">>> Creating directory '" << path2 << '\'' << endl;
         create_dir(path2, S_IRWXU|S_IRWXG|S_IRWXO);
         if (!last)
             *p = '/';

@@ -32,6 +32,18 @@ int CpuBasedPolicy::pickInitialCpu()
     return getLowerUsagePU();
 }
 
+// Linear model
+int newCpuUpBound(int feedback, rmcommon::NumericValue currentBandwidth) {
+    return currentBandwidth * 1.05;
+}
+
+int newCpuLowBound(int feedback, rmcommon::NumericValue currentBandwidth) {
+    if (currentBandwidth.isMax())
+        currentBandwidth = 100;
+    log4cpp::Category::getRoot().info("CPUPOLICY feed %d, band %d", feedback, currentBandwidth);
+    return (currentBandwidth*100)/feedback;
+}
+
 void CpuBasedPolicy::addApp(AppMappingPtr appMapping)
 {
     pid_t pid = appMapping->getPid();
@@ -67,6 +79,20 @@ void CpuBasedPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event
 
 void CpuBasedPolicy::feedback(AppMappingPtr appMapping, int feedback)
 {
+    if (feedback < (100 * (1-slack))) {
+        if (appMapping->getCpuMax().isMax()) {
+            //rmcommon::CpusetVector vec = appMapping->getPuVector();
+            //appMapping->setPuVector({{0, 3}});
+        } else {
+            int newVal = newCpuUpBound(feedback, appMapping->getCpuMax());
+            log4cpp::Category::getRoot().info("CPUPOLICY newVal is %d", newVal);
+            appMapping->setCpuMax(newVal);
+        }
+    } else if (feedback > (100 * (1+slack))) {
+        int newVal = newCpuLowBound(feedback, appMapping->getCpuMax());
+        log4cpp::Category::getRoot().info("CPUPOLICY newVal is %d", newVal);
+        appMapping->setCpuMax(newVal);
+    }
     appMapping->setLastFeedback(feedback);
 }
 
