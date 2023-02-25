@@ -6,16 +6,28 @@
 namespace rp {
 
 class CpuBasedPolicy : public IBasePolicy {
+    using PUSet = std::set<short>;
+
     const AppMappingSet &apps_;
     PlatformDescription platformDescription_;
-    rmcommon::PlatformLoad lastPlatformLoad;
-    bool hasLastPlatformLoad;
+    rmcommon::PlatformLoad lastPlatformLoad_;
+    bool hasLastPlatformLoad_;
     // Acceptable performace slack for applications (in percentage)
-    float slack = 0.05;
+    float slack_ = 0.2;
+    // Number of apps scheduled on each PU
+    std::vector<int> appsOnPu_;
 
     int getLowerUsagePU();
-    int pickInitialCpu();
+    int pickInitialPU();
+    PUSet getAvailablePUs(const PUSet &usedPUs);
+    //short getNextPU(const rmcommon::CpusetVector &vec);
+    short pickWorstPU(const rmcommon::CpusetVector &vec);
 
+    PUSet getKonroUsedPUs();
+    PUSet getKonroAvailablePUs(const PUSet &vec);
+    PUSet getNearestPUs(PUSet usedPUs, PUSet availPUs);
+    short getNewPU(const rmcommon::CpusetVector &vec);
+    int getLowerUsagePU(const PUSet &puset);
 public:
     CpuBasedPolicy(const AppMappingSet &apps, PlatformDescription pd);
 

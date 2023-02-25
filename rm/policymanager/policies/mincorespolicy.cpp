@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <limits>
+#include <cassert>
 #include <log4cpp/Category.hh>
 
 namespace rp {
@@ -10,12 +11,13 @@ namespace rp {
 MinCoresPolicy::MinCoresPolicy(const AppMappingSet &apps, PlatformDescription pd) :
     apps_(apps),
     platformDescription_(pd),
-    hasLastPlatformLoad(false)
+    hasLastPlatformLoad_(false),
+    appsOnPu_(pd.getNumProcessingUnits(), 0)
 {
 }
 
 /*! Counts the number of apps in the same cgroup of the specified one */
-int countAppsWithSameCgroup(const AppMappingSet &apps, AppMappingPtr appMapping) {
+static int countAppsWithSameCgroup(const AppMappingSet &apps, AppMappingPtr appMapping) {
     int n = 0;
     for (const auto &am: apps) {
         if (am->getCgroupDir() == appMapping->getCgroupDir()) {
@@ -25,17 +27,90 @@ int countAppsWithSameCgroup(const AppMappingSet &apps, AppMappingPtr appMapping)
     return n;
 }
 
-/*! Returns the PU that currently has lower usage. */
+/*!
+ * Returns the PU that currently has lower usage.
+ *
+ * Tries to find a PU which has already some apps
+ * handled by this policy on it.
+ */
 int MinCoresPolicy::getLowerUsagePU()
 {
-    if (hasLastPlatformLoad) {
-        const std::vector<int> &pus = lastPlatformLoad.getPUs();
-        if (!pus.empty()) {
-            std::vector<int>::const_iterator minElem = std::min_element(pus.begin(), pus.end());
-            return std::distance(pus.begin(), minElem);
+    if (hasLastPlatformLoad_) {
+        // we'd better move this line and change the if condition
+        const std::vector<int> &pus = lastPlatformLoad_.getPUs();
+        if (pus.empty()) {
+            return 0;
+        }
+        int minLoad = std::numeric_limits<int>::max();
+        int minLoadIdx = -1;
+        int minUsedLoad = std::numeric_limits<int>::max();
+        int minUsedLoadIdx = -1;
+        for (size_t i = 0; i < pus.size(); ++i) {
+            if (pus[i] < minLoad) {
+                minLoad = pus[i];
+                minLoadIdx = (int)i;
+            }
+            if (appsOnPu_[i] > 0 && pus[i] < minUsedLoad) {
+                minUsedLoad = pus[i];
+                minUsedLoadIdx = (int)i;
+            }
+        }
+        if (minUsedLoadIdx != -1) {
+            return minUsedLoadIdx;
+        } else if (minLoadIdx != -1) {
+            return minLoadIdx;
+        }
+    } else {
+        // we don't have a PlatformLoad: find the used PU with the least number of apps
+        std::vector<int>::iterator minElem = std::min_element(appsOnPu_.begin(), appsOnPu_.end());
+        if (minElem != appsOnPu_.end()) {
+            // The ID of the PU is the index in the array
+            return std::distance(appsOnPu_.begin(), minElem);
         }
     }
     return 0;
+}
+
+int MinCoresPolicy::getLowerUsagePU(const PUSet &puset)
+{
+    int res = -1;
+    std::vector<short> vec = rmcommon::toVector(puset);
+    const std::vector<int> &pus = lastPlatformLoad_.getPUs();
+    if (hasLastPlatformLoad_ && !pus.empty()) {
+        int minLoad = std::numeric_limits<int>::max();
+        int minLoadIdx = -1;
+        int minUsedLoad = std::numeric_limits<int>::max();
+        int minUsedLoadIdx = -1;
+        for (short i : vec) {
+            assert(i >= 0 && i < pus.size());
+            if (pus[i] < minLoad) {
+                minLoad = pus[i];
+                minLoadIdx = (int)i;
+            }
+            if (appsOnPu_[i] > 0 && pus[i] < minUsedLoad) {
+                minUsedLoad = pus[i];
+                minUsedLoadIdx = (int)i;
+            }
+        }
+        if (minUsedLoadIdx != -1) {
+            return minUsedLoadIdx;
+        } else if (minLoadIdx != -1) {
+            return minLoadIdx;
+        }
+    } else {
+        // we don't have a PlatformLoad: find the used PU with the least number of apps
+        int minAppsOnPu = std::numeric_limits<int>::max();
+        int minAppsOnPuIdx = -1;
+        for (short i : vec) {
+            if (appsOnPu_[i] < minAppsOnPu) {
+                minAppsOnPu = appsOnPu_[i];
+                minAppsOnPuIdx = i;
+            }
+        }
+        res = minAppsOnPuIdx;
+        log4cpp::Category::getRoot().info("Intermediate result %d", res);
+    }
+    return res;
 }
 
 static void dumpSet(const char *name, const std::set<short> &s)
@@ -62,11 +137,13 @@ int MinCoresPolicy::pickInitialCpu()
     return getLowerUsagePU();
 }
 
-std::set<short> MinCoresPolicy::getAvailablePUs(const rmcommon::CpusetVector &vec)
+/*!
+ * Returns a set with all the PUs not present in "vec"
+ */
+MinCoresPolicy::PUSet MinCoresPolicy::getAvailablePUs(const PUSet &usedPUs)
 {
-    std::set<short> allPUs = platformDescription_.getPUSet();
-    std::set<short> usedPUs = rmcommon::toSet(vec);
-    std::set<short> res;
+    PUSet allPUs = platformDescription_.getPUSet();
+    PUSet res;
     std::set_difference(allPUs.begin(), allPUs.end(), usedPUs.begin(), usedPUs.end(), std::inserter(res, end(res)));
 
     dumpSet("allPUs : ", allPUs);
@@ -75,25 +152,122 @@ std::set<short> MinCoresPolicy::getAvailablePUs(const rmcommon::CpusetVector &ve
     return res;
 }
 
-short MinCoresPolicy::getNextPU(const rmcommon::CpusetVector &vec)
-{
-    std::set<short> availPUs = getAvailablePUs(vec);
-    if (availPUs.empty()) {
-        return -1;          // no free PUs
+/*!
+ * Returns a set containing all the PUs used by Konro
+ */
+MinCoresPolicy::PUSet MinCoresPolicy::getKonroUsedPUs() {
+    PUSet res;
+    for (int i = 0; i < appsOnPu_.size(); ++i) {
+        if (appsOnPu_[i] > 0) {
+            res.insert(i);
+        }
     }
-    std::set<short> usedPUs = rmcommon::toSet(vec);
-    short bestPU = -1;
+    return res;
+}
+
+/*!
+ * Returns a set containing all the PUs used by Konro but
+ * not present in "vec"
+ */
+MinCoresPolicy::PUSet MinCoresPolicy::getKonroAvailablePUs(const PUSet &usedPUs)
+{
+    PUSet konroUsedPUs = getKonroUsedPUs();
+    PUSet res;
+    std::set_difference(konroUsedPUs.begin(), konroUsedPUs.end(), usedPUs.begin(), usedPUs.end(), std::inserter(res, end(res)));
+
+    dumpSet("konroUsedPUs : ", konroUsedPUs);
+    dumpSet("usedPUs: ", usedPUs);
+    dumpSet("res    : ", res);
+    return res;
+}
+
+//short MinCoresPolicy::getNextPU(const rmcommon::CpusetVector &vec)
+//{
+//    PUSet availPUs = getAvailablePUs(rmcommon::toSet(vec));
+//    if (availPUs.empty()) {
+//        return -1;          // no free PUs
+//    }
+//    std::set<short> usedPUs = rmcommon::toSet(vec);
+//    short bestPU = -1;
+//    int bestPUdistance = numeric_limits<int>::max();
+//    for (short usedPu: usedPUs) {
+//        for (short availPu: availPUs) {
+//            int distance = platformDescription_.getPUDistance(usedPu, availPu);
+//            if (distance >= 0 && distance < bestPUdistance) {
+//                bestPU = availPu;
+//                bestPUdistance = distance;
+//            }
+//        }
+//    }
+//    return bestPU;
+//}
+
+/*!
+ * \brief Gets the PUs with the shortest distance from the used ones
+ * \param usedPUs the vector of currently used PUs
+ * \param availPUs the vector of available PUs to choose from
+ * \return the vector of PUs with the shortest distance
+ */
+MinCoresPolicy::PUSet MinCoresPolicy::getNearestPUs(PUSet usedPUs, PUSet availPUs) {
+    PUSet res;
     int bestPUdistance = numeric_limits<int>::max();
     for (short usedPu: usedPUs) {
         for (short availPu: availPUs) {
             int distance = platformDescription_.getPUDistance(usedPu, availPu);
-            if (distance >= 0 && distance < bestPUdistance) {
-                bestPU = availPu;
-                bestPUdistance = distance;
+            if (distance >= 0) {
+               if (distance < bestPUdistance) {
+                   bestPUdistance = distance;
+                   res.clear();
+                   res.insert(availPu);
+               } else if (distance == bestPUdistance) {
+                   res.insert(availPu);
+               }
             }
         }
     }
-    return bestPU;
+    return res;
+}
+
+/*!
+ *
+ * \param vec List of PUs used by an app
+ */
+short MinCoresPolicy::getNextPU(const rmcommon::CpusetVector &vec)
+{
+    short res = -1;
+    // Set of PUs used by an application
+    PUSet usedPUs = rmcommon::toSet(vec);
+    // Set of all the PUs already used by Konro but not present in "vec"
+    // i.e. not used by the application
+    PUSet konroAvailablePUs = getKonroAvailablePUs(usedPUs);
+    if (!konroAvailablePUs.empty()) {
+        // Pick a PU already claimed by Konro
+        PUSet pus = getNearestPUs(usedPUs, konroAvailablePUs);
+        res = getLowerUsagePU(pus);
+    } else {
+        PUSet availPUs = getAvailablePUs(usedPUs);
+        if (!availPUs.empty()) {
+            // Pick a new PU to assign to Konro
+            PUSet pus = getNearestPUs(usedPUs, availPUs);
+            dumpSet("nearestPUs : ", pus);
+            res = getLowerUsagePU(pus);
+            log4cpp::Category::getRoot().info("Result is %d", res);
+        }
+    }
+    return res;
+}
+
+void increaseCPUBandwidth(AppMappingPtr app, rmcommon::NumericValue curBand, int percentage) {
+    app->setCpuMax(curBand*(1+percentage));
+}
+
+void decreaseCPUBandwidth(AppMappingPtr appMapping, int percentage) {
+    rmcommon::NumericValue curBand = appMapping->getCpuMax();
+    if (curBand.isMax())
+        curBand = 100;
+    int newBand = curBand - ((curBand * percentage) / 100);
+    appMapping->setCpuMax(newBand);
+    log4cpp::Category::getRoot().info("MINCORESPOLICY decrease CPU band to %d", newBand);
 }
 
 short MinCoresPolicy::pickWorstPU(const rmcommon::CpusetVector &vec)
@@ -146,6 +320,7 @@ void MinCoresPolicy::addApp(AppMappingPtr appMapping)
     try {
         short initialPU = pickInitialCpu();
         appMapping->setPuVector({{initialPU, initialPU}});
+        ++appsOnPu_[initialPU];
         log4cpp::Category::getRoot().info("MINCORESPOLICY addApp PID %ld to PU %d", (long)pid, initialPU);
     } catch (exception &e) {
         // An exception can happen for a short lived process; the
@@ -160,7 +335,12 @@ void MinCoresPolicy::addApp(AppMappingPtr appMapping)
 
 void MinCoresPolicy::removeApp(AppMappingPtr appMapping)
 {
-
+    rmcommon::CpusetVector vec = appMapping->getPuVector();
+    std::vector<short> vecPu = rmcommon::toVector(vec);
+    for (short pu: vecPu) {
+        --appsOnPu_[pu];
+        appsOnPu_[pu] = max(appsOnPu_[pu], 0);
+    }
 }
 
 void MinCoresPolicy::timer()
@@ -170,18 +350,29 @@ void MinCoresPolicy::timer()
 
 void MinCoresPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
 {
-    lastPlatformLoad = event->getPlatformLoad();
-    hasLastPlatformLoad = true;
+    lastPlatformLoad_ = event->getPlatformLoad();
+    hasLastPlatformLoad_ = true;
 }
 
 void MinCoresPolicy::feedback(AppMappingPtr appMapping, int feedback)
 {
-    float lowerLimit = 100.0f * (1-slack);
-    float upperLimit = 100.0f * (1+slack);
+    float lowerLimit = 100.0f * (1-slack_);
+    float upperLimit = 100.0f * (1+slack_);
+    int constant = 15;
     if (feedback < lowerLimit) {
-        if (appMapping->getLastFeedback() < lowerLimit) {
-            rmcommon::CpusetVector vec = appMapping->getPuVector();
-            dumpCpuSetVector("usedPUs: ", vec);
+        rmcommon::CpusetVector vec = appMapping->getPuVector();
+        dumpCpuSetVector("usedPUs: ", vec);
+        short newPU = getNextPU(vec);
+        if (newPU != -1) {
+            log4cpp::Category::getRoot().info("MINCORESPOLICY adding PU %d", newPU);
+            rmcommon::addPU(vec, newPU);
+            appMapping->setPuVector(vec);
+            ++appsOnPu_[newPU];
+            dumpCpuSetVector("newPUs: ", vec);
+        } else {
+            log4cpp::Category::getRoot().info("MINCORESPOLICY no new PU available for proc %d", (long)appMapping->getPid());
+        }
+    }
 #if 0
             // TODO - remove - this is a test of PU removal
             if (rmcommon::countPUs(vec) == 3) {
@@ -193,34 +384,8 @@ void MinCoresPolicy::feedback(AppMappingPtr appMapping, int feedback)
                 return;
             }
 #endif
-            short newPU = getNextPU(vec);
-            if (newPU != -1) {
-                log4cpp::Category::getRoot().info("MINCORESPOLICY adding PU %d", newPU);
-                rmcommon::addPU(vec, newPU);
-                appMapping->setPuVector(vec);
-                dumpCpuSetVector("newPUs: ", vec);
-            } else {
-                log4cpp::Category::getRoot().info("MINCORESPOLICY no new PU available for proc %d", (long)appMapping->getPid());
-            }
-        }
-    } else if (feedback > upperLimit) {
-        // app is going well
-        rmcommon::CpusetVector vec = appMapping->getPuVector();
-        if (rmcommon::countPUs(vec) < 2) {
-            log4cpp::Category::getRoot().info("MINCORESPOLICY no PU to remove for proc %d",
-                                              (long)appMapping->getPid());
-        } else {
-            short pu = pickWorstPU(vec);
-            bool rc = rmcommon::removePU(vec, pu);
-            if (rc) {
-                log4cpp::Category::getRoot().info("MINCORESPOLICY removing PU %d for proc %d",
-                                                  pu, (long)appMapping->getPid());
-                appMapping->setPuVector(vec);
-            } else {
-                log4cpp::Category::getRoot().error("MINCORESPOLICY could not remove PU %d for proc %d",
-                                                  pu, (long)appMapping->getPid());
-            }
-        }
+    else if (feedback > upperLimit) {
+        decreaseCPUBandwidth(appMapping, constant);
     }
     appMapping->setLastFeedback(feedback);
 }

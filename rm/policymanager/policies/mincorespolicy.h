@@ -3,22 +3,33 @@
 
 #include "ibasepolicy.h"
 #include <set>
+#include <vector>
 
 namespace rp {
 
 class MinCoresPolicy : public IBasePolicy {
+    using PUSet = std::set<short>;
+
     const AppMappingSet &apps_;
     PlatformDescription platformDescription_;
-    rmcommon::PlatformLoad lastPlatformLoad;
-    bool hasLastPlatformLoad;
+    rmcommon::PlatformLoad lastPlatformLoad_;
+    bool hasLastPlatformLoad_;
     // Acceptable performace slack for applications (in percentage)
-    float slack = 0.1;
+    float slack_ = 0.1;
+    // Number of apps scheduled on each PU
+    std::vector<int> appsOnPu_;
 
     int getLowerUsagePU();
     int pickInitialCpu();
-    std::set<short> getAvailablePUs(const rmcommon::CpusetVector &vec);
-    short getNextPU(const rmcommon::CpusetVector &vec);
+    PUSet getAvailablePUs(const PUSet &usedPUs);
+    //short getNextPU(const rmcommon::CpusetVector &vec);
     short pickWorstPU(const rmcommon::CpusetVector &vec);
+
+    PUSet getKonroUsedPUs();
+    PUSet getKonroAvailablePUs(const PUSet &vec);
+    PUSet getNearestPUs(PUSet usedPUs, PUSet availPUs);
+    short getNextPU(const rmcommon::CpusetVector &vec);
+    int getLowerUsagePU(const PUSet &puset);
 
 public:
     MinCoresPolicy(const AppMappingSet &apps, PlatformDescription pd);

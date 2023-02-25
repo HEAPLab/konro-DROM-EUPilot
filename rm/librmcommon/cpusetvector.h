@@ -25,7 +25,12 @@ std::set<short> toSet(const CpusetVector &vec);
 /*!
  * Converts a set of PU numbers to a CpusetVector
  */
-CpusetVector toCpusetVector(std::set<short> puSet);
+CpusetVector toCpusetVector(const std::set<short> &puSet);
+
+/*!
+ * Converts a set of PU numbers to a linear vector of PUs
+ */
+std::vector<short> toVector(const std::set<short> &puSet);
 
 bool removePU(CpusetVector &vec, short pu);
 

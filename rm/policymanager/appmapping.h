@@ -89,6 +89,11 @@ public:
         puVec_ = puVec;
     }
 
+    /*! Returns the number of PUs used */
+    int countPUs() const {
+        return rmcommon::countPUs(puVec_);
+    }
+
     rmcommon::NumericValue getCpuMax() {
         if (cpuMax_.isInvalid()) {
             cpuMax_ = pc::CpuControl::instance().getMax(app_);

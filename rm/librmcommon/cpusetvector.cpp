@@ -35,7 +35,7 @@ std::set<short> toSet(const CpusetVector &vec)
     return res;
 }
 
-CpusetVector toCpusetVector(std::set<short> puSet)
+CpusetVector toCpusetVector(const std::set<short> &puSet)
 {
     short lastPu = -10;
     rmcommon::CpusetVector res;
@@ -49,6 +49,12 @@ CpusetVector toCpusetVector(std::set<short> puSet)
         // lastPu is always equal to res[res.size()-1].second
     }
     return res;
+}
+
+std::vector<short> toVector(const std::set<short> &puSet)
+{
+    std::vector<short> vec(puSet.begin(), puSet.end());
+    return vec;
 }
 
 std::vector<short> toVector(const CpusetVector &vec)
