@@ -11,9 +11,8 @@ class CpuBasedPolicy : public IBasePolicy {
     const AppMappingSet &apps_;
     PlatformDescription platformDescription_;
     rmcommon::PlatformLoad lastPlatformLoad_;
-    bool hasLastPlatformLoad_;
     // Acceptable performace slack for applications (in percentage)
-    float slack_ = 0.2;
+    float slack_ = 0.2f;
     // Number of apps scheduled on each PU
     std::vector<int> appsOnPu_;
 
