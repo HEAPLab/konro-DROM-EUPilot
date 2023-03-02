@@ -35,7 +35,7 @@ public:
     enum class Policy {
         NoPolicy,
         RandPolicy,
-        CpuBasedPolicy,
+        PuProgressivePolicy,
         MinCoresPolicy
     };
 

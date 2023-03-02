@@ -1,11 +1,11 @@
-#ifndef CPUBASEDPOLICY_H
-#define CPUBASEDPOLICY_H
+#ifndef PUPROGRESSIVEPOLICY_H
+#define PUPROGRESSIVEPOLICY_H
 
 #include "ibasepolicy.h"
 
 namespace rp {
 
-class CpuBasedPolicy : public IBasePolicy {
+class PuProgressivePolicy : public IBasePolicy {
     using PUSet = std::set<short>;
 
     const AppMappingSet &apps_;
@@ -28,11 +28,11 @@ class CpuBasedPolicy : public IBasePolicy {
     short getNewPU(const rmcommon::CpusetVector &vec);
     int getLowerUsagePU(const PUSet &puset);
 public:
-    CpuBasedPolicy(const AppMappingSet &apps, PlatformDescription pd);
+    PuProgressivePolicy(const AppMappingSet &apps, PlatformDescription pd);
 
     // IBasePolicy interface
     virtual const char *name() override {
-        return "CpuBasedPolicy";
+        return "PuProgressivePolicy";
     }
     virtual void addApp(AppMappingPtr appMapping) override;
     virtual void removeApp(AppMappingPtr appMapping) override;
@@ -43,4 +43,4 @@ public:
 
 }   // namespace rp
 
-#endif // CPUBASEDPOLICY_H
+#endif // PUPROGRESSIVEPOLICY_H

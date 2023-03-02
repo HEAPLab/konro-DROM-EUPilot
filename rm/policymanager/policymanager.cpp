@@ -1,7 +1,7 @@
 #include "policymanager.h"
 #include "policies/nopolicy.h"
 #include "policies/randpolicy.h"
-#include "policies/cpubasedpolicy.h"
+#include "policies/puprogressivepolicy.h"
 #include "policies/mincorespolicy.h"
 #include "threadname.h"
 #include "eventbus.h"
@@ -42,8 +42,8 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
     switch (policy) {
     case Policy::RandPolicy:
         return make_unique<RandPolicy>(apps_, platformDescription_);
-    case Policy::CpuBasedPolicy:
-        return make_unique<CpuBasedPolicy>(apps_, platformDescription_);
+    case Policy::PuProgressivePolicy:
+        return make_unique<PuProgressivePolicy>(apps_, platformDescription_);
     case Policy::MinCoresPolicy:
         return make_unique<MinCoresPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
@@ -57,8 +57,8 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
 {
     if (policyName == "RandPolicy")
         return Policy::RandPolicy;
-    else if (policyName == "CpuBasedPolicy")
-        return Policy::CpuBasedPolicy;
+    else if (policyName == "PuProgressivePolicy")
+        return Policy::PuProgressivePolicy;
     else if (policyName == "MinCoresPolicy")
         return Policy::MinCoresPolicy;
     else
