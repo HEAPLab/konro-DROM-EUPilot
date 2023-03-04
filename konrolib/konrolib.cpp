@@ -97,11 +97,25 @@ int computeFeedback(int curValue, int target)
 
 std::string sendFeedbackMessage(int feedback)
 {
+#ifdef TIMING
+    using namespace std::chrono;
+    high_resolution_clock::time_point _start_ = high_resolution_clock::now();
+    microseconds us;
+#endif
     nlohmann::json j;
     j["pid"] = getpid();
     j["feedback"] = feedback;
     j["namespace"] = getPidNamespace();
-    return sendPost("feedback", j.dump());
+    std::string result= sendPost("feedback", j.dump());
+#ifdef TIMING
+    high_resolution_clock::time_point _end_ = high_resolution_clock::now();
+    microseconds elapsed = std::chrono::duration_cast<microseconds>(_end_ - _start_);
+    std::cout << "KONROLIB timing: sendFeedbackMessage = "
+              << elapsed.count()
+              << " microseconds"
+              << std::endl;
+#endif
+    return result;
 }
 
 std::string sendAddMessage()
