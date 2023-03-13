@@ -5,6 +5,8 @@
 #include <sys/sysinfo.h>
 #include <hwloc.h>
 
+#define HWLOC_API_VERSION 132352
+
 using namespace std;
 
 struct PlatformDescription::PlatformDescriptionImpl {

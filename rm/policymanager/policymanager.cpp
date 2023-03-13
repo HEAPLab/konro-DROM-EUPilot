@@ -3,6 +3,7 @@
 #include "policies/randpolicy.h"
 #include "policies/puprogressivepolicy.h"
 #include "policies/mincorespolicy.h"
+#include "policies/dromrandpolicy.h"
 #include "threadname.h"
 #include "eventbus.h"
 #include <iostream>
@@ -47,6 +48,8 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
     case Policy::MinCoresPolicy:
         return make_unique<MinCoresPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
+    case Policy::DromRandPolicy:
+        return make_unique<DromRandPolicy>(platformDescription_);
     default:
         return make_unique<NoPolicy>();
         break;
@@ -61,6 +64,9 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
         return Policy::PuProgressivePolicy;
     else if (policyName == "MinCoresPolicy")
         return Policy::MinCoresPolicy;
+    else if (policyName == "DromRandPolicy")
+        return Policy::DromRandPolicy;
+
     else
         return Policy::NoPolicy;
 }

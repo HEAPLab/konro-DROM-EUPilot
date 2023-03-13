@@ -11,4 +11,6 @@ add_library(policymanager
 )
 
 target_link_libraries(policymanager PUBLIC rmcommon platformdescription platformcontrol)
+target_link_libraries(policymanager PUBLIC dlb)
+
 target_include_directories(policymanager INTERFACE .)

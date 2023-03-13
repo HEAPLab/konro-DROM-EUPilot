@@ -49,7 +49,7 @@ struct PlatformMonitor::PlatformMonitorImpl {
     void setBatteryModuleNames(const std::string &names) {
         batteryChips = rmcommon::tsplit(names, ",");
         log4cpp::Category::getRoot().info("setBatteryModuleNames: %s", names.c_str());
-        log4cpp::Category::getRoot().info("setBatteryModuleNames: %s", batteryChips[0].c_str());
+        //log4cpp::Category::getRoot().info("setBatteryModuleNames: %s", batteryChips[0].c_str());
     }
 
     bool isCpuChip(string chip) {

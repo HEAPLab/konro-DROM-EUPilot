@@ -2,6 +2,7 @@
 #define POLICYMANAGER_H
 
 #include "baseeventreceiver.h"
+#include "policies/dromrandpolicy.h"
 #include "threadsafequeue.h"
 #include "baseevent.h"
 #include "addevent.h"
@@ -36,7 +37,8 @@ public:
         NoPolicy,
         RandPolicy,
         PuProgressivePolicy,
-        MinCoresPolicy
+        MinCoresPolicy,
+        DromRandPolicy
     };
 
 private:
