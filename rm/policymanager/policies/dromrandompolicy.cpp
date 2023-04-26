@@ -41,6 +41,7 @@ void DromRandPolicy::addApp(AppMappingPtr appMapping) {
   log4cpp::Category::getRoot().debug("Add request");
   cpuSetControl.print_drom_list();
   vector<pair<short, short>> cpus{std::make_pair(1, 1)};
+  
   auto app = appMapping->getApp();
 
   cpuSetControl.setCpus(cpus, app);
@@ -67,18 +68,19 @@ void DromRandPolicy::feedback(AppMappingPtr appMapping, int feedback) {
   auto app = appMapping->getApp();
   auto cpus = cpuSetControl.getCpus(app);
   auto pu = unpack_cpus(cpus);
-  if (feedback < 70 && pu.size() > 1) {
-    pu.pop_back();
-  }
-  if (feedback > 130) {
+  if (feedback < 70 ) {
     short last = pu.back();
     if (last + 1 < cpunum) {
       pu.push_back(last + 1);
     }
+  }else
+  if (feedback > 130 && pu.size() > 1) {
+    pu.pop_back();   
+  }else{
+    return;
   }
 
   cpuSetControl.setCpus(pack_cpus(pu), appMapping->getApp());
-  // no action required
 }
 
 } // namespace rp

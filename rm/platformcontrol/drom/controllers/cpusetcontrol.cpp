@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#define MAX_CPU_SET 1023
+#define MAX_CPU_SET 255
 
 namespace pc {
 
@@ -90,10 +90,12 @@ void DromCpusetControl::DromCpusetControl::setCpus(
   } else if (res == DLB_ERR_PERM) {
     cat_.log(log4cpp::Priority::DEBUG, "DLB_ERR_PERM Fail Set mask");
   }
+  cat_.debugStream() << "Dump cpu set {";
   for (const auto &cpu_range : cpus) {
     cat_.debugStream() << "(" << cpu_range.first << " - " << cpu_range.second
                        << ") ";
   }
+  cat_.debugStream() << "}";
 }
 
 std::vector<std::pair<short, short>>
@@ -107,7 +109,19 @@ DromCpusetControl::getCpus(std::shared_ptr<rmcommon::App> app) {
   int last = -1;
   for (int i = 0; i < MAX_CPU_SET; i++) {
     if (CPU_ISSET(i, &cpusetp)) {
-      ret.emplace_back(i, i);
+      first = i;
+      for (int j = i + 1; j < MAX_CPU_SET; j++) {
+        if (!CPU_ISSET(j, &cpusetp)) {
+          last = j - 1;
+          break;
+        }
+      }
+      if (last == -1)
+        last = first;
+      ret.emplace_back(first, last);
+      i=last;
+      first = -1;
+      last = -1;
     }
   }
 
