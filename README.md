@@ -1,4 +1,4 @@
-# konro
+# konro-DROM-EUPilot
 A modern resource manager
 
 ## Status
