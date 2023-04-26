@@ -1,5 +1,5 @@
 # konro-DROM-EUPilot
-A modern resource manager
+A modern resource manager integrated with DROM from DLB [https://pm.bsc.es/dlb]
 
 
 # Compilation instructions
@@ -14,6 +14,7 @@ A modern resource manager
 - libhwloc-dev
 - libsensors-dev
 - libopencv-dev
+- DLB
 
 OpenCV is required only for the peopledetect demo.
 If it is not installed, peopledetect is not compiled.
