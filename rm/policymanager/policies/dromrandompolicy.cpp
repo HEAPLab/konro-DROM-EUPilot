@@ -1,10 +1,12 @@
-#include "cpusetvector.h"
+#include "cpuguard.h"
 #include "dromrandpolicy.h"
 
-#include <iostream>
+#include <algorithm>
+#include <cstddef>
+#include <cstdio>
+#include <dlb_drom.h>
+#include <dlb_types.h>
 #include <log4cpp/Category.hh>
-#include <random>
-#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -19,6 +21,7 @@ vector<short> unpack_cpus(const vector<pair<short, short>> &cpus) {
       ret.push_back(i);
     }
   }
+  std::sort(ret.begin(), ret.end());
   return ret;
 }
 
@@ -30,27 +33,36 @@ vector<pair<short, short>> pack_cpus(const vector<short> &cpus) {
   return ret;
 }
 
-
 DromRandPolicy::DromRandPolicy(PlatformDescription pd)
     : platformDescription_(pd),
-      cpuSetControl(pc::DromCpusetControl::instance()) {}
+      cpuSetControl(pc::DromCpusetControl::instance(
+          platformDescription_.getNumProcessingUnits())) {}
 
 void DromRandPolicy::addApp(AppMappingPtr appMapping) {
-  // If there are already other Apps in the same cgroup folder,
-  // handle them as a group and do nothing here
-  log4cpp::Category::getRoot().debug("Add request");
-  cpuSetControl.print_drom_list();
-  vector<pair<short, short>> cpus{std::make_pair(1, 1)};
-  
+  log4cpp::Category::getRoot().debug("Add PID %i to Konro",
+                                     appMapping->getPid());
+
   auto app = appMapping->getApp();
 
-  cpuSetControl.setCpus(cpus, app);
-  
+  auto ticket = cpuSetControl.reserveCpus(app, 1);
+  if (ticket.size() == 1) {
+    // ticket.apply();
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    CPU_SET(ticket.leakOcc(), &mask);
+    int i = sched_setaffinity(app->getPid(), sizeof(cpu_set_t), &mask);
+    cerr << i << "\n";
+  } else {
+    // TODO: RUBARE CPU a chi ne ha troppe
+  }
+  cpuSetControl.print_drom_list();
   return;
 }
 
 void DromRandPolicy::removeApp(AppMappingPtr appMapping) {
   // no action required
+  cpuSetControl.release(appMapping->getApp());
+  DLB_DROM_PostFinalize(appMapping->getPid(), DLB_RETURN_STOLEN);
   log4cpp::Category::getRoot().debug("Remove request");
 }
 
@@ -59,28 +71,21 @@ void DromRandPolicy::timer() {
 }
 
 void DromRandPolicy::monitor(
-    std::shared_ptr<const rmcommon::MonitorEvent> event) {
+    [[maybe_unused]] std::shared_ptr<const rmcommon::MonitorEvent> event) {
   // no action required
 }
 
 void DromRandPolicy::feedback(AppMappingPtr appMapping, int feedback) {
-  auto cpunum = platformDescription_.getNumProcessingUnits();
   auto app = appMapping->getApp();
   auto cpus = cpuSetControl.getCpus(app);
   auto pu = unpack_cpus(cpus);
-  if (feedback < 70 ) {
-    short last = pu.back();
-    if (last + 1 < cpunum) {
-      pu.push_back(last + 1);
-    }
-  }else
-  if (feedback > 130 && pu.size() > 1) {
-    pu.pop_back();   
-  }else{
+  if (feedback < 70) {
+    cpuSetControl.reserveCpus(app, pu.size() + 1);
+  } else if (feedback > 130) {
+    cpuSetControl.reserveCpus(app, pu.size() - 1);
+  } else {
     return;
   }
-
-  cpuSetControl.setCpus(pack_cpus(pu), appMapping->getApp());
 }
 
 } // namespace rp
