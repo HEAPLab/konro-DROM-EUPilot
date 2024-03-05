@@ -1,10 +1,6 @@
 #include "unittest.h"
 #include "cgroup/cgrouputil.h"
-#include <vector>
 #include <string>
-#include <utility>
-#include <iostream>
-#include <iomanip>
 
 using namespace std;
 
@@ -16,7 +12,7 @@ static int testFind1()
     return TEST_OK;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     if (testFind1() != TEST_OK)
         return TEST_FAILED;

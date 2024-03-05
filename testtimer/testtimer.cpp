@@ -6,7 +6,7 @@
 using namespace std;
 using namespace rmcommon;
 
-int main(int argc, char *argv[])
+int main()
 {
     struct timespec ts1, ts2;
 

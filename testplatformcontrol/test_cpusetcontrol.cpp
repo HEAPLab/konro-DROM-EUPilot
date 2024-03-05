@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 #include <utility>
-#include <iostream>
-#include <iomanip>
 #include <map>
 #include <algorithm>
 
@@ -58,7 +56,7 @@ static int testParseCpusetValues1()
     return TEST_OK;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     if (testParseCpuSet("") != TEST_OK)
         return TEST_FAILED;

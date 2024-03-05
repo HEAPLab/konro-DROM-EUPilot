@@ -1,13 +1,10 @@
 #include "unittest.h"
 #include "numericvalue.h"
 #include "keyvalueparser.h"
-#include "pcexception.h"
 
-#include <vector>
 #include <string>
 #include <utility>
 #include <iostream>
-#include <iomanip>
 #include <map>
 
 using namespace std;
@@ -116,7 +113,7 @@ static int testParseKeyValue()
     return TEST_OK;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     // expected to be successful
 

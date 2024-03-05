@@ -69,7 +69,6 @@ public:
      *             measurement starts
      */
     T Elapsed(TimerMode mode = TIMER_CONTINUE) {
-        TimePoint cur = std::chrono::high_resolution_clock::now();
         T val = ElapsedFrom(start_);
         if (mode == TIMER_RESTART)
             Restart();

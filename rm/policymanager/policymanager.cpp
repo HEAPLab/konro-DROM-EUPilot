@@ -4,11 +4,9 @@
 #include "policies/puprogressivepolicy.h"
 #include "policies/mincorespolicy.h"
 #include "policies/dromrandpolicy.h"
-#include "threadname.h"
 #include "eventbus.h"
 #include <iostream>
 #include <sstream>
-#include <thread>
 
 using namespace std;
 
@@ -127,7 +125,7 @@ void PolicyManager::processRemoveEvent(std::shared_ptr<const rmcommon::RemoveEve
     dumpApps();
 }
 
-void PolicyManager::processTimerEvent(std::shared_ptr<const rmcommon::TimerEvent> event)
+void PolicyManager::processTimerEvent([[maybe_unused]] std::shared_ptr<const rmcommon::TimerEvent> event)
 {
     cat_.debug("POLICYMANAGER timer event received");
     policy_->timer();

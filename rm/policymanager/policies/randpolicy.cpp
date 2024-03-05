@@ -1,10 +1,6 @@
 #include "randpolicy.h"
-#include "cpusetcontrol.h"
 #include "cpusetvector.h"
-#include <iostream>
-#include <sstream>
 #include <random>
-#include <utility>
 #include <log4cpp/Category.hh>
 
 using namespace std;
@@ -70,7 +66,7 @@ void RandPolicy::addApp(AppMappingPtr appMapping)
     }
 }
 
-void RandPolicy::removeApp(AppMappingPtr appMapping)
+void RandPolicy::removeApp([[maybe_unused]] AppMappingPtr appMapping)
 {
     // no action required
 }
@@ -80,7 +76,7 @@ void RandPolicy::timer()
     // no action required
 }
 
-void RandPolicy::monitor(std::shared_ptr<const rmcommon::MonitorEvent> event)
+void RandPolicy::monitor([[maybe_unused]] std::shared_ptr<const rmcommon::MonitorEvent> event)
 {
     // no action required
 }

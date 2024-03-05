@@ -1,13 +1,6 @@
 #include "unittest.h"
-#include "cgroup/cgrouputil.h"
-#include <vector>
-#include <string>
-#include <utility>
-#include <iostream>
-#include <iomanip>
 #include <dirent.h>
 
-using namespace std;
 
 //static bool testCreate1()
 //{
@@ -21,7 +14,7 @@ using namespace std;
 //    return TEST_OK;
 //}
 
-int main(int argc, char *argv[])
+int main()
 {
 //    if (testCreate1() != TEST_OK)
 //        return TEST_FAILED;
