@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 
 file(GLOB testnamespaces_SOURCES "*.cpp")
 file(GLOB testnamespaces_HEADERS "*.h")

@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 file(GLOB policymanager_SOURCES "*.cpp")
 file(GLOB policymanager_HEADERS "*.h")
 file(GLOB policies_SOURCES "policies/*.cpp")

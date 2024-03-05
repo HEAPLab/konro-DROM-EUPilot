@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 file(GLOB testsensors_SOURCES "*.cpp")
 file(GLOB testsensors_HEADERS "*.h")
 

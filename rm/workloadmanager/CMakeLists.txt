@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 file(GLOB workloadmanager_SOURCES "*.cpp")
 file(GLOB workloadmanager_HEADERS "*.h")
 

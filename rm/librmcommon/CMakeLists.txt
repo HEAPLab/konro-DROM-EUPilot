@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 file(GLOB librmcommon_SOURCES "*.cpp")
 file(GLOB librmcommon_HEADERS "*.h"  "events/*.h")
 

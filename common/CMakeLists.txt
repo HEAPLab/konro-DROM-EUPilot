@@ -1,4 +1,4 @@
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 23)
 
 add_library(konro-common STATIC src/config.cpp)
 target_compile_definitions(konro-common PRIVATE KONRO_COMMON)

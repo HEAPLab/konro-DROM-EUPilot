@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 file(GLOB platformcontrol_SOURCES "*.cpp")
 file(GLOB platformcontrol_HEADERS "*.h")
 file(GLOB platformcontrol_controllers_SOURCES "controllers/*.cpp")

@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 
 file(GLOB testkonrolib_SOURCES "*.cpp")
 file(GLOB testkonrolib_HEADERS "*.h")
