@@ -50,8 +50,7 @@ void DromRandPolicy::addApp(AppMappingPtr appMapping) {
     cpu_set_t mask;
     CPU_ZERO(&mask);
     CPU_SET(ticket.leakOcc(), &mask);
-    int i = sched_setaffinity(app->getPid(), sizeof(cpu_set_t), &mask);
-    cerr << i << "\n";
+    sched_setaffinity(app->getPid(), sizeof(cpu_set_t), &mask);
   } else {
     // TODO: RUBARE CPU a chi ne ha troppe
   }
