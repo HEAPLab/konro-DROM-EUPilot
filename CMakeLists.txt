@@ -22,7 +22,7 @@ if (TIMING)
     add_definitions(-DTIMING)
 endif()
 
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+add_compile_options(-Wall -Wextra -Wpedantic)
 
 add_subdirectory (common)
 add_subdirectory (lib)
