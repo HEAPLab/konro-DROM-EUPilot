@@ -91,6 +91,10 @@ void CPUTracker::release(pid_t pid) {
   auto value = occCPU.extract(pid);
   auto map = value.mapped();
   freeCPU.insert(freeCPU.end(), map.begin(), map.end());
+}
+
+int CPUTracker::getFreeCpus(){
+  return freeCPU.size();
 };
 
 } // namespace pc

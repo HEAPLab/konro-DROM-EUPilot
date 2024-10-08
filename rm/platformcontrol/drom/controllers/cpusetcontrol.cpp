@@ -195,4 +195,8 @@ std::vector<std::pair<short, short>> DromCpusetControl::getMemsEffective(
   return std::vector<std::pair<short, short>>();
 }
 
+int DromCpusetControl::getFreeCpus(){
+  return cpuTracker.getFreeCpus();
+}
+
 } // namespace pc

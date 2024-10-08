@@ -46,8 +46,11 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
     case Policy::MinCoresPolicy:
         return make_unique<MinCoresPolicy>(apps_, platformDescription_);
     case Policy::NoPolicy:
-    case Policy::DromRandPolicy:
-        return make_unique<DromRandPolicy>(platformDescription_);
+    case Policy::DromRandPolicy: {
+        std::unique_ptr<DromRandPolicy> pol = make_unique<DromRandPolicy>(platformDescription_);
+        pol->start();
+        return pol;
+    }
     default:
         return make_unique<NoPolicy>();
         break;

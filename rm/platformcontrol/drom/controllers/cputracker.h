@@ -58,6 +58,9 @@ public:
    */
   CPUGuard setCPU(std::shared_ptr<rmcommon::App> app, cpu_t ncpu);
 
+  /*Returns the number of free CPUs*/
+  int getFreeCpus();
+
   template <typename E>
     requires(std::convertible_to<E, cpu_t>)
   constexpr CPUTracker(E arg)

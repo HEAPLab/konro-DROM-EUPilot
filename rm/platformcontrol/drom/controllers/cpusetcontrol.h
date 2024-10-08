@@ -84,6 +84,11 @@ public:
   /*! Reserve ncpu to be finer refined by the user and after required by
    * invoking apply resources are guarded in a RAI style*/
   pc::CPUGuard reserveCpus(std::shared_ptr<rmcommon::App> app, int ncpu);
+
+  /*Returns the number of cpus that are free from struct cpuTracker*/
+  int getFreeCpus();
+
+  
 };
 
 } // namespace pc

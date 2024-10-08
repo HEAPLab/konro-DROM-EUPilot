@@ -28,6 +28,9 @@ public:
     virtual void timer() override;
     virtual void monitor(std::shared_ptr<const rmcommon::MonitorEvent> event) override;
     virtual void feedback(AppMappingPtr appMapping, int feedback) override;
+    void start();
+    void manageServerSocket();
+    void manage_client_req(int sock);
 };
 
 }   // namespace rp
