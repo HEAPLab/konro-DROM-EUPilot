@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Slurm Workload Manager - sh5util</title>
+	<link rel="canonical" href="https://slurm.schedmd.com/sh5util.html" />
+
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link rel="stylesheet" type="text/css" href="fonts.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="slurm.css">
+
+	<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.menu-trigger').bind('click touchstart', function() {
+			jQuery(this).find('.menu-trigger__lines').toggleClass('menu-trigger__lines--closed');
+			jQuery(this).parents('.site-header').find('.site-nav').toggleClass('site-nav--active');
+
+			return false;
+		});
+	});
+	</script>
+	<script async src="https://cse.google.com/cse.js?cx=011890816164765777536:jvrtxrd3f0w"></script>
+</head>
+
+<body>
+
+<div class="container container--main">
+
+	<header class="site-header" role="banner">
+
+		<div class="site-masthead">
+			<h1 class="site-masthead__title site-masthead__title--slurm">
+				<a href="/" rel="home">
+					<span class="slurm-logo">Slurm Workload Manager</span>
+				</a>
+			</h1>
+			<div class="site-masthead__title">
+				<a href="https://www.schedmd.com/" rel="home">
+					<span class="site-logo">SchedMD</span>
+				</a>
+			</div>
+
+			<button class="site-masthead__trigger menu-trigger" type="button" role="button" aria-label="Toggle Navigation"><span class="menu-trigger__lines"></span></button>
+		</div>
+
+
+		<nav class="site-nav" role="navigation">
+			<h2 class="site-nav__title">Navigation</h2>
+
+			<div class="slurm-title">
+				<div class="slurm-logo"><a href="/">Slurm Workload Manager</a></div>
+				<div class="slurm-title__version">Version 23.11</div>
+			</div>
+
+			<ul class="site-nav__menu site-menu menu">
+				<li class="site-menu__item">
+				        <div>About</div>
+					<ul>
+						<li><a href="overview.html">Overview</a></li>
+						<li><a href="release_notes.html">Release Notes</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Using</div>
+					<ul>
+						<li><a href="documentation.html">Documentation</a></li>
+						<li><a href="faq.html">FAQ</a></li>
+						<li><a href="publications.html">Publications</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Installing</div>
+					<ul>
+						<li><a href="https://www.schedmd.com/download-slurm/">Download</a></li>
+						<li><a href="related_software.html">Related Software</a></li>
+						<li><a href="quickstart_admin.html">Installation Guide</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Getting Help</div>
+					<ul>
+						<li><a href="mail.html">Mailing Lists</a></li>
+						<li><a href="https://www.schedmd.com/slurm-support/our-services/">Support and Training</a></li>
+						<li><a href="troubleshoot.html">Troubleshooting</a></li>
+					</ul>
+				</li>
+			</ul>
+
+		</nav>
+
+	</header>
+
+	<div class="content" role="main">
+		<section class="slurm-search">
+			<div class="container" id="cse">
+				<gcse:search></gcse:search>
+			</div>
+		</section>
+
+		<div class="section">
+			<div class="container">
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<H1>sh5util</H1>
+Section: Slurm Commands (1)<BR>Updated: Slurm Commands<BR><A HREF="#index">Index</A>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<h2>NAME<a class="slurm_link" id="SECTION_NAME" href="#SECTION_NAME"></a></h2>
+<P>
+
+sh5util - Tool for merging HDF5 files from the acct_gather_profile
+plugin that gathers detailed data for jobs running under Slurm
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<h2>SYNOPSIS<a class="slurm_link" id="SECTION_SYNOPSIS" href="#SECTION_SYNOPSIS"></a></h2>
+<P>
+
+sh5util
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<h2>DESCRIPTION<a class="slurm_link" id="SECTION_DESCRIPTION" href="#SECTION_DESCRIPTION"></a></h2>
+<P>
+
+sh5util merges HDF5 files produced on each node for each step of a job into
+one HDF5 file for the job. The resulting file can be viewed and manipulated
+by common HDF5 tools such as HDF5View, h5dump, h5edit, or h5ls.
+<P>
+
+sh5util also has two extract modes. The first, writes a limited set of
+data for specific nodes, steps, and data series in
+&quot;comma separated value&quot; form to a file which can be imported into other
+analysis tools such as spreadsheets.
+<P>
+
+The second, (Item-Extract) extracts one data time from one time series for all
+the samples on all the nodes from a jobs HDF5 profile.
+<P>
+
+- Finds sample with maximum value of the item.
+<P>
+
+- Write CSV file with min, ave, max, and item totals for each node for each
+sample
+<P>
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<h2>OPTIONS<a class="slurm_link" id="SECTION_OPTIONS" href="#SECTION_OPTIONS"></a></h2>
+<P>
+
+<P>
+<DL COMPACT>
+<dt><B>-E</B>, <B>--extract</B><a class="slurm_link" id="OPT_extract" href="#OPT_extract"></a></dt><dd><P>
+Extract data series from a merged job file.
+<DT><DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>Extract mode options<DD>
+<DT><DD>
+<P>
+<dt><B>-i</B>, <B>--input</B>=<I>path</I><a class="slurm_link" id="OPT_input" href="#OPT_input"></a></dt><dd>merged file to extract from (default ./job_$jobid.h5)
+<DT><DD>
+<P>
+<dt><B>-N</B>, <B>--node</B>=<I>nodename</I><a class="slurm_link" id="OPT_node" href="#OPT_node"></a></dt><dd>Node name to extract (default is all)
+<DT><DD>
+<P>
+<dt><B>-l</B>, <B>--level</B>=[Node:Totals | Node:TimeSeries]<a class="slurm_link" id="OPT_level" href="#OPT_level"></a></dt><dd>Level to which series is attached. (default Node:Totals)
+<DT><DD>
+<P>
+<dt><B>-s</B>, <B>--series</B>=[Energy | Filesystem | Network | Task | Task_#]<a class="slurm_link" id="OPT_series" href="#OPT_series"></a></dt><dd><B>Task</B> is all tasks, <B>Task_#</B> (# is a task id) (default is everything)
+</DL>
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>-h</B>, <B>--help</B><a class="slurm_link" id="OPT_help" href="#OPT_help"></a></dt><dd>Print this description of use.
+<DT><DD>
+<P>
+<dt><B>-I</B>, <B>--item-extract</B><a class="slurm_link" id="OPT_item-extract" href="#OPT_item-extract"></a></dt><dd><P>
+Extract one data item from all samples of one data series from all nodes in a merged job file.
+<DT><DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>Item-Extract mode options<DD>
+<DT><DD>
+<P>
+<dt><B>-s</B>, <B>--series</B>=[Energy | Filesystem | Network | Task]<a class="slurm_link" id="OPT_series_1" href="#OPT_series_1"></a></dt><dd><DT><DD>
+<P>
+<dt><B>-d</B>, <B>--data</B><a class="slurm_link" id="OPT_data" href="#OPT_data"></a></dt><dd>Name of data item in series (See note below).
+</DL>
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>-j</B>, <B>--jobs</B>=&lt;<I>job</I>[.<I>step</I>]&gt;<a class="slurm_link" id="OPT_jobs" href="#OPT_jobs"></a></dt><dd>Format is &lt;<I>job</I>[.<I>step</I>]&gt;. Merge this job/step
+(or a comma-separated list of job steps). This option is required.
+Not specifying a step will result in all steps found to be processed.
+<DT><DD>
+<P>
+<dt><B>-L</B>, <B>--list</B><a class="slurm_link" id="OPT_list" href="#OPT_list"></a></dt><dd><P>
+Print the items of a series contained in a job file.
+<DT><DD>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>List mode options<DD>
+<DT><DD>
+<P>
+<dt><B>-i</B>, <B>--input</B>=<I>path</I><a class="slurm_link" id="OPT_input_1" href="#OPT_input_1"></a></dt><dd>Merged file to extract from (default ./job_$jobid.h5)
+<DT><DD>
+<P>
+<dt><B>-s</B>, <B>--series</B>=[Energy | Filesystem | Network | Task]<a class="slurm_link" id="OPT_series_2" href="#OPT_series_2"></a></dt><dd></DL>
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>-o</B>, <B>--output</B>=&lt;<I>path</I>&gt;<a class="slurm_link" id="OPT_output" href="#OPT_output"></a></dt><dd>Path to a file into which to write.
+Default for merge is ./job_$jobid.h5
+Default for extract is ./extract_$jobid.csv
+<DT><DD>
+<P>
+<dt><B>-p</B>, <B>--profiledir</B>=&lt;<I>dir</I>&gt;<a class="slurm_link" id="OPT_profiledir" href="#OPT_profiledir"></a></dt><dd>Directory location where node-step files exist default is set in
+acct_gather.conf.
+<DT><DD>
+<P>
+<dt><B>-S</B>, <B>--savefiles</B><a class="slurm_link" id="OPT_savefiles" href="#OPT_savefiles"></a></dt><dd>Instead of removing node-step files after merging them into the job file,
+keep them around.
+<DT><DD>
+<P>
+<dt><B>--usage</B><a class="slurm_link" id="OPT_usage" href="#OPT_usage"></a></dt><dd>Display brief usage message.
+<DT><DD>
+<P>
+<dt><B>--user</B>=&lt;<I>user</I>&gt;<a class="slurm_link" id="OPT_user" href="#OPT_user"></a></dt><dd>User who profiled job.
+(Handy for root user, defaults to user running this command.)
+<DT><DD>
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<h2>Data Items per Series<a class="slurm_link" id="SECTION_Data-Items-per-Series" href="#SECTION_Data-Items-per-Series"></a></h2>
+<P>
+<DL COMPACT>
+<dt><B>Energy</B><a class="slurm_link" id="OPT_Energy" href="#OPT_Energy"></a></dt><dd><DL COMPACT><DT><DD>
+Power
+<BR>
+
+CPU_Frequency
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>Filesystem</B><a class="slurm_link" id="OPT_Filesystem" href="#OPT_Filesystem"></a></dt><dd><DL COMPACT><DT><DD>
+Reads
+<BR>
+
+Megabytes_Read
+<BR>
+
+Writes
+<BR>
+
+Megabytes_Write
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>Network</B><a class="slurm_link" id="OPT_Network" href="#OPT_Network"></a></dt><dd><DL COMPACT><DT><DD>
+Packets_In
+<BR>
+
+Megabytes_In
+<BR>
+
+Packets_Out
+<BR>
+
+Megabytes_Out
+</DL>
+
+<DT><DD>
+<P>
+<dt><B>Task</B><a class="slurm_link" id="OPT_Task" href="#OPT_Task"></a></dt><dd><DL COMPACT><DT><DD>
+CPU_Frequency
+<BR>
+
+CPU_Time
+<BR>
+
+CPU_Utilization
+<BR>
+
+RSS
+<BR>
+
+VM_Size
+<BR>
+
+Pages
+<BR>
+
+Read_Megabytes
+<BR>
+
+Write_Megabytes
+</DL>
+
+<DT><DD>
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<h2>PERFORMANCE<a class="slurm_link" id="SECTION_PERFORMANCE" href="#SECTION_PERFORMANCE"></a></h2>
+<P>
+
+Executing <B>sh5util</B> sends a remote procedure call to <B>slurmctld</B>. If
+enough calls from <B>sh5util</B> or other Slurm client commands that send remote
+procedure calls to the <B>slurmctld</B> daemon come in at once, it can result in
+a degradation of performance of the <B>slurmctld</B> daemon, possibly resulting
+in a denial of service.
+<P>
+
+Do not run <B>sh5util</B> or other Slurm client commands that send remote
+procedure calls to <B>slurmctld</B> from loops in shell scripts or other
+programs. Ensure that programs limit calls to <B>sh5util</B> to the minimum
+necessary for the information you are trying to gather.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<h2>EXAMPLES<a class="slurm_link" id="SECTION_EXAMPLES" href="#SECTION_EXAMPLES"></a></h2>
+<P>
+<DL COMPACT>
+<DT>Merge node-step files (as part of a sbatch script):<DD>
+<DT><DD>
+<PRE>
+$ sbatch -n1 -d$SLURM_JOB_ID --wrap=&quot;sh5util --savefiles -j $SLURM_JOB_ID&quot;
+</PRE>
+
+<P>
+<DT>Extract all task data from a node:<DD>
+<DT><DD>
+<PRE>
+$ sh5util -j 42 -N snowflake01 --level=Node:TimeSeries --series=Tasks
+</PRE>
+
+<P>
+<DT>Extract all energy data:<DD>
+<DT><DD>
+<PRE>
+$ sh5util -j 42 --series=Energy --data=power
+</PRE>
+
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<h2>COPYING<a class="slurm_link" id="SECTION_COPYING" href="#SECTION_COPYING"></a></h2>
+Copyright (C) 2013 Bull.
+<BR>
+
+Copyright (C) 2013-2022 SchedMD LLC.
+Slurm is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+<P>
+
+Slurm is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<h2>SEE ALSO<a class="slurm_link" id="SECTION_SEE-ALSO" href="#SECTION_SEE-ALSO"></a></h2>
+<P>
+
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">Data Items per Series</A><DD>
+<DT><A HREF="#lbAG">PERFORMANCE</A><DD>
+<DT><A HREF="#lbAH">EXAMPLES</A><DD>
+<DT><A HREF="#lbAI">COPYING</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<i>man2html</i> using the manual pages.<BR>
+Time: 17:09:53 GMT, April 23, 2024
+			</div> <!-- END .container -->
+		</div> <!-- END .section -->
+	</div> <!-- END .content -->
+</div> <!-- END .main -->
+
+</body>
+</html>

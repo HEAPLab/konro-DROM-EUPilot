@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Slurm Workload Manager - topology.conf</title>
+	<link rel="canonical" href="https://slurm.schedmd.com/topology.conf.html" />
+
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link rel="stylesheet" type="text/css" href="fonts.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="slurm.css">
+
+	<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.menu-trigger').bind('click touchstart', function() {
+			jQuery(this).find('.menu-trigger__lines').toggleClass('menu-trigger__lines--closed');
+			jQuery(this).parents('.site-header').find('.site-nav').toggleClass('site-nav--active');
+
+			return false;
+		});
+	});
+	</script>
+	<script async src="https://cse.google.com/cse.js?cx=011890816164765777536:jvrtxrd3f0w"></script>
+</head>
+
+<body>
+
+<div class="container container--main">
+
+	<header class="site-header" role="banner">
+
+		<div class="site-masthead">
+			<h1 class="site-masthead__title site-masthead__title--slurm">
+				<a href="/" rel="home">
+					<span class="slurm-logo">Slurm Workload Manager</span>
+				</a>
+			</h1>
+			<div class="site-masthead__title">
+				<a href="https://www.schedmd.com/" rel="home">
+					<span class="site-logo">SchedMD</span>
+				</a>
+			</div>
+
+			<button class="site-masthead__trigger menu-trigger" type="button" role="button" aria-label="Toggle Navigation"><span class="menu-trigger__lines"></span></button>
+		</div>
+
+
+		<nav class="site-nav" role="navigation">
+			<h2 class="site-nav__title">Navigation</h2>
+
+			<div class="slurm-title">
+				<div class="slurm-logo"><a href="/">Slurm Workload Manager</a></div>
+				<div class="slurm-title__version">Version 23.11</div>
+			</div>
+
+			<ul class="site-nav__menu site-menu menu">
+				<li class="site-menu__item">
+				        <div>About</div>
+					<ul>
+						<li><a href="overview.html">Overview</a></li>
+						<li><a href="release_notes.html">Release Notes</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Using</div>
+					<ul>
+						<li><a href="documentation.html">Documentation</a></li>
+						<li><a href="faq.html">FAQ</a></li>
+						<li><a href="publications.html">Publications</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Installing</div>
+					<ul>
+						<li><a href="https://www.schedmd.com/download-slurm/">Download</a></li>
+						<li><a href="related_software.html">Related Software</a></li>
+						<li><a href="quickstart_admin.html">Installation Guide</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Getting Help</div>
+					<ul>
+						<li><a href="mail.html">Mailing Lists</a></li>
+						<li><a href="https://www.schedmd.com/slurm-support/our-services/">Support and Training</a></li>
+						<li><a href="troubleshoot.html">Troubleshooting</a></li>
+					</ul>
+				</li>
+			</ul>
+
+		</nav>
+
+	</header>
+
+	<div class="content" role="main">
+		<section class="slurm-search">
+			<div class="container" id="cse">
+				<gcse:search></gcse:search>
+			</div>
+		</section>
+
+		<div class="section">
+			<div class="container">
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<H1>topology.conf</H1>
+Section: Slurm Configuration File (5)<BR>Updated: Slurm Configuration File<BR><A HREF="#index">Index</A>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<h2>NAME<a class="slurm_link" id="SECTION_NAME" href="#SECTION_NAME"></a></h2>
+topology.conf -  Slurm configuration file for the topology plugins
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<h2>DESCRIPTION<a class="slurm_link" id="SECTION_DESCRIPTION" href="#SECTION_DESCRIPTION"></a></h2>
+<P>
+<B>topology.conf</B> is an ASCII file which describes the
+cluster's network topology for optimized job resource allocation.
+The file will always be located in the same directory as the <B>slurm.conf</B>.
+<P>
+
+Parameter names are case insensitive.
+Any text following a &quot;#&quot; in the configuration file is treated
+as a comment through the end of that line.
+Changes to the configuration file take effect upon restart of
+Slurm daemons, daemon receipt of the SIGHUP signal, or execution
+of the command &quot;scontrol reconfigure&quot; unless otherwise noted.
+<P>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<h2>topology/tree<a class="slurm_link" id="SECTION_topology/tree" href="#SECTION_topology/tree"></a></h2>
+<P>
+The network topology configuration, each line defining a switch name and
+its children, either node names or switch names.
+Slurm's hostlist expression parser is used, so the node and switch
+names need not be consecutive (e.g. &quot;Nodes=tux[0-3,12,18-20]&quot;
+and &quot;Switches=s[0-2,4-8,12]&quot; will parse fine).
+An optional link speed may also be specified.
+<P>
+<P>
+
+All nodes in the
+network must be connected to at least one switch. The network must be fully
+connected to use <B>TopologyParam=RouteTree</B>. Jobs can only span nodes
+connected by the same switch fabric, even if there are available idle nodes
+in other areas of the cluster.
+<P>
+<P>
+
+The <B>topology.conf</B> file for an Infiniband switch can be
+automatically generated using the <B>slurmibtopology</B> tool found here:
+&lt;<A HREF="https://github.com/OleHolmNielsen/Slurm_tools/tree/master/slurmibtopology">https://github.com/OleHolmNielsen/Slurm_tools/tree/master/slurmibtopology</A>&gt;.
+<P>
+<P>
+
+The overall configuration parameters available for topology/tree include:
+<P>
+<DL COMPACT>
+<dt><B>SwitchName</B><a class="slurm_link" id="OPT_SwitchName" href="#OPT_SwitchName"></a></dt><dd>The name of a switch. This name is internal to Slurm and arbitrary.
+Each switch should have a unique name.
+This field must be specified.
+<DT><DD>
+<P>
+<dt><B>Switches</B><a class="slurm_link" id="OPT_Switches" href="#OPT_Switches"></a></dt><dd>Child switches of the named switch.
+Either this option or the <B>Nodes</B> option must be specified.
+<DT><DD>
+<P>
+<dt><B>Nodes</B><a class="slurm_link" id="OPT_Nodes" href="#OPT_Nodes"></a></dt><dd>Child Nodes of the named leaf switch.
+Either this option or the <B>Switches</B> option must be specified.
+<DT><DD>
+<P>
+<dt><B>LinkSpeed</B><a class="slurm_link" id="OPT_LinkSpeed" href="#OPT_LinkSpeed"></a></dt><dd>An optional value specifying the performance of this communication link.
+The units used are arbitrary and this information is currently not used.
+It may be used in the future to optimize resource allocations.
+<DT><DD>
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<h2>topology/block<a class="slurm_link" id="SECTION_topology/block" href="#SECTION_topology/block"></a></h2>
+<P>
+<P>
+
+The network topology configuration, each line defining a block name and
+its children node names.
+Slurm's hostlist expression parser is used, so the node
+names need not be consecutive (e.g. &quot;Nodes=tux[0-3,12,18-20]&quot;).
+<P>
+<P>
+
+This topology plugin places emphasis on reducing fragmentation of the
+cluster, allowing jobs to take advantage of lower-latency connections
+between smaller &quot;blocks&quot; of node, rather than starting jobs as quickly
+as possible on the first available resources.
+<P>
+<P>
+
+Defined blocks of nodes are paired with other contiguous blocks, to create
+a higher level block of nodes. These larger blocks can then be paired with
+other blocks at the same level for bigger and bigger blocks of contiguous
+nodes with optimized communication between them. Levels are defined as
+level 0 being a single defined block, level 1 being a pair of blocks,
+level 2 being a group of 4 blocks, or as many as can be grouped together
+if there are an uneven number of blocks, level 3 being a group of (up to)
+8 blocks, etc. You can define how many levels you want to enforce jobs
+remain contiguous across with <B>BlockLevels</B>.
+<P>
+<P>
+
+The overall configuration parameters available for topology/block include:
+<P>
+<DL COMPACT>
+<dt><B>BlockName</B><a class="slurm_link" id="OPT_BlockName" href="#OPT_BlockName"></a></dt><dd>The name of a block. This name is internal to Slurm and arbitrary.
+Each block should have a unique name.
+This field must be specified.
+<DT><DD>
+<P>
+<dt><B>Nodes</B><a class="slurm_link" id="OPT_Nodes_1" href="#OPT_Nodes_1"></a></dt><dd>Child Nodes of the named block.
+This must be specified along with the <B>BlockName</B>.
+<DT><DD>
+<P>
+<dt><B>BlockLevels</B><a class="slurm_link" id="OPT_BlockLevels" href="#OPT_BlockLevels"></a></dt><dd>List of enforced levels of block aggregation.
+<DT><DD>
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<h2>EXAMPLE<a class="slurm_link" id="SECTION_EXAMPLE" href="#SECTION_EXAMPLE"></a></h2>
+<PRE>
+##################################################################
+# Slurm's network topology configuration file for use with the
+# topology/tree plugin
+##################################################################
+SwitchName=s0 Nodes=dev[0-5]
+SwitchName=s1 Nodes=dev[6-11]
+SwitchName=s2 Nodes=dev[12-17]
+SwitchName=s3 Switches=s[0-2]
+</PRE>
+
+<P>
+<PRE>
+##################################################################
+# Slurm's network topology configuration file for use with the
+# topology/block plugin
+##################################################################
+BlockName=block1 Nodes=node[01,05,09,13]
+BlockName=block2 Nodes=node[02,06,10,14]
+BlockName=block3 Nodes=node[03,07,11,15]
+BlockName=block4 Nodes=node[04,08,12,16]
+
+BlockLevels=0-1,2
+</PRE>
+
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<h2>COPYING<a class="slurm_link" id="SECTION_COPYING" href="#SECTION_COPYING"></a></h2>
+Copyright (C) 2009 Lawrence Livermore National Security.
+Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
+<BR>
+
+Copyright (C) 2010-2023 SchedMD LLC.
+<P>
+
+This file is part of Slurm, a resource management program.
+For details, see &lt;<A HREF="https://slurm.schedmd.com/">https://slurm.schedmd.com/</A>&gt;.
+<P>
+
+Slurm is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+<P>
+
+Slurm is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<h2>SEE ALSO<a class="slurm_link" id="SECTION_SEE-ALSO" href="#SECTION_SEE-ALSO"></a></h2>
+<P>
+
+<B><A HREF="slurm.conf.html">slurm.conf</A></B>(5)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">topology/tree</A><DD>
+<DT><A HREF="#lbAE">topology/block</A><DD>
+<DT><A HREF="#lbAF">EXAMPLE</A><DD>
+<DT><A HREF="#lbAG">COPYING</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<i>man2html</i> using the manual pages.<BR>
+Time: 19:54:59 GMT, September 12, 2023
+			</div> <!-- END .container -->
+		</div> <!-- END .section -->
+	</div> <!-- END .content -->
+</div> <!-- END .main -->
+
+</body>
+</html>

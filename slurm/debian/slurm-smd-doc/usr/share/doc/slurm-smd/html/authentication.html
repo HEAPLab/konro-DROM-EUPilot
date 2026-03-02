@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Slurm Workload Manager - </title>
+	<link rel="canonical" href="https://slurm.schedmd.com/authentication.html">
+
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link rel="stylesheet" type="text/css" href="fonts.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="slurm.css">
+
+	<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.menu-trigger').bind('click touchstart', function() {
+			jQuery(this).find('.menu-trigger__lines').toggleClass('menu-trigger__lines--closed');
+			jQuery(this).parents('.site-header').find('.site-nav').toggleClass('site-nav--active');
+
+			return false;
+		});
+	});
+	</script>
+	<script async src="https://cse.google.com/cse.js?cx=011890816164765777536:jvrtxrd3f0w"></script>
+</head>
+
+<body>
+
+<div class="container container--main">
+
+	<header class="site-header" role="banner">
+
+		<div class="site-masthead">
+			<h1 class="site-masthead__title site-masthead__title--slurm">
+				<a href="/" rel="home">
+					<span class="slurm-logo">Slurm Workload Manager</span>
+				</a>
+			</h1>
+			<div class="site-masthead__title">
+				<a href="https://www.schedmd.com/" rel="home">
+					<span class="site-logo">SchedMD</span>
+				</a>
+			</div>
+
+			<button class="site-masthead__trigger menu-trigger" type="button" role="button" aria-label="Toggle Navigation"><span class="menu-trigger__lines"></span></button>
+		</div>
+
+
+		<nav class="site-nav" role="navigation">
+			<h2 class="site-nav__title">Navigation</h2>
+
+			<div class="slurm-title">
+				<div class="slurm-logo"><a href="/">Slurm Workload Manager</a></div>
+				<div class="slurm-title__version">Version 23.11</div>
+			</div>
+
+			<ul class="site-nav__menu site-menu menu">
+				<li class="site-menu__item">
+				        <div>About</div>
+					<ul>
+						<li><a href="overview.html">Overview</a></li>
+						<li><a href="release_notes.html">Release Notes</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Using</div>
+					<ul>
+						<li><a href="documentation.html">Documentation</a></li>
+						<li><a href="faq.html">FAQ</a></li>
+						<li><a href="publications.html">Publications</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Installing</div>
+					<ul>
+						<li><a href="https://www.schedmd.com/download-slurm/">Download</a></li>
+						<li><a href="related_software.html">Related Software</a></li>
+						<li><a href="quickstart_admin.html">Installation Guide</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Getting Help</div>
+					<ul>
+						<li><a href="mail.html">Mailing Lists</a></li>
+						<li><a href="https://www.schedmd.com/slurm-support/our-services/">Support and Training</a></li>
+						<li><a href="troubleshoot.html">Troubleshooting</a></li>
+					</ul>
+				</li>
+			</ul>
+
+		</nav>
+
+	</header>
+
+	<div class="content" role="main">
+		<section class="slurm-search">
+			<div class="container" id="cse">
+				<gcse:search></gcse:search>
+			</div>
+		</section>
+
+		<div class="section">
+			<div class="container">
+
+
+<h1><a id="top">Authentication Plugins</a></h1>
+
+<h2 id="Overview">Overview<a class="slurm_link" href="#Overview"></a></h2>
+
+<p>It is important to know that the Remote Procedure Calls (RPCs) that are
+received by Slurm are coming from trusted sources. There are a few different
+authentication mechanisms available within Slurm to verify the legitimacy and
+integrity of the requests.</p>
+
+<h2 id="munge">MUNGE<a class="slurm_link" href="#munge"></a></h2>
+
+<p>MUNGE can be used to create and validate credentials. It allows Slurm to
+authenticate the UID and GID of a request from another host that has matching
+users and groups. MUNGE libraries must exist when building Slurm in order for
+it to be able to use munge for authentication. All hosts in the cluster must
+have a shared cryptographic key.</p>
+
+<h4 id="munge_setup">Setup<a class="slurm_link" href="#munge_setup"></a></h4>
+
+<ol>
+<li>MUNGE requires that there be a shared key on the machines running
+slurmctld, slurmdbd and the nodes. You can create a key file by entering your
+own text or by generating random data:
+<pre>
+dd if=/dev/random of=/etc/munge/munge.key bs=1024 count=1
+</pre>
+</li>
+
+<li>This key should be owned by the "munge" user and should not be readable
+or writable by other users:
+<pre>
+chown munge:munge /etc/munge/munge.key
+chmod 400 /etc/munge/munge.key
+</pre>
+</li>
+
+<li>Distribute the key file to the machines on the cluster. It needs to be
+on the machines running slurmctld, slurmdbd, slurmd and any submit hosts
+you have configured. Use the distribution method of your choice.</li>
+
+<li>The "munge" service should be running on any machines that need to use it
+for authentication. It should be enabled and started on all the machines you
+distributed a key to:
+<pre>
+systemctl enable munge
+systemctl start munge
+</pre>
+</li>
+
+<li>Changing the authentication mechanism requires a restart of Slurm daemons.
+The daemons need to be stopped before updating the slurm.conf so that client
+commands do not use a mechanism other than what the running daemons are
+expecting.</li>
+
+<li>Update your slurm.conf and slurmdbd.conf to use MUNGE authentication:
+<pre>
+AuthType = auth/munge
+CredType = cred/munge
+</pre>
+</li>
+
+<li>Start the Slurm daemons back up with the appropriate method for your
+cluster.</li>
+</ol>
+
+<h2 id="slurm">Slurm<a class="slurm_link" href="#slurm"></a></h2>
+
+<p>Beginning with version 23.11, Slurm has its own plugin that can create and
+validate credentials. It validates that the requests come from legitimate UIDs
+and GIDs on other hosts with matching users and groups. All hosts in the
+cluster must have a shared cryptographic key.</p>
+
+<h4 id="slurm_setup">Setup<a class="slurm_link" href="#slurm_setup"></a></h4>
+
+<ol>
+<li>For the authentication to happen correctly you must have a shared key on
+the machine running slurmctld, slurmdbd and the nodes. You can create a key
+file by entering your own text or by generating random data:
+<pre>
+dd if=/dev/random of=/etc/slurm/slurm.key bs=1024 count=1
+</pre>
+</li>
+
+<li>This key should be owned by SlurmUser and should not be readable or
+writable by other users. This example assumes the SlurmUser is 'slurm':
+<pre>
+chown slurm:slurm /etc/slurm/slurm.key
+chmod 600 /etc/slurm/slurm.key
+</pre>
+</li>
+
+<li>Distribute the key file to the machines on the cluster. It needs to be
+on the machines running slurmctld, slurmdbd, slurmd and sackd.</li>
+
+<li>Update your slurm.conf and slurmdbd.conf to use the Slurm authentication
+type:
+<pre>
+AuthType = auth/slurm
+CredType = cred/slurm
+</pre>
+</li>
+
+<li>Start the daemons back up with the appropriate method for your cluster.</li>
+</ol>
+
+<p>If the cluster does not have access to consistent user ids from LDAP or
+the operating system, you can use the
+<a href="slurm.conf.html#OPT_use_client_ids">use_client_ids</a> option to
+allow it to use the Slurm authentication mechanism.</p>
+
+<h4 id="sack">SACK<a class="slurm_link" href="#sack"></a></h4>
+
+<p>Slurm's internal authentication makes use of a subsystem &mdash; the
+<b>S</b>lurm <b>A</b>uth and <b>C</b>red <b>K</b>iosk (SACK) &mdash;
+that is responsible for handling requests from the <b>auth/slurm</b> and
+<b>cred/slurm</b> plugins. This subsystem is automatically started and managed
+internally by the slurmctld, slurmdbd, and slurmd daemons on each system with no
+need to run a separate daemon.</p>
+
+<p>For login nodes not running one of these Slurm daemons, the <b>sackd</b>
+daemon should be run to allow the Slurm client commands to authenticate to
+the rest of the cluster. This daemon can also manage cached configuration files
+for <a href="configless_slurm.html">configless</a> environments.</p>
+
+<h2 id="jwt">JWT<a class="slurm_link" href="#jwt"></a></h2>
+
+<p>Slurm can be configured to use JSON Web Tokens (JWT) for authentication
+purposes. This is configured with the AuthAltType parameter and is used only
+for client to server communication. You can read more about this authentication
+mechanism and how to install it <a href="jwt.html">here</a>.</p>
+
+<p style="text-align:center;">Last modified 12 March 2024</p>
+
+			</div> <!-- END .container -->
+		</div> <!-- END .section -->
+	</div> <!-- END .content -->
+</div> <!-- END .main -->
+
+</body>
+</html>
+

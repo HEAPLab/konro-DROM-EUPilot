@@ -1,0 +1,20 @@
+{ global:
+   islurm_*;
+   sack_*;
+   slurm_*;
+   slurmdb_*;
+   plugin_context_*;
+   working_cluster_rec;
+   node_record_count;
+   active_node_record_count;
+   node_record_table_ptr;
+   switch_record_cnt;
+   switch_levels;
+   switch_record_table;
+   bblock_node_cnt;
+   block_levels;
+   block_record_cnt;
+   block_record_table;
+   blocks_nodes_bitmap;
+  local: *;
+};

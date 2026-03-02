@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Slurm Workload Manager - job_container/tmpfs</title>
+	<link rel="canonical" href="https://slurm.schedmd.com/job_container_tmpfs.html">
+
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link rel="stylesheet" type="text/css" href="fonts.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="slurm.css">
+
+	<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.menu-trigger').bind('click touchstart', function() {
+			jQuery(this).find('.menu-trigger__lines').toggleClass('menu-trigger__lines--closed');
+			jQuery(this).parents('.site-header').find('.site-nav').toggleClass('site-nav--active');
+
+			return false;
+		});
+	});
+	</script>
+	<script async src="https://cse.google.com/cse.js?cx=011890816164765777536:jvrtxrd3f0w"></script>
+</head>
+
+<body>
+
+<div class="container container--main">
+
+	<header class="site-header" role="banner">
+
+		<div class="site-masthead">
+			<h1 class="site-masthead__title site-masthead__title--slurm">
+				<a href="/" rel="home">
+					<span class="slurm-logo">Slurm Workload Manager</span>
+				</a>
+			</h1>
+			<div class="site-masthead__title">
+				<a href="https://www.schedmd.com/" rel="home">
+					<span class="site-logo">SchedMD</span>
+				</a>
+			</div>
+
+			<button class="site-masthead__trigger menu-trigger" type="button" role="button" aria-label="Toggle Navigation"><span class="menu-trigger__lines"></span></button>
+		</div>
+
+
+		<nav class="site-nav" role="navigation">
+			<h2 class="site-nav__title">Navigation</h2>
+
+			<div class="slurm-title">
+				<div class="slurm-logo"><a href="/">Slurm Workload Manager</a></div>
+				<div class="slurm-title__version">Version 23.11</div>
+			</div>
+
+			<ul class="site-nav__menu site-menu menu">
+				<li class="site-menu__item">
+				        <div>About</div>
+					<ul>
+						<li><a href="overview.html">Overview</a></li>
+						<li><a href="release_notes.html">Release Notes</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Using</div>
+					<ul>
+						<li><a href="documentation.html">Documentation</a></li>
+						<li><a href="faq.html">FAQ</a></li>
+						<li><a href="publications.html">Publications</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Installing</div>
+					<ul>
+						<li><a href="https://www.schedmd.com/download-slurm/">Download</a></li>
+						<li><a href="related_software.html">Related Software</a></li>
+						<li><a href="quickstart_admin.html">Installation Guide</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Getting Help</div>
+					<ul>
+						<li><a href="mail.html">Mailing Lists</a></li>
+						<li><a href="https://www.schedmd.com/slurm-support/our-services/">Support and Training</a></li>
+						<li><a href="troubleshoot.html">Troubleshooting</a></li>
+					</ul>
+				</li>
+			</ul>
+
+		</nav>
+
+	</header>
+
+	<div class="content" role="main">
+		<section class="slurm-search">
+			<div class="container" id="cse">
+				<gcse:search></gcse:search>
+			</div>
+		</section>
+
+		<div class="section">
+			<div class="container">
+
+
+<h1>job_container/tmpfs</h1>
+
+<h2 id="overview">Overview<a class="slurm_link" href="#overview"></a></h2>
+<p>job_container/tmpfs is an optional plugin that provides job-specific, private
+temporary file system space.</p>
+
+<p>When enabled on the cluster, a filesytem namespace will be created for each
+job with a unique, private instance of /tmp and /dev/shm for the job to use.
+These directories can be changed with the <b>Dirs=</b> option in
+job_container.conf. The contents of these directories will be removed at job
+termination.</p>
+
+<h2 id="installation">Installation
+<a class="slurm_link" href="#installation"></a>
+</h2>
+<p>This plugin is built and installed as part of the default build, no extra
+installation steps are required.</p>
+
+<h2 id="setup">Setup<a class="slurm_link" href="#setup"></a></h2>
+<p>Slurm must be configured to load the job container plugin by adding
+<b>JobContainerType=job_container/tmpfs</b> and <b>PrologFlags=contain</b> in
+slurm.conf. Additional configuration must be done in the job_container.conf
+file, which should be placed in the same directory as slurm.conf.</p>
+
+<p>Job containers can be configured for all nodes, or for a subset of nodes.
+As an example, if all nodes will be configured the same way, you would put the
+following in your job_container.conf:</p>
+
+<pre>
+AutoBasePath=true
+BasePath=/var/nvme/storage
+</pre>
+
+<p>A full description of the parameters available in the job_container.conf
+file can be found <a href="job_container.conf.html">here</a>.</p>
+
+<h2 id="initial_testing">Initial Testing
+<a class="slurm_link" href="#initial_testing"></a>
+</h2>
+<p>An easy way to verify that the container is working is to run a job and
+ensure that the /tmp directory is empty (since it normally has some other
+files) and that "." is owned by the user that submitted the job.</p>
+<pre>
+tim@slurm-ctld:~$ srun ls -al /tmp
+total 8
+drwx------  2 tim    root 4096 Feb 10 17:14 .
+drwxr-xr-x 21 root   root 4096 Nov 15 08:46 ..
+</pre>
+
+<p>While a job is running, root should be able to confirm that
+<code>/$BasePath/$JobID/_tmp</code> exists and is empty. This directory is bind
+mounted into the job. <code>/$BasePath/$JobID</code> should be owned by root,
+and is not intended to be accessible to the user.</p>
+
+<h2 id="spank">SPANK<a class="slurm_link" href="#spank"></a></h2>
+<p>This plugin interfaces with the SPANK api, and automatically joins the job's
+container in the following functions:</p>
+<ul>
+<li>spank_task_init_privileged()</li>
+<li>spank_task_init()</li>
+</ul>
+
+<p>In addition to the job itself, the TaskProlog will also be executed inside
+the container.</p>
+
+<p style="text-align:center;">Last modified 29 November 2023</p>
+
+			</div> <!-- END .container -->
+		</div> <!-- END .section -->
+	</div> <!-- END .content -->
+</div> <!-- END .main -->
+
+</body>
+</html>
+

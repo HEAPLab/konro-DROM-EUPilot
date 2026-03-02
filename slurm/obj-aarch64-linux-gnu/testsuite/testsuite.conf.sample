@@ -1,0 +1,11 @@
+# Slurm Source Directory (contains configure.ac and the src directory)
+SlurmSourceDir=/home/christian/slurm-23.11.6/obj-aarch64-linux-gnu/..
+
+# Slurm Build Directory (where you ran configure and make from)
+SlurmBuildDir=/home/christian/slurm-23.11.6/obj-aarch64-linux-gnu
+
+# Slurm Installation Directory (value of --prefix configure option)
+SlurmInstallDir=/usr
+
+# Slurm Configuration Directory (compiled-in location of slurm.conf)
+SlurmConfigDir=/etc/slurm

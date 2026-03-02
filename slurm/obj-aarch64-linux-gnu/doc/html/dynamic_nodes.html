@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Slurm Workload Manager - Dynamic Nodes</title>
+	<link rel="canonical" href="https://slurm.schedmd.com/dynamic_nodes.html">
+
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link rel="stylesheet" type="text/css" href="fonts.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="slurm.css">
+
+	<script src="jquery.min.js"></script>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.menu-trigger').bind('click touchstart', function() {
+			jQuery(this).find('.menu-trigger__lines').toggleClass('menu-trigger__lines--closed');
+			jQuery(this).parents('.site-header').find('.site-nav').toggleClass('site-nav--active');
+
+			return false;
+		});
+	});
+	</script>
+	<script async src="https://cse.google.com/cse.js?cx=011890816164765777536:jvrtxrd3f0w"></script>
+</head>
+
+<body>
+
+<div class="container container--main">
+
+	<header class="site-header" role="banner">
+
+		<div class="site-masthead">
+			<h1 class="site-masthead__title site-masthead__title--slurm">
+				<a href="/" rel="home">
+					<span class="slurm-logo">Slurm Workload Manager</span>
+				</a>
+			</h1>
+			<div class="site-masthead__title">
+				<a href="https://www.schedmd.com/" rel="home">
+					<span class="site-logo">SchedMD</span>
+				</a>
+			</div>
+
+			<button class="site-masthead__trigger menu-trigger" type="button" role="button" aria-label="Toggle Navigation"><span class="menu-trigger__lines"></span></button>
+		</div>
+
+
+		<nav class="site-nav" role="navigation">
+			<h2 class="site-nav__title">Navigation</h2>
+
+			<div class="slurm-title">
+				<div class="slurm-logo"><a href="/">Slurm Workload Manager</a></div>
+				<div class="slurm-title__version">Version 23.11</div>
+			</div>
+
+			<ul class="site-nav__menu site-menu menu">
+				<li class="site-menu__item">
+				        <div>About</div>
+					<ul>
+						<li><a href="overview.html">Overview</a></li>
+						<li><a href="release_notes.html">Release Notes</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Using</div>
+					<ul>
+						<li><a href="documentation.html">Documentation</a></li>
+						<li><a href="faq.html">FAQ</a></li>
+						<li><a href="publications.html">Publications</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Installing</div>
+					<ul>
+						<li><a href="https://www.schedmd.com/download-slurm/">Download</a></li>
+						<li><a href="related_software.html">Related Software</a></li>
+						<li><a href="quickstart_admin.html">Installation Guide</a></li>
+					</ul>
+				</li>
+				<li class="site-menu__item">
+					<div>Getting Help</div>
+					<ul>
+						<li><a href="mail.html">Mailing Lists</a></li>
+						<li><a href="https://www.schedmd.com/slurm-support/our-services/">Support and Training</a></li>
+						<li><a href="troubleshoot.html">Troubleshooting</a></li>
+					</ul>
+				</li>
+			</ul>
+
+		</nav>
+
+	</header>
+
+	<div class="content" role="main">
+		<section class="slurm-search">
+			<div class="container" id="cse">
+				<gcse:search></gcse:search>
+			</div>
+		</section>
+
+		<div class="section">
+			<div class="container">
+
+
+<h1><a name="top">Dynamic Nodes</a></h1>
+
+<h2 id="overview">Overview<a class="slurm_link" href="#overview"></a></h2>
+
+<p>Starting in Slurm 22.05, nodes can be dynamically added and removed from
+Slurm.
+</p>
+
+<h2 id="communications">Dynamic Node Communications
+<a class="slurm_link" href="#communications"></a>
+</h2>
+<p>
+For regular, non-dynamically created nodes, Slurm knows how to communicate with
+nodes by reading in the slurm.conf. This is why it is important for a
+non-dynamic setup that the slurm.conf is synchronized across the cluster. For
+dynamically created nodes, The controller automatically grabs the node's
+<b>NodeAddr</b> and <b>NodeHostname</b> for dynamic slurmd registrations. The
+controller then passes the node addresses to the clients so that they
+communicate, and even fanout, to other nodes.
+</p>
+
+<h2 id="config">Slurm Configuration
+<a class="slurm_link" href="#config"></a>
+</h2>
+
+<p>
+<dl>
+<dt><b>MaxNodeCount=#</b>
+<dd>
+Set to the number of possible nodes that can be active in a system at a time.
+See the slurm.conf <a href="slurm.conf.html#OPT_MaxNodeCount">man</a> page for
+more details.
+
+<dt><b>SelectType=select/cons_tres</b>
+<dd>Dynamic nodes are only supported with cons_tres.
+</dl>
+</p>
+
+<h3 id="partitions">Partition Assignment
+<a class="slurm_link" href="#partitions"></a>
+</h3>
+<p>
+Dynamic nodes can be automatically assigned to partitions at creation by using
+the partition's nodes <a href="slurm.conf.html#OPT_Nodes_1">ALL</a> keyword or
+<a href="slurm.conf.html#SECTION_NODESET-CONFIGURATION">NodeSets</a> and
+specifying a feature on the nodes.
+</p>
+
+<p>
+e.g.
+<pre>
+Nodeset=ns1 Feature=f1
+Nodeset=ns2 Feature=f2
+
+PartitionName=all  Nodes=ALL Default=yes
+PartitionName=dyn1 Nodes=ns1
+PartitionName=dyn2 Nodes=ns2
+PartitionName=dyn3 Nodes=ns1,ns2
+</pre>
+</a>
+
+<h2 id="create">Creating Nodes
+<a class="slurm_link" href="#create"></a>
+</h2>
+
+<p>
+Nodes can be created two ways:
+<ol>
+<li>
+<dl>
+<dt><b>Dynamic slurmd registration</b>
+<dd>
+<p>Using the slurmd <a href="slurmd.html#OPT_-Z">-Z</a> and
+<a href="slurmd.html#OPT_conf-<node-parameters>">--conf</a> options a slurmd
+will register with the controller and will automatically be added to the system.
+</p>
+
+<p>
+e.g.
+<pre>
+slurmd -Z --conf "RealMemory=80000 Gres=gpu:2 Feature=f1"
+</pre>
+</p>
+
+</dl>
+</li>
+<li>
+<dl>
+<dt><b>scontrol create NodeName= ...</b>
+<dd>
+<p>Create nodes using scontrol by specifying the same <b>NodeName</b>
+line that you would define in the slurm.conf. See slurm.conf
+<a href="slurm.conf.html#SECTION_NODE-CONFIGURATION">man</a> page for node
+options. Only <b>State=CLOUD</b> and <b>State=FUTURE</b> are supported. The
+node configuration should match what the slurmd will register with
+(e.g. slurmd -C) plus any additional attributes.
+</p>
+
+</p>
+e.g.
+<pre>
+scontrol create NodeName=d[1-100] CPUs=16 Boards=1 SocketsPerBoard=1 CoresPerSocket=8 ThreadsPerCore=2 RealMemory=31848 Gres=gpu:2 Feature=f1 State=cloud
+</pre>
+</p>
+</dl>
+</li>
+</ol>
+</p>
+
+<h2 id="delete">Deleting Nodes
+<a class="slurm_link" href="#delete"></a>
+</h2>
+<p>
+Nodes can be deleted using <b>scontrol delete nodename=&lt;nodelist&gt;</b>.
+Only dynamic nodes that have no running jobs and that are not part of a
+reservation can be deleted.
+</p>
+
+<h2 id="limitations">Limitations
+<a class="slurm_link" href="#limitations"></a>
+</h2>
+<p>
+<ol>
+<li>
+Dynamic nodes are not sorted internally and when added to Slurm they will
+potentially be alphabetically out of order internally &mdash; leading to
+suboptimal job allocations if node names represent topology of the nodes.
+</li>
+</ol>
+</p>
+
+
+<p style="text-align:center;">Last modified 13 January 2024</p>
+
+			</div> <!-- END .container -->
+		</div> <!-- END .section -->
+	</div> <!-- END .content -->
+</div> <!-- END .main -->
+
+</body>
+</html>
+
