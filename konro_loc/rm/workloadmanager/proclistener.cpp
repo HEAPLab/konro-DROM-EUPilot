@@ -206,14 +206,21 @@ void ProcListener::forwardEvent(uint8_t *data, size_t len)
 
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
+    // Since Linux 6.6 the event enum (proc_cn_event) is no longer nested
+    // inside struct proc_event; PROC_EVENT_ALL was introduced in the same change.
+#ifdef PROC_EVENT_ALL
+#define KONRO_PROC_EV(name) name
+#else
+#define KONRO_PROC_EV(name) proc_event::name
+#endif
     switch (ev->what) {
-    case proc_event::PROC_EVENT_FORK:
+    case KONRO_PROC_EV(PROC_EVENT_FORK):
         bus_.publish(new ForkEvent(data, len));
         break;
-    case proc_event::PROC_EVENT_EXEC:
+    case KONRO_PROC_EV(PROC_EVENT_EXEC):
         bus_.publish(new ExecEvent(data, len));
         break;
-    case proc_event::PROC_EVENT_EXIT:
+    case KONRO_PROC_EV(PROC_EVENT_EXIT):
         bus_.publish(new ExitEvent(data, len));
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
