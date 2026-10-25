@@ -28,6 +28,8 @@ class ProcListener final {
     unsigned int nl_pid_;
     /*! stop flag for the thread */
     std::atomic_bool stop_;
+    /*! true when the Proc Connector is unavailable and /proc is polled instead */
+    std::atomic_bool pollingMode_;
     log4cpp::Category &cat_;
 
     /*!
@@ -67,6 +69,13 @@ class ProcListener final {
      * \brief Notifies the WorkloadManager of a new event
      */
     void forwardEvent(std::uint8_t *data, size_t len);
+
+    /*!
+     * \brief Fallback used when the kernel has no Proc Connector
+     *        (e.g. the Docker Desktop VM): periodically scans /proc and
+     *        generates an exit event for every process that disappears
+     */
+    void runProcPolling();
 
 public:
     explicit ProcListener(rmcommon::EventBus &eventBus);
