@@ -38,9 +38,10 @@ public:
         RandPolicy,
         PuProgressivePolicy,
         MinCoresPolicy,
-        DromRandPolicy
+        DromRandPolicy,
+        TalpDromPolicy
     };
-
+    
 private:
     log4cpp::Category &cat_;
     rmcommon::EventBus &bus_;

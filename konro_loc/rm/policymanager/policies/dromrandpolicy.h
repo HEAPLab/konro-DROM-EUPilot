@@ -13,6 +13,7 @@ namespace rp {
  * Assigns each new process to a random CPU core.
  */
 class DromRandPolicy : public IBasePolicy {
+protected:
     PlatformDescription platformDescription_;
     pc::DromCpusetControl& cpuSetControl;
 public:

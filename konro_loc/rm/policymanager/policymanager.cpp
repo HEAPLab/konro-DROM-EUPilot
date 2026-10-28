@@ -4,6 +4,7 @@
 #include "policies/puprogressivepolicy.h"
 #include "policies/mincorespolicy.h"
 #include "policies/dromrandpolicy.h"
+#include "policies/talpdrompolicy.h"
 #include "eventbus.h"
 #include <iostream>
 #include <sstream>
@@ -51,6 +52,11 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
         pol->start();
         return pol;
     }
+        case Policy::TalpDromPolicy: {
+        std::unique_ptr<TalpDromPolicy> pol = make_unique<TalpDromPolicy>(apps_, platformDescription_);
+        pol->start();
+        return pol;
+    }
     default:
         return make_unique<NoPolicy>();
         break;
@@ -67,6 +73,8 @@ PolicyManager::Policy PolicyManager::getPolicyByName(const std::string &policyNa
         return Policy::MinCoresPolicy;
     else if (policyName == "DromRandPolicy")
         return Policy::DromRandPolicy;
+    else if (policyName == "TalpDromPolicy")
+        return Policy::TalpDromPolicy;
 
     else
         return Policy::NoPolicy;
