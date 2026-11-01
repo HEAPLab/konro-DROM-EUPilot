@@ -1,6 +1,7 @@
 #include "backprop.h"
 #include "dlb.h"
 #include "dlb_talp.h"
+#include "drom_omp_binding.h"
 #include "feedback.h"
 #include "omp.h"
 #include <array>
@@ -45,6 +46,8 @@ int setup(int argc, char **argv) {
     i += 1;
   }
 
+  // apply the CPU masks assigned by Konro (DROM) to the OpenMP team
+  konro_drom_omp_init();
   pid_t t = getpid();
   printf("pid: %d\n", t);
 
