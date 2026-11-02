@@ -2,3 +2,4 @@ build/
 konro.log
 tools/build/
 experiments/results/
+__pycache__/
