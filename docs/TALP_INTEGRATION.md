@@ -83,6 +83,8 @@ No feedback message is needed with `TalpDromPolicy`.
 
 A Docker environment (Ubuntu 24.04, clang, LLVM libomp, DLB 3.8.0) is provided;
 it works on x86_64 and arm64 (tested on Apple Silicon).
+On a native Ubuntu 24.04 machine the same dependencies can be installed without
+Docker with `sudo bash docker/install-deps.sh`.
 
 ```bash
 docker build -t konro-talp -f docker/Dockerfile .
