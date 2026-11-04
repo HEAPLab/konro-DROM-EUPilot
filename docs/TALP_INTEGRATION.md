@@ -132,6 +132,7 @@ clang -O2 -o tools/build/talp_sampler tools/talp_sampler.c -ldlb
 ```
 
 `--privileged` is required because Konro moves each managed application into its own cgroup under `/sys/fs/cgroup`.
+On a native machine Konro must be started as root (`sudo`), for the same reason and because it listens to the kernel Proc Connector.
 
 To start Konro with the TALP policy and run the demonstrator manually:
 

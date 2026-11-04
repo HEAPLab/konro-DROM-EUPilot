@@ -22,7 +22,5 @@ then
     exit 1
 fi
 
-# env variables 
-export DLB_ARGS="--ompt --verbose=ompt --ompt-thread-manager=omp5 --drom"
-
-
+export OMP_TOOL_LIBRARIES=/usr/local/lib/libdlb.so
+export DLB_ARGS="--drom --ompt --ompt-thread-manager=none --talp=openmp --talp-external-profiler"
