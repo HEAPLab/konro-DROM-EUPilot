@@ -89,7 +89,8 @@ def main(results):
         ax.set_ylabel(label)
         ax.grid(axis="y", alpha=0.3)
     axes[0].legend()
-    fig.suptitle("Konro: random-feedback vs TALP-driven DROM policy")
+    fig.suptitle("Konro: random-feedback vs TALP-driven DROM policy "
+                 "(mean ± 1 std over repeated runs)")
     fig.tight_layout()
     out = os.path.join(results, "comparison.png")
     fig.savefig(out, dpi=120)
