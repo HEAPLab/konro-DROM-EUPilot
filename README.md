@@ -6,7 +6,7 @@ This repository contains the **Konro** resource manager, its integration with th
 
 ## Project Structure
 
-The project is divided into three main components. Each directory contains its own specific build instructions and dependencies:
+The project is divided into four main components. Each directory contains its own specific build instructions and dependencies:
 
 ### 1. [Konro Core](konro_loc/README.md)
 The central resource manager. It handles the core logic for resource allocation.
@@ -21,9 +21,8 @@ A sample application used to validate the integration.
 * **Location:** `konro_backprop_loc/`
 
 ### 4. [TALP integration](docs/TALP_INTEGRATION.md)
-Konro reads the applications' performance metrics from TALP (DLB) and uses them
-in the `TalpDromPolicy` to assign CPUs through DROM. Includes a Docker
-environment (`docker/`), tools (`tools/`) and the evaluation (`experiments/`).
+Konro reads the applications' performance metrics from TALP (DLB) and uses them to assign CPUs through DROM. 
+Includes a Docker environment (`docker/`), tools (`tools/`) and the evaluation (`experiments/`).
 * **Location:** `docs/TALP_INTEGRATION.md`
 
 ---
@@ -43,3 +42,7 @@ Navigate to the core directory and follow the build steps.
 ### Step 3: Build Backprop Test Case
 Navigate to the core directory and follow the build steps.
 > [Go to Konro Backprop README](konro_backprop_loc/README.md)
+
+### Step 4: TALP Integration (optional)
+Builds Konro, the demonstrator and the evaluation tools with TALP support, using the provided Docker environment or a native Ubuntu 24.04 machine.
+> [Go to TALP integration](docs/TALP_INTEGRATION.md#build-and-run)
