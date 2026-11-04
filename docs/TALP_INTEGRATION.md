@@ -180,11 +180,9 @@ python3 experiments/aggregate.py
 
 **Metrics:** 
 
-*Makespan*: time until all applications have finished.
-
-*Reserved CPU·s*: CPUs assigned over time. 
-
-*Efficiency*: useful CPU time over assigned CPU time.
+- *Makespan*: time until all applications have finished.
+- *Reserved CPU·s*: CPUs assigned over time. 
+- *Efficiency*: useful CPU time over assigned CPU time.
 
 ![Makespan and reserved CPU-seconds](img/comparison.png)
 
