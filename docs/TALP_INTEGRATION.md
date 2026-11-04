@@ -100,8 +100,8 @@ The application is compiled with OpenMP, with the helper header in the include p
 clang -O2 -fopenmp -I konro_loc/konrolib -o my_app my_app.c -ldlb
 ```
 
-`--talp-external-profiler` makes TALP publish its metrics in the shared memory read by Konro. `--ompt-thread-manager=none` is required: `drom_omp_binding.h`replaces DLB's OpenMP thread manager, and the two must not be active at the same time (see [Known issues]
-(#known-issues-with-dlb-38)).
+`--talp-external-profiler` makes TALP publish its metrics in the shared memory read by Konro. `--ompt-thread-manager=none` is required: `drom_omp_binding.h`replaces DLB's OpenMP thread manager, and the two must not be active at the same time 
+(see [Known issues](#known-issues-with-dlb-38)).
 
 ---
 
