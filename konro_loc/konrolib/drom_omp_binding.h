@@ -2,8 +2,8 @@
  * drom_omp_binding.h: applies the CPU masks assigned by Konro (via DROM) to an
  * OpenMP application. Header-only, usable from C and C++.
  *
- * Call konro_drom_omp_init() once, after the first OpenMP construct; afterwards every
- * DLB_PollDROM_Update() that finds a new mask:
+ * Call konro_drom_omp_init() once, after the first OpenMP construct; afterwards
+ * every DLB_PollDROM_Update() that finds a new mask:
  *   1. sets the number of OpenMP threads to the number of CPUs in the mask
  *   2. binds each OpenMP worker thread to one CPU of the mask
  *   3. lets the primary thread run on the whole mask (so that the process

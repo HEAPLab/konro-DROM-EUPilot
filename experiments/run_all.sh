@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs the whole evaluation: 3 scenarios x 2 policies, repeated N times.
 # Usage (inside the container, from the repository root):
-# experiments/run_all.sh [repetitions]  (default: 5, as in docs/TALP_INTEGRATION.md)
+#   experiments/run_all.sh [repetitions]   (default: 5, as in docs/TALP_INTEGRATION.md)
 # Then: python3 experiments/aggregate.py
 set -euo pipefail
 cd "$(dirname "$0")/.."

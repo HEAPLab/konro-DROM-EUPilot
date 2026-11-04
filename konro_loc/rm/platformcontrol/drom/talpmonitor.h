@@ -13,9 +13,10 @@ namespace pc {
  * \class reads the performance metrics that TALP (DLB) publishes for the
  * applications managed by Konro.
  *
- * Applications must run with DLB_ARGS="--talp --talp-external-profiler"
+ * Applications must run with DLB_ARGS="--talp=openmp --talp-external-profiler"
  * and publish their metrics periodically with DLB_MonitoringRegionsUpdate():
  * each publication is a heartbeat that Konro can observe.
+ * Used only by the policy thread, so it needs no locking.
  */
 class TalpMonitor {
 public:
@@ -24,15 +25,13 @@ public:
 
   /*!
    * Returns the average number of CPUs that the process kept busy with
-   * useful work between the last two heartbeats observed by Konro, or
-   * std::nullopt if no new heartbeat was published since the previous call.
+   * useful work since the previous call that returned a value, or
+   * std::nullopt if no new TALP data was published in the meantime.
    */
   std::optional<double> usefulCpus(pid_t pid);
 
   /*! Discards the history of a process (to be called when it exits) */
   void forget(pid_t pid);
-
-  bool isAttached() const { return attached_; }
 
 private:
   using Clock = std::chrono::steady_clock;
@@ -44,6 +43,7 @@ private:
   };
 
   TalpMonitor();
+  ~TalpMonitor();
   TalpMonitor(const TalpMonitor &) = delete;
   TalpMonitor &operator=(const TalpMonitor &) = delete;
 

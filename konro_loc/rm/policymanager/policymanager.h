@@ -41,7 +41,7 @@ public:
         DromRandPolicy,
         TalpDromPolicy
     };
-    
+
 private:
     log4cpp::Category &cat_;
     rmcommon::EventBus &bus_;

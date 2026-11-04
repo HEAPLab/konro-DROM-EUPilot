@@ -24,9 +24,17 @@ TalpDromPolicy::TalpDromPolicy(const AppMappingSet &apps, PlatformDescription pd
       lowEfficiency_(readTalpConfig("lowefficiency", 0.6)),
       highEfficiency_(readTalpConfig("highefficiency", 0.8)),
       backoffPeriods_(static_cast<int>(readTalpConfig("backoffperiods", 5))) {
+  log4cpp::Category &cat = log4cpp::Category::getRoot();
+  if (!(0.0 <= lowEfficiency_ && lowEfficiency_ < highEfficiency_) ||
+      backoffPeriods_ < 0) {
+    cat.warn("TALPDROMPOLICY invalid [talp] configuration, using the defaults");
+    lowEfficiency_ = 0.6;
+    highEfficiency_ = 0.8;
+    backoffPeriods_ = 5;
+  }
   // attach to TALP as soon as Konro starts
   pc::TalpMonitor::instance();
-  log4cpp::Category::getRoot().info(
+  cat.info(
       "TALPDROMPOLICY lowEfficiency=%.2f highEfficiency=%.2f backoffPeriods=%d",
       lowEfficiency_, highEfficiency_, backoffPeriods_);
 }

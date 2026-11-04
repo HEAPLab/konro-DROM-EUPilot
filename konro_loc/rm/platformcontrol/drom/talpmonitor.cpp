@@ -21,6 +21,12 @@ TalpMonitor::TalpMonitor()
   }
 }
 
+TalpMonitor::~TalpMonitor() {
+  if (attached_) {
+    DLB_TALP_Detach();
+  }
+}
+
 std::optional<double> TalpMonitor::usefulCpus(pid_t pid) {
   if (!attached_)
     return std::nullopt;
@@ -54,3 +60,4 @@ std::optional<double> TalpMonitor::usefulCpus(pid_t pid) {
 void TalpMonitor::forget(pid_t pid) { last_.erase(pid); }
 
 } // namespace pc
+

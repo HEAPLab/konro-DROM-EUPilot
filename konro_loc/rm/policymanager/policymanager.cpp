@@ -52,7 +52,7 @@ std::unique_ptr<IBasePolicy> PolicyManager::makePolicy(Policy policy)
         pol->start();
         return pol;
     }
-        case Policy::TalpDromPolicy: {
+    case Policy::TalpDromPolicy: {
         std::unique_ptr<TalpDromPolicy> pol = make_unique<TalpDromPolicy>(apps_, platformDescription_);
         pol->start();
         return pol;
