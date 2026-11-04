@@ -1,0 +1,3 @@
+# Only docker/install-deps.sh is needed to build the image
+*
+!docker/install-deps.sh
