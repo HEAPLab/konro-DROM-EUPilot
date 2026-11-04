@@ -129,7 +129,6 @@ cmake --build konro_backprop_loc/build --target install -j
 mkdir -p tools/build
 clang -O2 -fopenmp -o tools/build/talp_testapp tools/talp_testapp.c -ldlb
 clang -O2 -o tools/build/talp_sampler tools/talp_sampler.c -ldlb
-clang -O2 -o tools/build/talp_probe tools/talp_probe.c -ldlb
 ```
 
 `--privileged` is required because Konro moves each managed application into its own cgroup under `/sys/fs/cgroup`.
@@ -165,7 +164,6 @@ python3 experiments/aggregate.py
 | `experiments/plot.py`, `aggregate.py` | Per-run plots; mean ± standard deviation and comparison chart |
 | `tools/talp_sampler` | Records assigned CPUs (kernel affinity) and useful CPUs (TALP), independently of the policy |
 | `tools/talp_testapp` | Synthetic OpenMP application with a configurable serial fraction |
-| `tools/talp_probe` | Minimal TALP reader, for diagnostics |
 
 ---
 

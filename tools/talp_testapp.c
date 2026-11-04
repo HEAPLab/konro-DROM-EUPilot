@@ -10,8 +10,9 @@
  *
  * Like backprop, it applies the CPU mask assigned by Konro (DROM) at the
  * start of every iteration and publishes its TALP metrics at the end
- * (heartbeat).
+ * (heartbeat). Unlike backprop, it sends no feedback to Konro.
  *
+ * Build: clang -O2 -fopenmp -o talp_testapp talp_testapp.c -ldlb
  * Usage: talp_testapp <iterations> <work_ms_per_iteration> <serial_fraction>
  */
 #include "../konro_loc/konrolib/drom_omp_binding.h"
@@ -34,18 +35,19 @@ static double now_s(void) {
 static void spin(double seconds) {
     volatile double x = 0;
     double end = now_s() + seconds;
-    while (now_s() < end) x += 1.0;
+    while (now_s() < end)
+        x += 1.0;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        fprintf(stderr, "usage: %s <iterations> <work_ms_per_iteration> <serial_fraction>\n",
-                argv[0]);
+    int iterations = argc == 4 ? atoi(argv[1]) : 0;
+    double work = argc == 4 ? atof(argv[2]) / 1000.0 : 0.0;
+    double serial = argc == 4 ? atof(argv[3]) : -1.0;
+    if (iterations <= 0 || work <= 0.0 || serial < 0.0 || serial > 1.0) {
+        fprintf(stderr, "usage: %s <iterations> <work_ms_per_iteration> "
+                        "<serial_fraction in [0,1]>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    int iterations = atoi(argv[1]);
-    double work = atof(argv[2]) / 1000.0;
-    double serial = atof(argv[3]);
 
     /* start the OpenMP runtime (and DLB, through OMPT), then let the CPU
      * masks assigned by Konro resize and bind the OpenMP team */
@@ -53,17 +55,17 @@ int main(int argc, char *argv[]) {
     { }
     int cb = konro_drom_omp_init();
     printf("konro_drom_omp_init: %s\n", DLB_Strerror(cb));
-    
+
     double start = now_s();
     for (int it = 0; it < iterations; ++it) {
         /* apply the CPU mask assigned by Konro (DROM), if it changed */
         int update = DLB_PollDROM_Update();
         double t0 = now_s();
 
-        spin(serial * work);                                  /* serial part */
+        spin(serial * work);                            /* serial part */
         #pragma omp parallel for schedule(dynamic, 1)
         for (int c = 0; c < CHUNKS; ++c)
-            spin((1.0 - serial) * work / CHUNKS);             /* parallel part */
+            spin((1.0 - serial) * work / CHUNKS);       /* parallel part */
 
         /* TALP heartbeat */
         DLB_MonitoringRegionsUpdate();
