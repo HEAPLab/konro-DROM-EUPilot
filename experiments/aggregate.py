@@ -6,7 +6,7 @@ Usage (from the repository root):
 
 Reads every <scenario>_<policy>_r<N> directory and writes, in results_dir:
     aggregate.md    mean +- standard deviation over the repetitions
-    comparison.png  runtime and reserved CPU-seconds, random vs TALP policy
+    comparison.png  makespan and reserved CPU-seconds, random vs TALP policy
 """
 import os
 import re
@@ -17,10 +17,10 @@ from collections import defaultdict
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.pyplot as plt  #noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from plot import load_samples, load_times, summarize  # noqa: E402
+from plot import load_samples, load_times, summarize  #noqa: E402
 
 RUN_RE = re.compile(r"^(?P<scenario>\w+?)_(?P<policy>rand|talp)_r(?P<rep>\d+)$")
 POLICY_NAME = {"rand": "random feedback", "talp": "TALP"}
