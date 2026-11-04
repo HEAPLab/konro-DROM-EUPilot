@@ -60,4 +60,3 @@ std::optional<double> TalpMonitor::usefulCpus(pid_t pid) {
 void TalpMonitor::forget(pid_t pid) { last_.erase(pid); }
 
 } // namespace pc
-
