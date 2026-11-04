@@ -1,6 +1,6 @@
 # Performance-Aware CPU Allocation with TALP
 
-This document describes how Konro uses **TALP** (Tracking Application Live Performance, part of BSC's [DLB](https://pm.bsc.es/dlb) library) as a heartbeat library to allocate CPUs through DROM according to the measured performance ofeach application.
+This document describes how Konro uses **TALP** (Tracking Application Live Performance, part of BSC's [DLB](https://pm.bsc.es/dlb) library) as a heartbeat library to allocate CPUs through DROM according to the measured performance of each application.
 
 ---
 
@@ -100,7 +100,7 @@ The application is compiled with OpenMP, with the helper header in the include p
 clang -O2 -fopenmp -I konro_loc/konrolib -o my_app my_app.c -ldlb
 ```
 
-`--talp-external-profiler` makes TALP publish its metrics in the shared memory read by Konro. `--ompt-thread-manager=none` is required: `drom_omp_binding.h`replaces DLB's OpenMP thread manager, and the two must not be active at the same time 
+`--talp-external-profiler` makes TALP publish its metrics in the shared memory read by Konro. `--ompt-thread-manager=none` is required: `drom_omp_binding.h` replaces DLB's OpenMP thread manager, and the two must not be active at the same time
 (see [Known issues](#known-issues-with-dlb-38)).
 
 ---

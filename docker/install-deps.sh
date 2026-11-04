@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Installs the build dependencies of Konro, the demonstrator and DLB (DROM + TALP) on Ubuntu 24.04. 
-# Used by docker/Dockerfile; on a native machine run 
-# it with sudo bash docker/install-deps.sh
+# Installs the build dependencies of Konro, the demonstrator and DLB (DROM + TALP)
+# on Ubuntu 24.04. Used by docker/Dockerfile; on a native machine run it with
+#   sudo bash docker/install-deps.sh
 set -euo pipefail
 
 DLB_VERSION="${DLB_VERSION:-v3.8.0}"
