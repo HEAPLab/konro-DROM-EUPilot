@@ -21,7 +21,7 @@ A sample application used to validate the integration.
 * **Location:** `konro_backprop_loc/`
 
 ### 4. [TALP integration](docs/TALP_INTEGRATION.md)
-Konro reads the applications' performance metrics from TALP (DLB) and uses them to assign CPUs through DROM. 
+Konro reads the applications' performance metrics from TALP (DLB) and uses them to assign CPUs through DROM.
 Includes a Docker environment (`docker/`), tools (`tools/`) and the evaluation (`experiments/`).
 * **Location:** `docs/TALP_INTEGRATION.md`
 
