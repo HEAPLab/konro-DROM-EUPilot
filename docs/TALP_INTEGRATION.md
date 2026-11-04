@@ -167,20 +167,24 @@ python3 experiments/aggregate.py
 
 ## Evaluation
 
-**Setup.** Apple M4 Pro, Docker Desktop Linux VM with 8 CPUs, Konro timer 2 s,
+**Setup:** Apple M4 Pro, Docker Desktop Linux VM with 8 CPUs, Konro timer 2 s,
 5 repetitions per configuration (mean ± standard deviation).
 
-**Workloads.**
+**Workloads:**
 - `backprop`: the existing demonstrator, with limited parallelism;
 - `scal`: `talp_testapp` with a 10% serial fraction, which scales well;
 - `mix`: both applications at the same time.
 
-**Baseline.** `DromRandPolicy` with the random feedback of `backprop`.
+**Baseline:** `DromRandPolicy` with the random feedback of `backprop`.
 `talp_testapp` sends no feedback, so under the baseline it keeps one CPU.
 
-**Metrics.** *Makespan*: time until all applications have finished.
-*Reserved CPU·s*: CPUs assigned over time. *Efficiency*: useful CPU time over
-assigned CPU time.
+**Metrics:** 
+
+*Makespan*: time until all applications have finished.
+
+*Reserved CPU·s*: CPUs assigned over time. 
+
+*Efficiency*: useful CPU time over assigned CPU time.
 
 ![Makespan and reserved CPU-seconds](img/comparison.png)
 
