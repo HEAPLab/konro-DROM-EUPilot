@@ -7,7 +7,8 @@ set -euo pipefail
 DLB_VERSION="${DLB_VERSION:-v3.8.0}"
 export DEBIAN_FRONTEND=noninteractive
 
-# clang + LLVM OpenMP (libomp): DLB follows OpenMP applications through OMPT, which GNU libgomp does not implement.
+# clang + LLVM OpenMP (libomp): DLB follows OpenMP applications through OMPT,
+# which GNU libgomp does not implement.
 apt-get update
 apt-get install -y --no-install-recommends \
     build-essential cmake pkg-config git ca-certificates \
