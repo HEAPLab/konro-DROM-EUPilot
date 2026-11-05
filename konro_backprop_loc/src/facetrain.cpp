@@ -1,5 +1,7 @@
 #include "backprop.h"
 #include "dlb.h"
+#include "dlb_talp.h"
+#include "drom_omp_binding.h"
 #include "feedback.h"
 #include "omp.h"
 #include <array>
@@ -29,12 +31,14 @@ void backprop_face() {
 }
 
 int setup(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr, "usage: backprop <num of input elements>\n");
+  if (argc != 2 && argc != 3) {
+    fprintf(stderr, "usage: backprop <num of input elements> [iterations]\n"
+                    "       iterations <= 0 or omitted: run forever\n");
     exit(0);
   }
 
   layer_size = atoi(argv[1]);
+  int iterations = argc == 3 ? atoi(argv[2]) : 0;
   int seed;
 
 #pragma omp for
@@ -42,16 +46,23 @@ int setup(int argc, char **argv) {
     i += 1;
   }
 
+  // apply the CPU masks assigned by Konro (DROM) to the OpenMP team
+  konro_drom_omp_init();
   pid_t t = getpid();
   printf("pid: %d\n", t);
 
-  for (auto feed : feedback{}) {
+  feedback randomFeedback;
+  for (int it = 0; iterations <= 0 || it < iterations; ++it) {
+    int feed = *randomFeedback;
     feed = feed == -1 ? 50 : (feed == 0 ? 100 : 150);
     int i = DLB_PollDROM_Update();
     printf("update %i\n", i);
     seed = 7;
     bpnn_initialize(seed);
     backprop_face();
+    // TALP heartbeat: publish the metrics collected during this iteration to
+    // the DLB shared memory, where Konro reads them (--talp-external-profiler)
+    DLB_MonitoringRegionsUpdate();
     konro::sendFeedbackMessage(feed);
     printf("feedback %i\n", feed);
   }

@@ -1,0 +1,11 @@
+# Build outputs (any directory named build/, e.g. konro_loc/build, tools/build)
+build/
+__pycache__/
+
+# Runtime outputs of Konro and of the experiments
+konro.log
+experiments/results/
+
+# Editor and operating system files
+.vscode/
+.DS_Store

@@ -9,6 +9,11 @@
 #include <cstring>
 #include <cerrno>
 #include <unistd.h>
+#include <dirent.h>
+#include <chrono>
+#include <cstdlib>
+#include <set>
+#include <thread>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <linux/netlink.h>
@@ -31,6 +36,8 @@ namespace wm {
 
 ProcListener::ProcListener(rmcommon::EventBus &eventBus) :
     bus_(eventBus),
+    stop_(false),
+    pollingMode_(false),
     cat_(log4cpp::Category::getRoot()) {
 }
 
@@ -206,14 +213,21 @@ void ProcListener::forwardEvent(uint8_t *data, size_t len)
 
     struct proc_event *ev = reinterpret_cast<struct proc_event *>(data);
 
+    // Since Linux 6.6 the event enum (proc_cn_event) is no longer nested
+    // inside struct proc_event; PROC_EVENT_ALL was introduced in the same change.
+#ifdef PROC_EVENT_ALL
+#define KONRO_PROC_EV(name) name
+#else
+#define KONRO_PROC_EV(name) proc_event::name
+#endif
     switch (ev->what) {
-    case proc_event::PROC_EVENT_FORK:
+    case KONRO_PROC_EV(PROC_EVENT_FORK):
         bus_.publish(new ForkEvent(data, len));
         break;
-    case proc_event::PROC_EVENT_EXEC:
+    case KONRO_PROC_EV(PROC_EVENT_EXEC):
         bus_.publish(new ExecEvent(data, len));
         break;
-    case proc_event::PROC_EVENT_EXIT:
+    case KONRO_PROC_EV(PROC_EVENT_EXIT):
         bus_.publish(new ExitEvent(data, len));
         break;
         /* Other event types: PROC_EVENT_NONE, PROC_EVENT_UID, PROC_EVENT_GID,
@@ -224,12 +238,62 @@ void ProcListener::forwardEvent(uint8_t *data, size_t len)
     }
 }
 
+namespace {
+
+/*! Returns the PIDs of all the processes currently listed in /proc */
+std::set<pid_t> listProcesses()
+{
+    std::set<pid_t> pids;
+    DIR *dir = opendir("/proc");
+    if (dir == nullptr)
+        return pids;
+    while (struct dirent *entry = readdir(dir)) {
+        char *end;
+        long pid = strtol(entry->d_name, &end, 10);
+        if (*end == '\0' && pid > 0)
+            pids.insert(static_cast<pid_t>(pid));
+    }
+    closedir(dir);
+    return pids;
+}
+
+}   // namespace
+
+void ProcListener::runProcPolling()
+{
+    constexpr auto POLL_PERIOD = std::chrono::milliseconds(200);
+
+    cat_.info("PROCLISTENER polling /proc every %d ms",
+              static_cast<int>(POLL_PERIOD.count()));
+    pollingMode_ = true;
+    std::set<pid_t> previous = listProcesses();
+    while (!stop_) {
+        std::this_thread::sleep_for(POLL_PERIOD);
+        std::set<pid_t> current = listProcesses();
+        for (pid_t pid : previous) {
+            if (current.count(pid) == 0) {
+                // build the same event the Proc Connector would have sent
+                struct proc_event ev;
+                memset(&ev, 0, sizeof(ev));
+                ev.what = KONRO_PROC_EV(PROC_EVENT_EXIT);
+                ev.event_data.exit.process_pid = pid;
+                ev.event_data.exit.process_tgid = pid;
+                forwardEvent(reinterpret_cast<uint8_t *>(&ev), sizeof(ev));
+            }
+        }
+        previous = std::move(current);
+    }
+    cat_.info("PROCLISTENER exiting");
+}
+
 void ProcListener::run()
 {
     cat_.info("PROCLISTENER running");
     nl_socket_ = createNetlinkSocket();
     if (nl_socket_ == -1) {
-        cat_.error("PROCLISTENER could not create Netlink socket %s", strerror(errno));
+        cat_.warn("PROCLISTENER could not create Netlink socket (%s): "
+                  "falling back to /proc polling", strerror(errno));
+        runProcPolling();
         return;
     }
     nl_pid_ = gettid();
@@ -269,6 +333,12 @@ void ProcListener::run()
 
 bool ProcListener::stop()
 {
+    if (pollingMode_) {
+    // no Netlink socket: the polling loop checks stop_ periodically
+    stop_ = true;
+    return true;
+    }
+
     // Sender
 
     cat_.debug("PROCLISTENER sending STOP message from thread %ld", (long)gettid());

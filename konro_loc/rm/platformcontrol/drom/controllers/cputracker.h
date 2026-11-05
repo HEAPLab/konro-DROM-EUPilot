@@ -2,6 +2,7 @@
 #define DROMCPUTRACKER_H
 
 #include "app.h"
+#include <cassert>
 #include <deque>
 #include <log4cpp/Category.hh>
 #include <map>

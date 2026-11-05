@@ -19,6 +19,7 @@ Our code implementation is an excerpt from backpropagation described in this lin
 - Insert DLB initialization in __facetrain.cpp::setup()__
 - Insert Konro Add request in __facetrain.cpp::setup()__
 - Insert the main computation kernel inside a loop and each time send new feedback following a fixed schedule in __facetrain.cpp::setup()__
+- Publish the TALP metrics at the end of each iteration (heartbeat) and apply the CPU masks assigned by Konro through `drom_omp_binding.h` in __facetrain.cpp::setup()__ (see [TALP integration](../docs/TALP_INTEGRATION.md))
   
 ## Feedback
 
@@ -34,7 +35,7 @@ Konro interpret these number as follow
 
 - CMake 3.1 or later
 - Clang++ 14 or later
-- dlb 3.2 or later
+- dlb 3.2 or later (3.8 for TALP support, see [TALP integration](../docs/TALP_INTEGRATION.md))
 - konro
 
 
@@ -53,12 +54,15 @@ cmake --build . --target install
 
 ## Run
 
-With Konro running in the background as daemon go to __./dist/bin__  and run
+With Konro running in the background as daemon go to __./dist/bin__ and run
 ```bash
 export OMP_NUM_THREADS=1
-export DLB_ARGS="--drom --ompt"
-./backprop 16500000
+export OMP_TOOL_LIBRARIES=/usr/local/lib/libdlb.so
+export DLB_ARGS="--drom --ompt --ompt-thread-manager=none --talp=openmp --talp-external-profiler"
+./runner ./backprop 16500000 [iterations]
 ```
+`iterations` is optional: without it backprop runs until it is stopped.
+The DLB options are explained in [TALP integration](../docs/TALP_INTEGRATION.md).
 
 ## Results
 
@@ -71,7 +75,3 @@ export DLB_ARGS="--drom --ompt"
 
 - **Schedule** `{100, 50, 50 , 150, 50, 50 , 150,50, 50 , 150, 50, 50 , 150, 100, 150, 150, 50, 150, 150, 50};`
   ![](img/cpuv2.png)
-
-
-
-

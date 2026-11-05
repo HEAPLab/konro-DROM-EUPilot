@@ -38,7 +38,8 @@ public:
         RandPolicy,
         PuProgressivePolicy,
         MinCoresPolicy,
-        DromRandPolicy
+        DromRandPolicy,
+        TalpDromPolicy
     };
 
 private:
