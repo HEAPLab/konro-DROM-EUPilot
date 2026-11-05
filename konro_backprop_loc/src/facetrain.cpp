@@ -60,8 +60,7 @@ int setup(int argc, char **argv) {
     seed = 7;
     bpnn_initialize(seed);
     backprop_face();
-    // TALP heartbeat: publish the metrics collected during this iteration to
-    // the DLB shared memory, where Konro reads them (--talp-external-profiler)
+    // TALP heartbeat: publish the metrics collected during this iteration to the DLB shared memory, where Konro reads them (--talp-external-profiler)
     DLB_MonitoringRegionsUpdate();
     konro::sendFeedbackMessage(feed);
     printf("feedback %i\n", feed);
