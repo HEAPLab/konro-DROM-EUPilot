@@ -1,13 +1,18 @@
 /*
- * Applies the CPU masks assigned by Konro (via DROM) to an OpenMP application. Header-only, usable from C and C++.
+ * Applies the CPU masks assigned by Konro (via DROM) to an OpenMP application.
+ * Header-only, usable from C and C++.
  *
- * Call konro_drom_omp_init() once, after the first OpenMP construct; afterwards every DLB_PollDROM_Update() that finds a new mask:
+ * Call konro_drom_omp_init() once, after the first OpenMP construct; afterwards
+ * every DLB_PollDROM_Update() that finds a new mask:
  *   1. sets the number of OpenMP threads to the number of CPUs in the mask
  *   2. binds each OpenMP worker thread to one CPU of the mask
- *   3. lets the primary thread run on the whole mask (so that the process affinity seen from outside, e.g. by `taskset -p`, matches the mask)
+ *   3. lets the primary thread run on the whole mask (so that the process
+ *      affinity seen from outside, e.g. by `taskset -p`, matches the mask)
  *
- * This replaces DLB's OMPT thread manager (--ompt-thread-manager=omp5), which changes the team size inside the OMPT parallel-begin callback: TALP has
- * already sized its per-thread arrays at that point, so a growing team corrupts the heap (DLB 3.8). Here the team is resized outside any parallel
+ * This replaces DLB's OMPT thread manager (--ompt-thread-manager=omp5), which
+ * changes the team size inside the OMPT parallel-begin callback: TALP has
+ * already sized its per-thread arrays at that point, so a growing team
+ * corrupts the heap (DLB 3.8). Here the team is resized outside any parallel
  * region, before the next one starts.
  */
 #ifndef KONRO_DROM_OMP_BINDING_H

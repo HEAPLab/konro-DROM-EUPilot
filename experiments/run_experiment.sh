@@ -41,6 +41,7 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 dlb_shm -d > /dev/null 2>&1 || true      # remove stale DLB shared memory
 
+# Konro must not inherit the applications' DLB settings
 (cd "$OUT" && DLB_ARGS="" OMP_TOOL_LIBRARIES="" exec "$KONRO" -c "$CONFIG" -l INFO > konro.out 2>&1) &
 KONRO_PID=$!
 sleep 2
@@ -55,6 +56,7 @@ for cmd in "$@"; do
   i=$((i + 1))
   (
     start=$(date +%s.%N)
+    # $cmd is not quoted on purpose: it is split into program and arguments
     "$RUNNER" $ROOT/$cmd > "$OUT/app$i.log" 2>&1
     end=$(date +%s.%N)
     echo "$i,\"$cmd\",$(awk "BEGIN { printf \"%.2f\", $end - $start }")" >> "$OUT/times.csv"

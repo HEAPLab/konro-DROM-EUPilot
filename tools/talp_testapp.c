@@ -1,12 +1,15 @@
 /*
- * Synthetic OpenMP application with a tunable serial fraction, used together with backprop to evaluate Konro's TALP-driven policy.
+ * Synthetic OpenMP application with a tunable serial fraction, used together
+ * with backprop to evaluate Konro's TALP-driven policy.
  *
  * Every iteration performs a fixed amount of work (work_ms of CPU time):
  *   - serial_fraction * work_ms    on one thread only
- *   - the rest split into chunks and shared among the OpenMP threads so the iteration time follows Amdahl's law:
+ *   - the rest split into chunks and shared among the OpenMP threads
+ * so the iteration time follows Amdahl's law:
  *   T(n) = work_ms * (serial_fraction + (1 - serial_fraction) / n)
  *
- * Like backprop, it applies the CPU mask assigned by Konro (DROM) at the start of every iteration and publishes its TALP metrics at the end (heartbeat).
+ * Like backprop, it applies the CPU mask assigned by Konro (DROM) at the start
+ * of every iteration and publishes its TALP metrics at the end (heartbeat).
  * Unlike backprop, it sends no feedback to Konro.
  *
  * Build: clang -O2 -fopenmp -o talp_testapp talp_testapp.c -ldlb
@@ -46,7 +49,8 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* start the OpenMP runtime (and DLB, through OMPT), then let the CPU masks assigned by Konro resize and bind the OpenMP team */
+    /* start the OpenMP runtime (and DLB, through OMPT), then let the CPU
+     * masks assigned by Konro resize and bind the OpenMP team */
     #pragma omp parallel
     { }
     int cb = konro_drom_omp_init();

@@ -1,10 +1,13 @@
 /*
- * Records, for every DLB process in the node, the number of CPUs assigned to it and the number of CPUs doing useful work (from TALP).
- * It does not depend on the Konro policy, so it measures all of them alike.
+ * Records, for every DLB process in the node, the number of CPUs assigned to
+ * it and the number of CPUs doing useful work (from TALP). It does not depend
+ * on the Konro policy, so it measures all of them alike.
  *
- *   assigned_cpus  CPUs in the affinity mask of the process main thread, which drom_omp_binding.h keeps equal to the DROM mask
- *   useful_cpus    TALP useful time accumulated since the previous sample of the process, divided by the elapsed time; empty when no new TALP
- *                  heartbeat arrived in the period
+ *   assigned_cpus  CPUs in the affinity mask of the process main thread,
+ *                  which drom_omp_binding.h keeps equal to the DROM mask
+ *   useful_cpus    TALP useful time accumulated since the previous sample of
+ *                  the process, divided by the elapsed time; empty when no
+ *                  new TALP heartbeat arrived in the period
  *
  * Output (CSV on stdout): time_s,pid,assigned_cpus,useful_cpus
  *

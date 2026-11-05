@@ -33,6 +33,7 @@ def fmt(values, digits=1):
 
 
 def main(results):
+    # data[(scenario, policy)][app] -> {"runtime": [...], "cpu_s": [...], "eff": [...]}
     data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     totals = defaultdict(lambda: defaultdict(list))   # makespan / total CPU*s per run
     for name in sorted(os.listdir(results)):
